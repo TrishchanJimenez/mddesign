@@ -1,5 +1,4 @@
 <?php
-session_start();
 include_once "role-validation.php";
 require_once "db_connection.php";
 
