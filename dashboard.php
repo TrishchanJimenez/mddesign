@@ -64,15 +64,26 @@ $recentlySoldResult = $conn->query($recentlySoldQuery);
 $recentlySoldProducts = $recentlySoldResult->fetch_all(MYSQLI_ASSOC);
 
 $weeklyRevenueQuery = "
+    WITH RECURSIVE week_dates AS (
+        SELECT 
+            DATE_SUB(CURDATE(), INTERVAL 2 MONTH) AS week_start,
+            LEAST(DATE_ADD(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), INTERVAL 6 DAY), CURDATE()) AS week_end
+        UNION ALL
+        SELECT 
+            DATE_ADD(week_start, INTERVAL 7 DAY),
+            LEAST(DATE_ADD(week_end, INTERVAL 7 DAY), CURDATE())
+        FROM week_dates
+        WHERE week_start < CURDATE() AND week_end < CURDATE()
+    )
     SELECT 
-        YEARWEEK(transaction_date, 1) AS year_week,
-        DATE_FORMAT(MIN(transaction_date), '%Y-%m-%d') AS week_start,
-        DATE_FORMAT(MAX(transaction_date), '%Y-%m-%d') AS week_end,
-        SUM(total_amount) AS weekly_revenue
-    FROM transactions
-    WHERE transaction_date >= DATE_SUB(CURDATE(), INTERVAL 2 MONTH)
-    GROUP BY year_week
-    ORDER BY year_week ASC
+        DATE_FORMAT(wd.week_start, '%b %e, %Y') AS week_start,
+        DATE_FORMAT(wd.week_end, '%b %e, %Y') AS week_end,
+        COALESCE(SUM(t.total_amount), 0) AS weekly_revenue
+    FROM week_dates wd
+    LEFT JOIN transactions t
+        ON t.transaction_date >= wd.week_start AND t.transaction_date <= wd.week_end
+    GROUP BY wd.week_start, wd.week_end
+    ORDER BY wd.week_start ASC;
 ";
 $weeklyRevenueResult = $conn->query($weeklyRevenueQuery);
 $weeklyRevenueData = $weeklyRevenueResult->fetch_all(MYSQLI_ASSOC);
@@ -492,7 +503,7 @@ $weeklyRevenueData = $weeklyRevenueResult->fetch_all(MYSQLI_ASSOC);
     });
 
     // Prepare data for Weekly Revenue (Line Chart)
-    const weeklyLabels = weeklyRevenueData.map(week => `${week.week_start} - ${week.week_end}`);
+    const weeklyLabels = weeklyRevenueData.map(week => `${week.week_end}`);
     const weeklyRevenues = weeklyRevenueData.map(week => week.weekly_revenue);
 
     // Render Weekly Revenue Chart
