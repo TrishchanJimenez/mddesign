@@ -1,0 +1,351 @@
+<?php
+    session_start();
+    $page_title = "Metro District Designs - Cart";
+    require_once "header.php";
+?>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+    }
+
+    .navbar {
+        background-color: #1E1E1E;
+        padding: 10px 0;
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        color: white !important;
+        font-weight: bold;
+    }
+
+    .navbar-nav {
+        flex-grow: 1;
+        justify-content: center;
+    }
+
+    .navbar-nav .nav-link {
+        color: white !important;
+        text-transform: uppercase;
+        font-weight: bold;
+        margin: 0 10px;
+    }
+
+    .cart-container {
+        max-width: 800px;
+        margin: 50px auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+
+    .order-item-image {
+        width: 100px;
+        height: 100px;
+        background-color: #d3d3d3;
+        margin-right: 15px;
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .quantity-btn {
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .quantity-input {
+        width: 50px !important;
+        text-align: center;
+        margin: 0 5px;
+    }
+
+    .checkout-btn {
+        width: 100%;
+        background-color: #1E1E1E;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+
+    .checkout-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+
+    .remove-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .item-details {
+        flex-grow: 1;
+    }
+    
+    .item-selection {
+        margin-right: 15px;
+    }
+    
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    /* Size and color styles */
+    .option-group {
+        margin-top: 5px;
+    }
+    
+    .option-label {
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    
+    .size-selector, .color-selector {
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+</style>
+<body>
+    <!-- Navbar -->
+    <?php require_once "navbar.php"; ?>
+
+    <!-- Cart Container -->
+    <div class="container">
+        <div class="cart-container">
+            <h2 class="mb-4">ORDERS</h2>
+            <div id="cart-items">
+                 
+            </div>
+            <button class="checkout-btn" id="checkout-btn" onclick="location.href='checkout-form.php'">Check Out</button>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            // Fetch cart data from localStorage
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Function to fetch stock data from the server
+            async function fetchStockData(productId) {
+                const response = await fetch(`api/get_stock.php?id=${productId}`);
+                const data = await response.json();
+                return data.stock || {};
+            }
+
+            async function renderCartItem(item, index) {
+                const stockData = await fetchStockData(item.id);
+                if(item.size && item.color) {
+                    if(cart[index]?.productId !== stockData[item.size][item.color].id) {
+                        cart[index].productId = stockData[item.size][item.color].id;
+                        updateCart();
+                    }
+                }
+
+                const cartItem = document.createElement('div');
+                cartItem.className = 'order-item';
+                cartItem.dataset.index = index; // Add a data attribute for easy identification
+                cartItem.innerHTML = `
+                    <div class="order-item-image">
+                        <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="item-details">
+                        <h5>${item.name}</h5>
+                        <p>Price: ₱<span class="item-price">${item.price}</span></p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="option-group">
+                                <span class="option-label">Size:</span>
+                                <select class="size-selector" data-index="${index}">
+                                    <option value="">Select Color</option>
+                                    ${Object.keys(stockData)
+                                        .filter(size => Object.values(stockData[size]).some(colorData => colorData.quantity > 0)) // Only show sizes with available stock
+                                        .map(size => `
+                                            <option value="${size}" ${size === item.size ? 'selected' : ''}>${size}</option>
+                                        `).join('')}
+                                </select>
+                            </div>
+                            <div class="option-group">
+                                <span class="option-label">Color:</span>
+                                <select class="color-selector" data-index="${index}" ${item.size ? '' : 'disabled'}>
+                                    <option value="">Select Color</option>
+                                    ${item.size && stockData[item.size] 
+                                        ? Object.keys(stockData[item.size])
+                                            .filter(color => stockData[item.size][color].quantity > 0) // Only show colors with available stock
+                                            .map(color => `
+                                                <option value="${color}" ${color === item.color ? 'selected' : ''}>${color}</option>
+                                            `).join('')
+                                        : ''}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="quantity-control">
+                                <button class="quantity-btn decrease-btn" data-index="${index}" ${!item.size || !item.color ? 'disabled' : ''}>-</button>
+                                <input type="text" class="quantity-input" value="${item.quantity}" max="${item.size && item.color ? stockData[item.size][item.color]?.quantity || 0 : 0}" readonly>
+                                <button class="quantity-btn increase-btn" data-index="${index}" ${!item.size || !item.color ? 'disabled' : ''}>+</button>
+                            </div>
+                            <button class="remove-btn" data-index="${index}">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return cartItem;
+            }
+
+            // Function to render cart items
+            async function renderCart() {
+                cartItemsContainer.innerHTML = ''; // Clear existing items
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = '<p>Your cart is empty. <a href="Products.php">Continue shopping</a>.</p>';
+                    checkoutBtn.disabled = true;
+                    return;
+                }
+
+                let allSelectionsValid = true;
+
+                for (let index = 0; index < cart.length; index++) {
+                    const item = cart[index];
+                    const cartItem = await renderCartItem(item, index);
+                    cartItemsContainer.appendChild(cartItem);
+
+                    if (!item.size || !item.color) {
+                        allSelectionsValid = false;
+                    }
+                }
+
+                checkoutBtn.disabled = !allSelectionsValid;
+            }
+
+            async function updateCartItem(index) {
+                const item = cart[index];
+                const existingItem = document.querySelector(`.order-item[data-index="${index}"]`);
+                if (existingItem) {
+                    const updatedItem = await renderCartItem(item, index);
+                    cartItemsContainer.replaceChild(updatedItem, existingItem);
+                } 
+            }
+
+            // Update cart in localStorage
+            function updateCart() {
+                localStorage.setItem('cart', JSON.stringify(cart));
+            }
+
+            cartItemsContainer.addEventListener('change', async function (event) {
+                const target = event.target;
+
+                if (target.classList.contains('size-selector')) {
+                    const index = parseInt(target.dataset.index, 10);
+                    const selectedSize = target.value;
+
+                    const cartItem = cart[index];
+
+                    cartItem.size = selectedSize;
+                    cartItem.quantity = 0;
+                    cartItem.color = ''; // Reset color when size changes
+                    checkoutBtn.disabled = true;
+                    updateCart();
+                    await updateCartItem(index);
+                }
+
+                if (target.classList.contains('color-selector')) {
+                    const index = parseInt(target.dataset.index, 10);
+                    const selectedColor = target.value;
+
+                    const cartItem = cart[index];
+
+                    cartItem.color = selectedColor;
+                    cartItem.quantity = 0;
+
+                    const allColorsSelected = cart.every(item => item.color && item.color.trim() !== "");
+                    checkoutBtn.disabled = !allColorsSelected;
+
+                    updateCart();
+                    await updateCartItem(index);
+                }
+            });
+
+            // Handle quantity changes
+            cartItemsContainer.addEventListener('click', async function (event) {
+                const target = event.target;
+
+                if (target.classList.contains('increase-btn')) {
+                    const index = parseInt(target.dataset.index, 10);
+                    const cartItem = cart[index];
+
+                    const quantityInput = target.previousElementSibling;
+                    const maxStock = parseInt(quantityInput.max);
+
+                    if (cartItem.quantity < maxStock) {
+                        cartItem.quantity++;
+                        quantityInput.value = cartItem.quantity;
+                        updateCart();
+                    } else {
+                        alert(`Only ${cartItem.quantity} item(s) are in stock`);
+                    }
+                }
+
+                if (target.classList.contains('decrease-btn')) {
+                    const index = parseInt(target.dataset.index, 10);
+                    const cartItem = cart[index];
+
+                    const quantityInput = target.nextElementSibling;
+
+                    if (cartItem.quantity > 1) {
+                        cartItem.quantity--;
+                        quantityInput.value = cartItem.quantity;
+                        updateCart();
+                    }
+                }
+
+                if (target.classList.contains('remove-btn')) {
+                    const index = parseInt(target.dataset.index, 10);
+
+                    cart.splice(index, 1); // Remove the item from the cart array
+                    updateCart();
+                    renderCart(); // Re-render the entire cart since the indices have changed
+                }
+            });
+
+            // Initial render
+            renderCart();
+        });
+    </script>
+</body>
+</html>
