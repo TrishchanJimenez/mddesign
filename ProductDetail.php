@@ -448,22 +448,24 @@ $price = $productDetails[0]['price'] ?? '0.00';
             $relatedProductsStmt->close();
         ?>
         <!-- Related Products -->
-        <div class="related-products">
-            <h3 class="mb-4">You May Also Like</h3>
-            <div class="row">
-                <?php foreach ($relatedProducts as $product): ?>
-                <div class="col-md-4 mb-4">
-                    <div class="related-product-card" onclick="location.href='ProductDetail.php?id=<?php echo $product['display_id'] ?>'">
-                        <img src="<?php echo $product['image_path']?>" alt="<?php echo $product['name']; ?>" class="related-product-img">
-                        <div class="related-product-info">
-                            <h5 class="related-product-title"><?php echo $product['name']; ?></h5>
-                            <div class="related-product-price">₱<?php echo $product['price']; ?></div>
+        <?php if(!empty($relatedProducts)): ?>
+            <div class="related-products">
+                <h3 class="mb-4">You May Also Like</h3>
+                <div class="row">
+                    <?php foreach ($relatedProducts as $product): ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="related-product-card" onclick="location.href='ProductDetail.php?id=<?php echo $product['display_id'] ?>'">
+                            <img src="<?php echo $product['image_path']?>" alt="<?php echo $product['name']; ?>" class="related-product-img">
+                            <div class="related-product-info">
+                                <h5 class="related-product-title"><?php echo $product['name']; ?></h5>
+                                <div class="related-product-price">₱<?php echo $product['price']; ?></div>
+                            </div>
                         </div>
                     </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 
     <!-- Bootstrap JS and Popper.js -->
