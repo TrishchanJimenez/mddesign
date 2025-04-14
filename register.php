@@ -14,6 +14,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
+    // Store old input in session
+    $_SESSION['old_input'] = [
+        'first_name' => $first_name,
+        'last_name' => $last_name,
+        'username' => $username,
+        'email' => $email,
+        'contact_number' => $contact_number,
+        'address' => $address,
+        'postal_code' => $postal_code,
+    ];
+
     // Basic validation
     $errors = [];
     if (empty($username)) $errors[] = "Username is required.";
@@ -44,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssssssss", $first_name, $last_name, $username, $email, $contact_number, $address, $postal_code, $hashed_password);
 
         if ($stmt->execute()) {
+            unset($_SESSION['old_input']); // Clear old input on success
             $_SESSION['success_message'] = "Registration successful! Please log in.";
             header("Location: Login.php");
             exit();

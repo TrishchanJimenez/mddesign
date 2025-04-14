@@ -147,18 +147,18 @@ require_once "db_connection.php";
         <form class="signup-form" action="register.php" method="POST">
             <div class="form-row">
                 <div class="form-group">
-                    <input type="text" name="first_name" placeholder="First Name" required>
+                    <input type="text" name="first_name" placeholder="First Name" value="<?php echo isset($_SESSION['old_input']['first_name']) ? htmlspecialchars($_SESSION['old_input']['first_name']) : ''; ?>" required>
                 </div>
                 <div class="form-group">
-                    <input type="text" name="last_name" placeholder="Last Name" required>
+                    <input type="text" name="last_name" placeholder="Last Name" value="<?php echo isset($_SESSION['old_input']['last_name']) ? htmlspecialchars($_SESSION['old_input']['last_name']) : ''; ?>" required>
                 </div>
             </div>
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="tel" name="contact_number" id="contact_number" placeholder="Contact Number (e.g., 09123456789)" pattern="^(09|\+639)\d{9}$" maxlength="11" required>
+            <input type="text" name="username" placeholder="Username" value="<?php echo isset($_SESSION['old_input']['username']) ? htmlspecialchars($_SESSION['old_input']['username']) : ''; ?>" required>
+            <input type="tel" name="contact_number" id="contact_number" placeholder="Contact Number (e.g., 09123456789)" pattern="^(09|\+639)\d{9}$" maxlength="11" value="<?php echo isset($_SESSION['old_input']['contact_number']) ? htmlspecialchars($_SESSION['old_input']['contact_number']) : ''; ?>" required>
             <div class="input-help-text">Enter a Philippine mobile number (e.g., 09123456789)</div>
-            <input type="email" name="email" placeholder="Email" required>
-            <textarea name="address" placeholder="Full Address" required></textarea>
-            <input type="number" name="postal_code" id="postal_code" placeholder="Postal Code" pattern="[0-9]*" inputmode="numeric" minlength="4" maxlength="4" required>
+            <input type="email" name="email" placeholder="Email" value="<?php echo isset($_SESSION['old_input']['email']) ? htmlspecialchars($_SESSION['old_input']['email']) : ''; ?>" required>
+            <textarea name="address" placeholder="Full Address" required><?php echo isset($_SESSION['old_input']['address']) ? htmlspecialchars($_SESSION['old_input']['address']) : ''; ?></textarea>
+            <input type="number" name="postal_code" id="postal_code" placeholder="Postal Code" pattern="[0-9]*" inputmode="numeric" minlength="4" maxlength="4" value="<?php echo isset($_SESSION['old_input']['postal_code']) ? htmlspecialchars($_SESSION['old_input']['postal_code']) : ''; ?>" required>
             <div class="input-help-text">Enter a 4-digit Philippine postal code</div>
             <input type="password" name="password" placeholder="Password" required>
             <input type="password" name="confirm_password" placeholder="Confirm Password" required>
@@ -201,6 +201,21 @@ require_once "db_connection.php";
             } else if (this.value.length > 0 && !this.value.startsWith('+')) {
                 // If it doesn't start with '+' or '0', prepend '09'
                 this.value = '9' + this.value;
+            }
+        });
+
+        const signupForm = document.querySelector('.signup-form');
+        signupForm.addEventListener('submit', function(e) {
+            const password = document.querySelector('input[name="password"]').value;
+            const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+
+            if (password !== confirmPassword) {
+                e.preventDefault(); // Prevent form submission
+                alert('Passwords do not match. Please try again.');
+            } else if(password.length < 8) {
+
+            } else {
+                signupForm.removeEventListener('submit', arguments.callee);
             }
         });
     </script>
