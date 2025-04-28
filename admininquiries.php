@@ -7,8 +7,8 @@
     <title>Metro District Designs - Admin Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #E5E4E2;
@@ -78,48 +78,6 @@
         }
 
         .sidebar {
-            background-color: #333;
-            color: white;
-            width: 250px;
-            position: fixed;
-            top: 56px;
-            bottom: 0;
-            left: 0;
-            padding: 20px 0;
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-menu li {
-            padding: 10px 20px;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .sidebar-menu li:hover {
-            background-color: #444;
-            border-left-color: #A99D9D;
-        }
-
-        .sidebar-menu li.active {
-            background-color: #444;
-            border-left-color: #A99D9D;
-        }
-
-        .sidebar-menu a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-
-        .sidebar {
             background-color: #1E1E1E;
             color: white;
             min-height: 100vh;
@@ -143,10 +101,33 @@
             background-color: #333333;
             border-left: 4px solid #0d6efd;
         }
+        
+        .sidebar-link i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
 
-        .sidebar-menu i {
+        .logo-container {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
             margin-right: 10px;
+            border-radius: 50%;
+        }
+        
+        .brand-name {
+            color: white;
+            font-weight: bold;
             font-size: 18px;
+            margin: 0;
         }
 
         .main-content {
@@ -431,33 +412,34 @@
     <div class="row g-0">
         <!-- Sidebar -->
         <div class="col-auto">
-    <div class="sidebar">
-        <div class="logo-container p-3 d-flex align-items-center">
-            <img src="/api/placeholder/40/40" class="logo me-2" alt="Logo">
-            <h5 class="brand-name text-white mb-0">Metro District Designs</h5>
+            <div class="sidebar">
+                <div class="logo-container">
+                    <img src="/api/placeholder/40/40" class="logo" alt="Logo">
+                    <h5 class="brand-name">Metro District Designs</h5>
+                </div>
+                <a href="dashboard.php" class="sidebar-link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="product-stock.php" class="sidebar-link">
+                    <i class="fas fa-box"></i> Product Stock
+                </a>
+                <a href="admininquiries.php" class="sidebar-link active">
+                    <i class="fas fa-envelope"></i> Inquiries
+                </a>
+                <a href="user-admin.php" class="sidebar-link">
+                    <i class="fas fa-users"></i> Account Manager
+                </a>
+                <a href="profile.php" class="sidebar-link">
+                    <i class="fas fa-user-cog"></i> Profile
+                </a>
+                <a href="index.php" class="sidebar-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="logout.php" class="sidebar-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
         </div>
-        <a href="dashboard.php" class="sidebar-link active">
-            <i class="bi bi-speedometer2 me-2"></i> Dashboard
-        </a>
-        <a href="product-stock.php" class="sidebar-link">
-            <i class="bi bi-box-seam me-2"></i> Product Stock
-        </a>
-        <a href="admininquiries.php" class="sidebar-link active">
-            <i class="bi bi-envelope me-2"></i> Inquiries
-        </a>
-        <a href="profile.php" class="sidebar-link">
-            <i class="bi bi-person-gear me-2"></i> Profile
-        </a>
-        <a href="homepage.php" class="sidebar-link">
-            <i class="bi bi-house me-2"></i> Home
-        </a>
-        <a href="logout.php" class="sidebar-link">
-            <i class="bi bi-box-arrow-right me-2"></i> Logout
-        </a>
-    </div>
-</div>
-
-        
 
     <!-- Main Content -->
     <div class="main-content">
@@ -474,11 +456,11 @@
                 <div class="col-lg-4">
                     <div class="filter-section d-flex gap-2">
                         <div class="search-box flex-grow-1">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-search"></i>
                             <input type="text" class="form-control" id="searchInput" placeholder="Search inquiries...">
                         </div>
                         <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
-                            <i class="bi bi-filter"></i>
+                            <i class="fas fa-filter"></i>
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item filter-option" href="#" data-filter="all">All Inquiries</a>
@@ -544,7 +526,7 @@
                             <span class="capitalize">${inquiry.customer_name}</span>
                             <span>${new Date(inquiry.created_at).toLocaleString()}</span>
                         </div>
-                        <div class="inquiry-title capitalize">${inquiry.design_type}</div>
+                        <div class="inquiry-title capitalize">T-Shirt</div>
                         <div class="inquiry-preview">${inquiry.description_preview}</div>
                     `;
                     
@@ -588,14 +570,6 @@
             function renderInquiryDetail(inquiry) {
                 const detailContainer = document.getElementById('inquiryDetail');
                 
-                // Create image gallery HTML
-                let imagesHTML = '';
-                if (inquiry.images && inquiry.images.length > 0) {
-                    inquiry.images.forEach(img => {
-                        imagesHTML += `<img src="${img}" class="detail-image" alt="Reference image">`;
-                    });
-                }
-                
                 // Render the detail view
                 detailContainer.innerHTML = `
                     <div class="detail-header">
@@ -603,7 +577,7 @@
                             <span><strong>Inquiry ID:</strong> #${inquiry.id}</span>
                             <span>Submitted: ${new Date(inquiry.created_at).toLocaleString()}</span>
                         </div>
-                        <h3 class="detail-title">${inquiry.design_type}</h3>
+                        <h3 class="detail-title">T-Shirt</h3>
                         <div class="detail-customer">
                             <div>
                                 <div><strong class="capitalize">${inquiry.customer_name}</strong></div>
@@ -617,25 +591,33 @@
                     </div>
                     
                     <div class="detail-image-gallery">
-                        ${imagesHTML}
+                        <img src="${inquiry.image_path}" class="detail-image" alt="Reference image">
                     </div>
                     
                     <div class="detail-info">
                         <div class="info-item">
                             <div class="info-label">Design Type</div>
-                            <div class="info-value capitalize">${inquiry.design_type}</div>
+                            <div class="info-value capitalize">T-Shirt</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Status</div>
                             <div class="info-value">${inquiry.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">Budget Range</div>
-                            <div class="info-value">${inquiry.budget_range}</div>
-                        </div>
-                        <div class="info-item">
                             <div class="info-label">Timeline</div>
                             <div class="info-value capitalize">${inquiry.timeline}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Color</div>
+                            <div class="info-value capitalize">${inquiry.color}</div>
+                        </div>
+                        <div class="info-item">
+                           <div class="info-label">Size</div>
+                            <div class="info-value capitalize">${inquiry.size}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Quantity</div>
+                            <div class="info-value capitalize">${inquiry.quantity}</div>
                         </div>
                     </div>
                     
@@ -722,7 +704,6 @@
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
                 const filteredInquiries = inquiries.filter(inquiry => 
-                    inquiry.design_type.toLowerCase().includes(searchTerm) ||
                     inquiry.customer_name.toLowerCase().includes(searchTerm) ||
                     inquiry.description.toLowerCase().includes(searchTerm)
                 );

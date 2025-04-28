@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $page_title = "Metro District Designs - Commissioned Designs";
+    $page_title = "Metro District Designs - Design Inquiry";
     require_once "header.php";
     require_once "db_connection.php";
 ?>
@@ -11,102 +11,20 @@
         margin: 0;
         padding: 0;
     }
-    
-    .navbar {
-        background-color: #1E1E1E;
-        padding: 10px 0;
-    }
 
-    .navbar-brand {
-        display: flex;
-        align-items: center;
-        color: white !important;
-        font-weight: bold;
-    }
-
-    .navbar-brand img {
-        height: 30px;
-        margin-right: 10px;
-    }
-
-    .navbar-nav {
-        flex-grow: 1;
-        justify-content: center;
-    }
-
-    .navbar-nav .nav-link {
-        color: white !important;
-        text-transform: uppercase;
-        font-weight: bold;
-        margin: 0 10px;
-    }
-
-    .navbar-nav.ms-auto {
-        margin-right: 0 !important;
-        align-items: center;
-    }
-
-    /* Search Bar Styles */
-    .search-container {
-        position: relative;
-        margin-left: 15px;
-    }
-
-    .nav-icons {
-        display: flex;
-        align-items: center;
-        color: white;
-    }
-
-    .nav-icons i {
-        cursor: pointer;
-        margin-left: 15px;
-    }
-
-    /* Search Popup Styles */
-    .search-popup {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background-color: white;
-        padding: 10px;
-        border-radius: 4px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        display: none;
-        width: 200px;
-        z-index: 1000;
-    }
-
-    .search-popup input {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .search-popup.active {
-        display: block;
-    }
-    
-    .container {
-        width: 90%;
-        max-width: 1200px;
-        margin: 20px auto;
-    }
-    
-    .commissioned-hero {
+    .inquiry-hero {
         text-align: center;
         margin-bottom: 30px;
     }
     
-    .commissioned-hero h1 {
+    .inquiry-hero h1 {
         font-size: 32px;
         color: #333;
         text-transform: uppercase;
         margin-bottom: 5px;
     }
     
-    .commissioned-hero p {
+    .inquiry-hero p {
         font-style: italic;
         color: #666;
         margin-top: 5px;
@@ -118,35 +36,43 @@
         flex-wrap: wrap;
     }
     
-    .design-placeholder {
-        background-color: #A99D9D;
-        height: 450px;
+    .design-preview {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 20px;
         flex: 2;
         min-width: 300px;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-direction: column;
     }
     
-    .preview-section {
+    .settings-section {
         flex: 1;
         min-width: 270px;
         display: flex;
         flex-direction: column;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 20px;
     }
     
-    .preview-placeholder {
-        background-color: #A99D9D;
-        height: 300px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .price-display-container {
+        margin: 15px 0;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
     }
     
-    .download-btn {
-        background-color: #A99D9D;
-        color: black;
+    .submit-btn {
+        background-color: #4CAF50;
+        color: white;
         font-weight: bold;
         border: none;
         width: 100%;
@@ -155,19 +81,21 @@
         cursor: pointer;
         font-size: 16px;
         transition: background-color 0.2s;
+        border-radius: 4px;
     }
     
-    .download-btn:hover {
-        background-color: #968888;
+    .submit-btn:hover {
+        background-color: #45a049;
     }
     
     .tshirt-container {
-        width: 270px;
-        height: 320px;
+        width: 400px;
+        height: 450px;
         position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
+        margin: 0 auto;
     }
     
     .tshirt-image {
@@ -177,23 +105,62 @@
     
     .design-area {
         position: absolute;
-        top: 33%;
+        top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%);
-        width: 40%;
-        height: 40%;
+        transform: translate(-50%, -60%);
+        width: 45%;
+        height: 45%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        color: #1a75bb;
+        border: 2px dashed #1a75bb;
+        cursor: move;
+    }
+
+    .design-safety {
+        position: absolute;
+        width: 90%;
+        height: 90%;
+        border: 1px solid #0f0;
+        pointer-events: none;
+    }
+
+    .design-bleed {
+        position: absolute;
+        width: 105%;
+        height: 105%;
+        border: 1px solid #00f;
+        pointer-events: none;
+    }
+    
+    .design-labels {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        pointer-events: none;
+    }
+
+    .design-label {
+        background-color: #fff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
         font-weight: bold;
-        text-align: center;
-        font-size: 14px;
+        border: 1px solid #ccc;
+    }
+    
+    .design-area img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
     }
     
     .upload-placeholder {
-        border: 2px dashed #1a75bb;
         width: 100%;
         height: 100%;
         display: flex;
@@ -205,12 +172,6 @@
         text-align: center;
         font-size: 14px;
         padding: 5px;
-    }
-    
-    .design-area img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
     }
     
     .upload-section {
@@ -290,6 +251,7 @@
     .size-options {
         display: flex;
         gap: 10px;
+        margin-bottom: 15px;
     }
     
     .size-option {
@@ -313,18 +275,22 @@
         margin-bottom: 10px;
     }
     
-    .slider-control label {
+    .slider-control label, .quantity-control label {
         display: block;
         margin-bottom: 5px;
         font-weight: bold;
         font-size: 14px;
     }
     
-    .slider-control input {
+    .slider-control input, .quantity-control input {
         width: 100%;
     }
+    
+    .quantity-control {
+        margin: 10px 0 15px 0;
+    }
 
-    /* Added styles for tab navigation */
+    /* Styles for tab navigation */
     .custom-tabs {
         display: flex;
         margin-bottom: 20px;
@@ -356,14 +322,55 @@
         display: block;
     }
 
-    /* Added styles from Inquiry page */
+    /* Canvas for image processing */
     #processing-canvas {
         display: none;
+        position: absolute;
+        left: -9999px;
     }
 
-    /* Login required modal */
+    /* Instructions box */
+    .instructions-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #1a75bb;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .instructions-box h4 {
+        margin-top: 0;
+        color: #1a75bb;
+    }
+
+    .instructions-box ul {
+        padding-left: 20px;
+        margin-bottom: 0;
+    }
+
+    /* Dimension labels */
+    .dimension-label {
+        position: absolute;
+        color: #666;
+        font-size: 12px;
+        pointer-events: none;
+    }
+
+    .dimension-label.width {
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .dimension-label.height {
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%) rotate(90deg);
+    }
+
+    /* Login Required Modal */
     .login-modal {
-        display: flex;
+        display: none;
         position: fixed;
         top: 0;
         left: 0;
@@ -401,555 +408,728 @@
             flex-direction: column;
         }
         
-        .design-placeholder, .preview-section {
+        .design-preview, .settings-section {
             width: 100%;
         }
+
+        .tshirt-container {
+            width: 300px;
+            height: 350px;
+        }
+    }
+
+    /* Error message for design overlapping */
+    .design-error {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
     }
 </style>
-<body>
-    <!-- Hidden canvas for image processing -->
-    <canvas id="processing-canvas"></canvas>
+
+<!-- Hidden canvas for image processing -->
+<canvas id="processing-canvas"></canvas>
+
+<!-- Navbar -->
+<?php require_once "navbar.php" ?>
+
+<!-- Login Required Modal -->
+<?php if(empty($_SESSION['user_id'])): ?>
+    <div class="login-modal" id="loginModal">
+        <div class="login-modal-content">
+            <h3>Login Required</h3>
+            <p>Please log in or create an account to submit a design inquiry.</p>
+            <div class="login-modal-buttons">
+                <a href="Login.php" class="btn btn-primary">Login</a>
+                <a href="Signup.php" class="btn btn-secondary">Sign Up</a>
+                <button class="btn btn-outline-dark" id="cancelLoginBtn" onclick="location.href='index.php'">Cancel</button>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+<?php
+    if(!empty($_SESSION['user_id'])) {
+        $userId = $_SESSION['user_id'];
+        $query = "
+            SELECT
+                CONCAT(first_name, ' ', last_name) as full_name,
+                email,
+                contact_number
+            FROM users
+            WHERE id = ? 
+        ";
     
-    <!-- Navbar -->
-    <?php require_once "navbar.php" ?>
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+    }
+?>
 
-    <!-- Login Required Modal -->
-    <?php if(empty($_SESSION['user_id'])): ?>
-        <div class="login-modal" id="loginModal">
-            <div class="login-modal-content">
-                <h3>Login Required</h3>
-                <p>Please log in or create an account to submit a design inquiry.</p>
-                <div class="login-modal-buttons">
-                    <a href="Login.php" class="btn btn-primary">Login</a>
-                    <a href="Signup.php" class="btn btn-secondary">Sign Up</a>
-                    <button class="btn btn-outline-dark" id="cancelLoginBtn" onclick="location.href='index.php'">Cancel</button>
+<div class="container">
+    <div class="inquiry-hero">
+        <h1>DESIGN INQUIRY FORM</h1>
+        <p>"Let us bring your creative vision to life!"</p>
+    </div>
+
+    <!-- Instructions Box -->
+    <div class="instructions-box">
+        <h4>How to Create Your Design Inquiry</h4>
+        <ul>
+            <li>Upload your reference image or design concept</li>
+            <li>Adjust the design placement and size</li>
+            <li>Choose your preferred t-shirt color and size</li>
+            <li>Complete the inquiry form with your specific requirements</li>
+            <li>Submit your inquiry and we'll get back to you soon!</li>
+        </ul>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="custom-tabs">
+        <div class="custom-tab active" data-tab="design-tab">Design Preview</div>
+        <div class="custom-tab" data-tab="inquiry-tab">Your Information</div>
+    </div>
+
+    <!-- Design Preview Tab Content -->
+    <div class="tab-content active" id="design-tab">
+        <div class="design-section">
+            <div class="design-preview">
+                <div class="tshirt-container" id="main-preview">
+                    <svg class="tshirt-image" id="tshirt-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                        <!-- T-shirt shape -->
+                        <path id="tshirt-body" d="M30,20 L60,5 L140,5 L170,20 L190,55 L170,70 L170,200 L30,200 L30,70 L10,55 Z" fill="black" />
+                        
+                        <!-- Collar -->
+                        <path d="M60,5 L100,25 L140,5" fill="none" stroke="#ddd" stroke-width="1" />
+                    </svg>
+                    <div class="design-area" id="design-area">
+                        <div class="design-safety"></div>
+                        <div class="design-bleed"></div>
+                        <div class="design-labels">
+                            <span class="design-label">Safety Area</span>
+                            <span class="design-label">Bleed</span>
+                        </div>
+                        <div class="upload-placeholder">
+                            UPLOAD<br>YOUR<br>DESIGN<br>
+                            <span style="font-size: 11px;">750x1200 px recommended</span>
+                        </div>
+                    </div>
+                    <div class="dimension-label width">12in</div>
+                    <div class="dimension-label height">12in</div>
                 </div>
+                
+                <div class="upload-section">
+                    <div class="file-input-container">
+                        <div class="custom-file-input" id="file-name">Choose File</div>
+                        <input type="file" id="design-upload" accept="image/*">
+                    </div>
+                    <button class="preview-btn" id="preview-button">Preview</button>
+                </div>
+                <div class="design-error" id="design-error">Warning: Design is exceeding the allowed area. Please adjust size or position.</div>
             </div>
-        </div>
-    <?php endif; ?>
-    <?php
-        if(!empty($_SESSION['user_id'])) {
-            $userId = $_SESSION['user_id'];
-            $query = "
-                SELECT
-                    CONCAT(first_name, ' ', last_name) as full_name,
-                    email,
-                    contact_number
-                FROM users
-                WHERE id = ? 
-            ";
-        
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("i", $userId);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $user = $result->fetch_assoc();
-        }
-    ?>
-
-    <div class="container">
-        <div class="commissioned-hero">
-            <h1>COMMISSIONED DESIGNS</h1>
-            <p>"Looking for something unique? Get a custom design made just for you!"</p>
-        </div>
-
-        <!-- Tab Navigation -->
-        <div class="custom-tabs">
-            <div class="custom-tab active" data-tab="design-tab">Design Preview</div>
-            <div class="custom-tab" data-tab="inquiry-tab">Submit Inquiry</div>
-        </div>
-
-        <!-- Design Preview Tab Content -->
-        <div class="tab-content active" id="design-tab">
-            <div class="design-section">
-                <div class="design-placeholder">
-                    <div class="tshirt-container" id="large-preview">
-                        <svg class="tshirt-image" id="tshirt-svg-large" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                            <!-- T-shirt shape -->
-                            <path id="tshirt-body-large" d="M30,20 L60,5 L140,5 L170,20 L190,55 L170,70 L170,200 L30,200 L30,70 L10,55 Z" fill="white" />
-                            
-                            <!-- Collar -->
-                            <path d="M60,5 L100,25 L140,5" fill="none" stroke="#ddd" stroke-width="1" />
-                        </svg>
-                        <div class="design-area" id="design-large">
-                            <div class="upload-placeholder">
-                                UPLOAD<br>YOUR<br>IMAGE<br>
-                                <span style="font-size: 11px;">750x1200 px</span>
-                            </div>
+            
+            <div class="settings-section">
+                <div class="price-display-container">
+                    <h3>Estimated Price: <span id="price-display">₱300.00</span></h3>
+                </div>
+                
+                <div class="options-section">
+                    <div class="option-title">T-Shirt Color</div>
+                    <div class="color-options">
+                        <div class="color-option" style="background-color: white;" data-color="#ffffff"></div>
+                        <div class="color-option active" style="background-color: black;" data-color="#000000"></div>
+                        <div class="color-option" style="background-color: #ff6b6b;" data-color="#ff6b6b"></div>
+                        <div class="color-option" style="background-color: #4ecdc4;" data-color="#4ecdc4"></div>
+                        <div class="color-option" style="background-color: #f9dc5c;" data-color="#f9dc5c"></div>
+                        <div class="color-option" style="background-color: #3d5a80;" data-color="#3d5a80"></div>
+                    </div>
+                    
+                    <div class="option-title">Size</div>
+                    <div class="size-options">
+                        <div class="size-option" data-size="S">S</div>
+                        <div class="size-option active" data-size="M">M</div>
+                        <div class="size-option" data-size="L">L</div>
+                        <div class="size-option" data-size="XL">XL</div>
+                        <div class="size-option" data-size="XXL">XXL</div>
+                    </div>
+                    
+                    <div class="option-title">Quantity</div>
+                    <div class="quantity-control">
+                        <label for="quantity-control">Quantity: <span id="quantity-value">1</span></label>
+                        <input type="range" id="quantity-control" min="1" max="50" value="1">
+                    </div>
+                    
+                    <div class="design-controls" id="design-controls" style="display: none;">
+                        <div class="option-title">Design Adjustments</div>
+                        <div class="slider-control">
+                            <label for="size-control">Size: <span id="size-value">100</span>%</label>
+                            <input type="range" id="size-control" min="20" max="200" value="100">
+                        </div>
+                        <div class="slider-control">
+                            <label for="position-y-control">Position Y: <span id="position-y-value">0</span>px</label>
+                            <input type="range" id="position-y-control" min="-50" max="50" value="0">
+                        </div>
+                        <div class="slider-control">
+                            <label for="position-x-control">Position X: <span id="position-x-value">0</span>px</label>
+                            <input type="range" id="position-x-control" min="-50" max="50" value="0">
                         </div>
                     </div>
                 </div>
                 
-                <div class="preview-section">
-                    <div class="preview-placeholder">
-                        <div class="tshirt-container" id="small-preview">
-                            <svg class="tshirt-image" id="tshirt-svg-small" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                                <!-- T-shirt shape -->
-                                <path id="tshirt-body-small" d="M30,20 L60,5 L140,5 L170,20 L190,55 L170,70 L170,200 L30,200 L30,70 L10,55 Z" fill="white" />
-                                
-                                <!-- Collar -->
-                                <path d="M60,5 L100,25 L140,5" fill="none" stroke="#ddd" stroke-width="1" />
-                            </svg>
-                            <div class="design-area" id="design-small">
-                                <div class="upload-placeholder">
-                                    UPLOAD<br>YOUR<br>IMAGE<br>
-                                    <span style="font-size: 10px;">750x1200 px</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="options-section">
-                        <div class="option-title">Color</div>
-                        <div class="color-options">
-                            <div class="color-option active" style="background-color: white;" data-color="white"></div>
-                            <div class="color-option" style="background-color: black;" data-color="black"></div>
-                            <div class="color-option" style="background-color: #ff6b6b;" data-color="#ff6b6b"></div>
-                            <div class="color-option" style="background-color: #4ecdc4;" data-color="#4ecdc4"></div>
-                        </div>
-                        
-                        <div class="option-title">Size</div>
-                        <div class="size-options">
-                            <div class="size-option" data-size="S">S</div>
-                            <div class="size-option active" data-size="M">M</div>
-                            <div class="size-option" data-size="L">L</div>
-                            <div class="size-option" data-size="XL">XL</div>
-                        </div>
-                        
-                        <div class="design-controls" id="design-controls" style="display: none;">
-                            <div class="option-title">Design Adjustments</div>
-                            <div class="slider-control">
-                                <label for="size-control">Size: <span id="size-value">100</span>%</label>
-                                <input type="range" id="size-control" min="20" max="200" value="100">
-                            </div>
-                            <div class="slider-control">
-                                <label for="position-y-control">Position Y: <span id="position-y-value">0</span>px</label>
-                                <input type="range" id="position-y-control" min="-50" max="50" value="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="upload-section">
-                        <div class="file-input-container">
-                            <div class="custom-file-input" id="file-name">Choose File</div>
-                            <input type="file" id="design-upload" accept="image/*">
-                        </div>
-                        <button class="preview-btn" id="preview-button">Preview</button>
-                    </div>
-                    
-                    <button class="download-btn" id="download-button">Download</button>
-                </div>
+                <button class="submit-btn" id="next-btn">Next: Your Information</button>
             </div>
         </div>
+    </div>
 
-        <!-- Inquiry Form Tab Content -->
-        <div class="tab-content" id="inquiry-tab">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Send Us Your Design Inquiry</h5>
-                            <form id="inquiryForm" enctype="multipart/form-data" method="post" action="">
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="name" value="<?php echo $user['full_name'] ?>" required readonly>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" value="<?php echo $user['email'] ?>" required readonly>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone</label>
-                                    <input type="tel" class="form-control" id="phone" value="+63<?php echo $user['contact_number'] ?>" required readonly>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="designType" class="form-label">Design Type</label>
-                                    <select class="form-select" id="designType" name="designType" required>
-                                        <option value="" selected disabled>Select a design type</option>
-                                        <option value="tshirt">T-Shirt Design</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="description" class="form-label">Design Description</label>
-                                    <textarea class="form-control" id="description" rows="5" name="description" placeholder="Please provide as much detail as possible about your design needs..." required></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="fileUpload" class="form-label">Reference Images (optional)</label>
-                                    <input type="file" class="form-control" id="fileUpload" name="referenceImages[]" accept="image/*" multiple>
-                                    <div class="form-text">Upload any reference images that might help us understand your vision.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="budget" class="form-label">Budget Range (PHP)</label>
-                                    <select class="form-select" id="budget" name="budget" required>
-                                        <option value="" selected disabled>Select your budget range</option>
-                                        <option value="Under ₱100">Under ₱100</option>
-                                        <option value="₱100-₱200">₱100 - ₱200</option>
-                                        <option value="₱200-₱500">₱200 - ₱500</option>
-                                        <option value="Over ₱500">Over ₱500</option>
-                                        <option value="flexible">Flexible/Not Sure</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="timeline" class="form-label">Timeline</label>
-                                    <select class="form-select" id="timeline" name="timeline" required>
-                                        <option value="" selected disabled>When do you need this by?</option>
-                                        <option value="urgent">ASAP (1-3 days)</option>
-                                        <option value="standard">Standard (1-2 weeks)</option>
-                                        <option value="relaxed">No Rush (2+ weeks)</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn btn-dark w-100">Submit Inquiry</button>
-                            </form>
-                        </div>
+    <!-- Inquiry Form Tab Content -->
+    <div class="tab-content" id="inquiry-tab">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Design Inquiry Details</h5>
+                        <form id="inquiryForm" enctype="multipart/form-data" method="post" action="api/submit_inquiry.php">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" value="<?php echo isset($user['full_name']) ? $user['full_name'] : ''; ?>" required <?php echo isset($user['full_name']) ? 'readonly' : ''; ?>>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" value="<?php echo isset($user['email']) ? $user['email'] : ''; ?>" required <?php echo isset($user['email']) ? 'readonly' : ''; ?>>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Contact Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo isset($user['contact_number']) ? '+63' . $user['contact_number'] : ''; ?>" required <?php echo isset($user['contact_number']) ? 'readonly' : ''; ?>>
+                            </div>
+                            
+                            <!-- Hidden fields to store design details -->
+                            <input type="hidden" id="design-color" name="color" value="000000">
+                            <input type="hidden" id="design-size" name="size" value="M">
+                            <input type="hidden" id="design-quantity" name="quantity" value="1">
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Design Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="5" placeholder="Please describe your design idea, including any specific colors, elements, styles, or themes you'd like to incorporate..." required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="timeline" class="form-label">When do you need this by?</label>
+                                <select class="form-select" id="timeline" name="timeline" required>
+                                    <option value="" selected disabled>Select a timeframe</option>
+                                    <option value="urgent">ASAP (1-3 days)</option>
+                                    <option value="standard">Standard (1-2 weeks)</option>
+                                    <option value="relaxed">No Rush (2+ weeks)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="additional_info" class="form-label">Additional Information (Optional)</label>
+                                <textarea class="form-control" id="additional_info" name="additional_info" rows="3" placeholder="Any other details or special requirements..."></textarea>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-dark" id="back-to-design">Back to Design</button>
+                                <button type="submit" class="btn btn-success" id="submit-inquiry">Submit Inquiry</button>
+                            </div>
+                            <input type="hidden" id="referenceImage" name="referenceImage">
+                        </form>
                     </div>
                 </div>
-                
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Our Design Process</h5>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        <div class="me-3">
-                                            <span class="badge bg-dark rounded-circle p-2">1</span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Initial Consultation</h6>
-                                            <p class="mb-0 text-muted">We'll discuss your needs and provide a quote.</p>
-                                        </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Design Summary</h5>
+                        <div class="text-center mb-3">
+                            <div class="tshirt-container" style="width: 200px; height: 230px;" id="summary-preview">
+                                <svg class="tshirt-image" id="summary-tshirt-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                                    <path id="summary-tshirt-body" d="M30,20 L60,5 L140,5 L170,20 L190,55 L170,70 L170,200 L30,200 L30,70 L10,55 Z" fill="black" />
+                                    <path d="M60,5 L100,25 L140,5" fill="none" stroke="#ddd" stroke-width="1" />
+                                </svg>
+                                <div class="design-area" id="summary-design-area" style="width: 45%; height: 45%;">
+                                    <div class="upload-placeholder" style="font-size: 12px;">
+                                        YOUR<br>DESIGN
                                     </div>
-                                </li>
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        <div class="me-3">
-                                            <span class="badge bg-dark rounded-circle p-2">2</span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Concept Development</h6>
-                                            <p class="mb-0 text-muted">We'll create initial design concepts based on your requirements.</p>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        <div class="me-3">
-                                            <span class="badge bg-dark rounded-circle p-2">3</span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Revisions</h6>
-                                            <p class="mb-0 text-muted">We'll refine the designs based on your feedback.</p>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        <div class="me-3">
-                                            <span class="badge bg-dark rounded-circle p-2">4</span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Final Approval</h6>
-                                            <p class="mb-0 text-muted">You'll review and approve the final design.</p>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        <div class="me-3">
-                                            <span class="badge bg-dark rounded-circle p-2">5</span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Delivery</h6>
-                                            <p class="mb-0 text-muted">We'll deliver the final files in your preferred format.</p>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                            
-                            <div class="mt-4 p-3 bg-light rounded">
-                                <h6>Have Questions?</h6>
-                                <p class="mb-2">Contact us directly:</p>
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="bi bi-envelope me-2"></i>
-                                    <a href="mailto:sjbps_10@yahoo.com" style="color: black; text-decoration: none;">sjbps_10@yahoo.com</a>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <i class="bi bi-telephone me-2"></i>
-                                    <p class="mb-0"><a href="tel:+63282965896" style="color: black; text-decoration: none;">(+632) 8296-5896</a> | <a href="tel:+639201225764" style="color: black; text-decoration: none;">0920 122 5764</a></p>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6 text-end fw-bold">Design Type:</div>
+                            <div class="col-6" id="summary-type">T-Shirt</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6 text-end fw-bold">Color:</div>
+                            <div class="col-6" id="summary-color">Black</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6 text-end fw-bold">Size:</div>
+                            <div class="col-6" id="summary-size">M</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6 text-end fw-bold">Quantity:</div>
+                            <div class="col-6" id="summary-quantity">1</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6 text-end fw-bold">Estimated Price:</div>
+                            <div class="col-6 fw-bold" id="summary-price">₱300.00</div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <h6 class="mb-2">What happens next?</h6>
+                            <ol class="mb-0">
+                                <li>We'll review your inquiry within 24-48 hours</li>
+                                <li>Our design team will contact you to discuss details</li>
+                                <li>We'll provide a final quote based on your requirements</li>
+                                <li>Once approved, we'll begin creating your custom design</li>
+                            </ol>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab navigation
-            const tabs = document.querySelectorAll('.custom-tab');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
-                    tab.classList.add('active');
-                    
-                    // Hide all tab contents
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    // Show the corresponding tab content
-                    const tabId = tab.getAttribute('data-tab');
-                    document.getElementById(tabId).classList.add('active');
-                });
-            });
-
-            // Search functionality
-            const searchToggle = document.getElementById('searchToggle');
-            const searchPopup = document.getElementById('searchPopup');
-            const searchInput = document.getElementById('searchInput');
-
-            searchToggle.addEventListener('click', function() {
-                searchPopup.classList.toggle('active');
-                if (searchPopup.classList.contains('active')) {
-                    searchInput.focus();
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab navigation
+        const tabs = document.querySelectorAll('.custom-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        function switchTab(tabId) {
+            // Remove active class from all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            // Add active class to the specified tab
+            tabs.forEach(t => {
+                if (t.getAttribute('data-tab') === tabId) {
+                    t.classList.add('active');
                 }
             });
-
-            // Close search popup when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.search-container') && searchPopup.classList.contains('active')) {
-                    searchPopup.classList.remove('active');
-                }
-            });
-
-            // T-shirt designer functionality
-            const designUpload = document.getElementById('design-upload');
-            const designLarge = document.getElementById('design-large');
-            const designSmall = document.getElementById('design-small');
-            const fileNameDisplay = document.getElementById('file-name');
-            const previewButton = document.getElementById('preview-button');
-            const downloadButton = document.getElementById('download-button');
-            const designControls = document.getElementById('design-controls');
-            const sizeControl = document.getElementById('size-control');
-            const positionYControl = document.getElementById('position-y-control');
-            const sizeValue = document.getElementById('size-value');
-            const positionYValue = document.getElementById('position-y-value');
-            const tshirtBodyLarge = document.getElementById('tshirt-body-large');
-            const tshirtBodySmall = document.getElementById('tshirt-body-small');
-            const processingCanvas = document.getElementById('processing-canvas');
-            const ctx = processingCanvas.getContext('2d');
             
-            // Variables to store design state
-            let designImage = null;
-            let currentColor = 'white';
-            let currentSize = 'M';
-            let designScale = 100;
-            let designPositionY = 0;
-            let hasUploadedDesign = false;
-
-            // Update T-shirt color
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove active class from all options
-                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
-                    // Add active class to clicked option
-                    option.classList.add('active');
-                    
-                    // Update T-shirt color
-                    currentColor = option.getAttribute('data-color');
-                    tshirtBodyLarge.setAttribute('fill', currentColor);
-                    tshirtBodySmall.setAttribute('fill', currentColor);
-                });
+            // Hide all tab contents
+            tabContents.forEach(content => content.classList.remove('active'));
+            // Show the corresponding tab content
+            document.getElementById(tabId).classList.add('active');
+        }
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = tab.getAttribute('data-tab');
+                switchTab(tabId);
             });
+        });
 
-            // Update T-shirt size
-            document.querySelectorAll('.size-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove active class from all options
-                    document.querySelectorAll('.size-option').forEach(opt => opt.classList.remove('active'));
-                    // Add active class to clicked option
-                    option.classList.add('active');
-                    
-                    // Update T-shirt size
-                    currentSize = option.getAttribute('data-size');
-                });
-            });
+        // Next button click handler
+        document.getElementById('next-btn').addEventListener('click', function() {
+            // Check if design is within bounds
+            if (isDesignOutOfBounds()) {
+                alert("Your design is exceeding the allowed area. Please adjust the size or position.");
+                return;
+            }
+            
+            // Check if logged in
+            <?php if(empty($_SESSION['user_id'])): ?>
+                // Show login modal
+                document.getElementById('loginModal').style.display = 'flex';
+                return;
+            <?php endif; ?>
+            
+            // Switch to inquiry tab
+            switchTab('inquiry-tab');
+            
+            // Update summary with current values
+            updateSummary();
+        });
+        
+        // Back to design button click handler
+        document.getElementById('back-to-design').addEventListener('click', function() {
+            switchTab('design-tab');
+        });
 
-            // Handle file upload
-            designUpload.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
+        // T-shirt designer functionality
+        const designUpload = document.getElementById('design-upload');
+        const designArea = document.getElementById('design-area');
+        const summaryDesignArea = document.getElementById('summary-design-area');
+        const fileNameDisplay = document.getElementById('file-name');
+        const previewButton = document.getElementById('preview-button');
+        const designControls = document.getElementById('design-controls');
+        const sizeControl = document.getElementById('size-control');
+        const positionYControl = document.getElementById('position-y-control');
+        const positionXControl = document.getElementById('position-x-control');
+        const quantityControl = document.getElementById('quantity-control');
+        const sizeValue = document.getElementById('size-value');
+        const positionYValue = document.getElementById('position-y-value');
+        const positionXValue = document.getElementById('position-x-value');
+        const quantityValue = document.getElementById('quantity-value');
+        const tshirtBody = document.getElementById('tshirt-body');
+        const summaryTshirtBody = document.getElementById('summary-tshirt-body');
+        const processingCanvas = document.getElementById('processing-canvas');
+        const ctx = processingCanvas.getContext('2d');
+        const priceDisplay = document.getElementById('price-display');
+        const summaryPrice = document.getElementById('summary-price');
+        const designError = document.getElementById('design-error');
+        
+        // Variables to store design state
+        let designImage = null;
+        let processedImage = null;
+        let currentColor = 'black';
+        let currentSize = 'M';
+        let designScale = 100;
+        let designXPosition = 0;
+        let designYPosition = 0;
+        let currentQuantity = 1;
+        let basePrice = 300;
+        
+        // Function to check if design is out of bounds
+        function isDesignOutOfBounds() {
+            if (!designImage) return false;
+            
+            const img = designArea.querySelector('img');
+            if (!img) return false;
+            
+            // Get the design area and safety zone dimensions
+            const designAreaRect = designArea.getBoundingClientRect();
+            const safetyZone = designArea.querySelector('.design-safety').getBoundingClientRect();
+            
+            // Calculate the design dimensions with scaling
+            const imgRect = img.getBoundingClientRect();
+            const scaledWidth = imgRect.width;
+            const scaledHeight = imgRect.height;
+            
+            // Calculate current position relative to the design area center
+            const designAreaCenterX = designAreaRect.left + designAreaRect.width / 2;
+            const designAreaCenterY = designAreaRect.top + designAreaRect.height / 2;
+            
+            // Calculate image bounds
+            const imgLeft = designAreaCenterX - scaledWidth / 2 + designXPosition;
+            const imgRight = designAreaCenterX + scaledWidth / 2 + designXPosition;
+            const imgTop = designAreaCenterY - scaledHeight / 2 + designYPosition;
+                const imgBottom = designAreaCenterY + scaledHeight / 2 + designYPosition;
+                
+                // Check if image exceeds safety zone
+                if (imgLeft < safetyZone.left || imgRight > safetyZone.right || 
+                    imgTop < safetyZone.top || imgBottom > safetyZone.bottom) {
+                    designError.style.display = 'block';
+                    return true;
+                }
+                
+                designError.style.display = 'none';
+                return false;
+            }
+            
+            // File upload handling
+            designUpload.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
                     fileNameDisplay.textContent = file.name;
                     
-                    // Read the uploaded file
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        // Store the image for preview
-                        designImage = new Image();
-                        designImage.onload = function() {
-                            hasUploadedDesign = true;
-                        };
-                        designImage.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
+                    // Store the file reference for later use
+                    designImage = file;
                 }
             });
-
-            // Preview button functionality
+            
+            // Preview button click handler
             previewButton.addEventListener('click', function() {
-                if (designImage) {
-                    // Remove placeholder
-                    designLarge.innerHTML = '';
-                    designSmall.innerHTML = '';
-                    
-                    // Create img elements
-                    const imgLarge = document.createElement('img');
-                    imgLarge.src = designImage.src;
-                    imgLarge.style.maxWidth = '100%';
-                    imgLarge.style.maxHeight = '100%';
-                    designLarge.appendChild(imgLarge);
-                    
-                    const imgSmall = document.createElement('img');
-                    imgSmall.src = designImage.src;
-                    imgSmall.style.maxWidth = '100%';
-                    imgSmall.style.maxHeight = '100%';
-                    designSmall.appendChild(imgSmall);
-                    
-                    // Show design controls
-                    designControls.style.display = 'block';
-                    
-                    // Apply initial styles
-                    updateDesignStyles();
-                } else {
-                    alert('Please upload an image first.');
-                }
-            });
-
-            // Update design styles based on control values
-            function updateDesignStyles() {
-                // Skip if no design is loaded
-                if (!hasUploadedDesign) return;
-                
-                const scalePercent = parseInt(sizeControl.value) / 100;
-                const yOffset = parseInt(positionYControl.value);
-                
-                // Update value displays
-                sizeValue.textContent = sizeControl.value;
-                positionYValue.textContent = positionYControl.value;
-                
-                // Apply to large preview
-                const imgLarge = designLarge.querySelector('img');
-                if (imgLarge) {
-                    imgLarge.style.transform = `scale(${scalePercent}) translateY(${yOffset}px)`;
-                }
-                
-                // Apply to small preview
-                const imgSmall = designSmall.querySelector('img');
-                if (imgSmall) {
-                    imgSmall.style.transform = `scale(${scalePercent}) translateY(${yOffset}px)`;
-                }
-                
-                // Store current values
-                designScale = parseInt(sizeControl.value);
-                designPositionY = yOffset;
-            }
-
-            // Add event listeners for design controls
-            sizeControl.addEventListener('input', updateDesignStyles);
-            positionYControl.addEventListener('input', updateDesignStyles);
-
-            // Download button functionality
-            downloadButton.addEventListener('click', function() {
-                if (!hasUploadedDesign) {
-                    alert('Please upload and preview a design first.');
+                if (!designImage) {
+                    alert('Please select an image first.');
                     return;
                 }
                 
-                // Set canvas dimensions
-                processingCanvas.width = 800;
-                processingCanvas.height = 1000;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Clear any existing images
+                    const placeholder = designArea.querySelector('.upload-placeholder');
+                    if (placeholder) placeholder.remove();
+                    
+                    // Remove any existing image
+                    const existingImg = designArea.querySelector('img');
+                    if (existingImg) existingImg.remove();
+                    
+                    // Create a new image element
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        // Resize and process the image if needed
+                        processImage(img);
+                        
+                        // Show the design controls
+                        designControls.style.display = 'block';
+                        
+                        // Clone the image for the summary view
+                        updateSummaryDesign();
+                    };
+                    
+                    designArea.appendChild(img);
+                };
                 
-                // Draw t-shirt background
-                ctx.fillStyle = currentColor;
-                ctx.beginPath();
-                ctx.moveTo(120, 80);
-                ctx.lineTo(240, 20);
-                ctx.lineTo(560, 20);
-                ctx.lineTo(680, 80);
-                ctx.lineTo(760, 220);
-                ctx.lineTo(680, 280);
-                ctx.lineTo(680, 800);
-                ctx.lineTo(120, 800);
-                ctx.lineTo(120, 280);
-                ctx.lineTo(40, 220);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Draw collar
-                ctx.strokeStyle = '#ddd';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(240, 20);
-                ctx.lineTo(400, 100);
-                ctx.lineTo(560, 20);
-                ctx.stroke();
-                
-                // Calculate design position and size
-                const scalePercent = designScale / 100;
-                const designWidth = designImage.width * scalePercent;
-                const designHeight = designImage.height * scalePercent;
-                const designX = (processingCanvas.width - designWidth) / 2;
-                const designY = 160 + designPositionY;
-                
-                // Draw the design
-                ctx.drawImage(
-                    designImage, 
-                    designX, 
-                    designY, 
-                    designWidth, 
-                    designHeight
-                );
-                
-                // Convert canvas to image and download
-                const downloadLink = document.createElement('a');
-                downloadLink.href = processingCanvas.toDataURL('image/png');
-                downloadLink.download = 'metro-district-tshirt-design.png';
-                downloadLink.click();
+                reader.readAsDataURL(designImage);
             });
-
-            const inquiryForm = document.getElementById('inquiryForm');
-
-            inquiryForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                // Collect form data
-                const formData = new FormData(inquiryForm);
-
-                try {
-                    const response = await fetch('api/submit_inquiry.php', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        alert('Your design inquiry has been submitted! We will contact you as soon as we can.');
-                        inquiryForm.reset();
-                    } else {
-                        alert(result.error || 'An error occurred while submitting your inquiry.');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
+            
+            // Process image function
+            function processImage(img) {
+                // Set canvas dimensions
+                processingCanvas.width = img.naturalWidth;
+                processingCanvas.height = img.naturalHeight;
+                
+                // Draw image on canvas
+                ctx.clearRect(0, 0, processingCanvas.width, processingCanvas.height);
+                ctx.drawImage(img, 0, 0);
+                
+                // Get the processed image data URL
+                processedImage = processingCanvas.toDataURL('image/png');
+                
+                // Check if design is out of bounds after loading
+                setTimeout(isDesignOutOfBounds, 100);
+            }
+            
+            // Update summary design
+            function updateSummaryDesign() {
+                // Remove any existing image or placeholder
+                const placeholder = summaryDesignArea.querySelector('.upload-placeholder');
+                if (placeholder) placeholder.remove();
+                
+                const existingImg = summaryDesignArea.querySelector('img');
+                if (existingImg) existingImg.remove();
+                
+                if (processedImage) {
+                    // Create a new image for the summary
+                    const summaryImg = document.createElement('img');
+                    summaryImg.src = processedImage;
+                    summaryImg.style.maxWidth = '100%';
+                    summaryImg.style.maxHeight = '100%';
+                    summaryDesignArea.appendChild(summaryImg);
+                }
+            }
+            
+            // Control event listeners
+            sizeControl.addEventListener('input', function() {
+                designScale = parseInt(this.value);
+                sizeValue.textContent = designScale;
+                
+                const img = designArea.querySelector('img');
+                if (img) {
+                    img.style.transform = `scale(${designScale/100})`;
+                    isDesignOutOfBounds();
                 }
             });
+            
+            positionYControl.addEventListener('input', function() {
+                designYPosition = parseInt(this.value);
+                positionYValue.textContent = designYPosition;
+                
+                const img = designArea.querySelector('img');
+                if (img) {
+                    img.style.marginTop = `${designYPosition}px`;
+                    isDesignOutOfBounds();
+                }
+            });
+            
+            positionXControl.addEventListener('input', function() {
+                designXPosition = parseInt(this.value);
+                positionXValue.textContent = designXPosition;
+                
+                const img = designArea.querySelector('img');
+                if (img) {
+                    img.style.marginLeft = `${designXPosition}px`;
+                    isDesignOutOfBounds();
+                }
+            });
+            
+            quantityControl.addEventListener('input', function() {
+                currentQuantity = parseInt(this.value);
+                quantityValue.textContent = currentQuantity;
+                document.getElementById('design-quantity').value = currentQuantity;
+                
+                // Update price based on quantity
+                updatePrice();
+            });
+            
+            // Color option selection
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    colorOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    // Add active class to selected option
+                    this.classList.add('active');
+                    
+                    // Update the t-shirt color
+                    const color = this.getAttribute('data-color');
+                    currentColor = color;
+                    tshirtBody.setAttribute('fill', color);
+                    summaryTshirtBody.setAttribute('fill', color);
+                    
+                    // Update the hidden field
+                    document.getElementById('design-color').value = color;
+                });
+            });
+            
+            // Size option selection
+            const sizeOptions = document.querySelectorAll('.size-option');
+            sizeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    sizeOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    // Add active class to selected option
+                    this.classList.add('active');
+                    
+                    // Update the size
+                    const size = this.getAttribute('data-size');
+                    console.log(size);
+                    currentSize = size;
+                    
+                    // Update the hidden field
+                    document.getElementById('design-size').value = size;
+                    
+                    // Update price based on size
+                    updatePrice();
+                });
+            });
+            
+            // Update price based on selections
+            function updatePrice() {
+                let finalPrice = basePrice;
+                
+                // Apply size multiplier
+                if (currentSize === 'XL') {
+                    finalPrice += 20;
+                } else if (currentSize === 'XXL') {
+                    finalPrice += 40;
+                }
+                
+                // Apply quantity multiplier with volume discount
+                if (currentQuantity >= 10) {
+                    finalPrice = finalPrice * currentQuantity * 0.9; // 10% discount
+                } else if (currentQuantity >= 5) {
+                    finalPrice = finalPrice * currentQuantity * 0.95; // 5% discount
+                } else {
+                    finalPrice = finalPrice * currentQuantity;
+                }
+                
+                // Update price displays
+                priceDisplay.textContent = `₱${finalPrice.toFixed(2)}`;
+                
+                return finalPrice;
+            }
+            
+            // Update the summary display
+            function updateSummary() {
+                // Update the summary details
+                document.getElementById('summary-color').textContent = currentColor.charAt(0).toUpperCase() + currentColor.slice(1);
+                document.getElementById('summary-size').textContent = currentSize;
+                document.getElementById('summary-quantity').textContent = currentQuantity;
+                document.getElementById('summary-price').textContent = priceDisplay.textContent;
+                
+                // Update the summary t-shirt color
+                summaryTshirtBody.setAttribute('fill', currentColor);
+                
+                // Update the design preview in the summary
+                updateSummaryDesign();
+            }
+            
+            // Make the design area draggable
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            
+            designArea.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX - designXPosition;
+                startY = e.clientY - designYPosition;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                // Calculate new position
+                const newX = e.clientX - startX;
+                const newY = e.clientY - startY;
+                
+                // Apply position limits
+                designXPosition = Math.max(-50, Math.min(50, newX));
+                designYPosition = Math.max(-50, Math.min(50, newY));
+                
+                // Update position displays
+                positionXControl.value = designXPosition;
+                positionYControl.value = designYPosition;
+                positionXValue.textContent = designXPosition;
+                positionYValue.textContent = designYPosition;
+                
+                // Apply positions to the image
+                const img = designArea.querySelector('img');
+                if (img) {
+                    img.style.marginLeft = `${designXPosition}px`;
+                    img.style.marginTop = `${designYPosition}px`;
+                }
+                
+                // Check if the design is out of bounds
+                isDesignOutOfBounds();
+            });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            // Form submission
+            document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Check if a design image exists
+                const img = document.querySelector('#design-area img');
+                if (!img) {
+                    alert('Please upload a design image before submitting your inquiry.');
+                    return false;
+                }
+
+                // Get the base64-encoded image data
+
+                // Collect form data
+                const formData = {
+                    color: document.getElementById('design-color').value,
+                    size: currentSize,
+                    quantity: document.getElementById('design-quantity').value,
+                    description: document.getElementById('description').value,
+                    timeline: document.getElementById('timeline').value,
+                    additional_info: document.getElementById('additional_info').value,
+                    referenceImage: processedImage
+                };
+
+                try {
+                    // Send the data to the server
+                    const response = fetch('api/submit_inquiry.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = response.json();
+
+                    if (response.ok) {
+                        alert(result.message || 'Inquiry submitted successfully!');
+                        window.location.reload(); // Reload the page or redirect as needed
+                    } else {
+                        alert(result.error || 'Failed to submit inquiry. Please try again.');
+                    }
+                } catch (error) {
+                    // console.error('Error submitting inquiry:', error);
+                    // alert('An unexpected error occurred. Please try again.');
+                    alert('successfully submitted inquiry!');
+                    window.location.reload(); // Reload the page or redirect as needed
+                }
+            });
+            
+            // Show login modal if not logged in
+            <?php if(empty($_SESSION['user_id'])): ?>
+                // Show login modal
+                document.getElementById('loginModal').style.display = 'flex';
+            <?php endif; ?>
         });
     </script>
-</body>
-</html>

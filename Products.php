@@ -25,14 +25,12 @@ $query = "
 ";
 
 $result = $conn->query($query);
-$products = $result->fetch_all(MYSQLI_ASSOC);
+$all_products = $result->fetch_all(MYSQLI_ASSOC);
 
-// Commissioned design examples
-$commissionedDesigns = [
-    ["name" => "Custom Team Jersey", "price" => "49.99", "badge" => "CUSTOM", "category" => "commissioned"],
-    ["name" => "Personalized Event Hoodie", "price" => "59.99", "badge" => "CUSTOM", "category" => "commissioned"],
-    ["name" => "Corporate Logo Tee", "price" => "32.99", "badge" => "CUSTOM", "category" => "commissioned"]
-];
+// Create a separate array for products that are not sold out
+$in_stock_products = array_filter($all_products, function($product) {
+    return $product['badge'] !== 'SOLD OUT';
+});
 ?>
 <?php 
     session_start();
@@ -125,7 +123,7 @@ $commissionedDesigns = [
         font-weight: 600;
     }
     
-    .add-to-cart {
+    .view-details {
         background-color: #1E1E1E;
         color: white;
         border: none;
@@ -135,14 +133,9 @@ $commissionedDesigns = [
         transition: background-color 0.3s ease;
         width: 100%;
         cursor: pointer;
-
-        &:disabled {
-            cursor: not-allowed;
-            opacity: 0.8;
-        }
     }
     
-    .add-to-cart:hover {
+    .view-details:hover {
         background-color: #444;
     }
     
@@ -256,7 +249,7 @@ $commissionedDesigns = [
         margin: 0 5px;
     }
     
-    .detail-add-to-cart {
+    .detail-view-details {
         background-color: #1E1E1E;
         color: white;
         border: none;
@@ -268,7 +261,7 @@ $commissionedDesigns = [
         cursor: pointer;
     }
     
-    .detail-add-to-cart:hover {
+    .detail-view-details:hover {
         background-color: #444;
     }
     
@@ -312,56 +305,28 @@ $commissionedDesigns = [
         margin-left: 15px;
         border-top: 2px solid #1E1E1E;
     }
-    
-    .commission-info {
-        background-color: white;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .request-commission-btn {
-        background-color: #1E1E1E;
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 4px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .request-commission-btn:hover {
-        background-color: #444;
-    }
-    
-    .badge-custom {
-        background-color: #9b59b6 !important;
-    }
 </style>
 <body class="content">
     <?php require_once "navbar.php" ?>
     
-    <!-- Category Navigation -->
+    <!-- Category Navigation - Removed commissioned designs button -->
     <div class="container py-4">
         <div class="category-nav text-center">
             <button class="category-btn active" data-target="all">All Products</button>
             <button class="category-btn" data-target="premade">Premade Designs</button>
-            <button class="category-btn" data-target="commissioned">Commissioned Designs</button>
         </div>
     </div>
     
-    <!-- Premade Designs Section -->
-    <div class="container py-4 product-section" id="premade-section">
+    <!-- All Products Section -->
+    <div class="container py-4 product-section" id="all-section">
         <div class="section-heading">
-            <h2>PREMADE DESIGNS</h2>
+            <h2>ALL PRODUCTS</h2>
             <hr>
         </div>
         <div class="row">
-            <?php foreach ($products as $product): ?>
+            <?php foreach ($all_products as $product): ?>
                 <div class="col-md-4 mb-4">
-                    <div class="product-card" onclick="location.href='ProductDetail.php?id=<?php echo $product['display_id']?>">
+                    <div class="product-card" onclick="location.href='ProductDetail.php?id=<?php echo $product['display_id']; ?>'">
                         <?php if ($product['badge']): ?>
                             <div class="product-badge"><?php echo $product['badge']; ?></div>
                         <?php endif; ?>
@@ -372,197 +337,44 @@ $commissionedDesigns = [
                         <div class="p-3">
                             <h5><?php echo htmlspecialchars($product['product_name']); ?></h5>
                             <p>₱<?php echo htmlspecialchars($product['price']) ?></p>
-                            <button 
-                                class="add-to-cart" 
-                                onclick="addToCart(
-                                    <?php echo $product['display_id']; ?>, 
-                                    <?php echo $product['price']; ?>,
-                                    this
-                                )"
-                                data-name="<?php echo htmlspecialchars($product['product_name']) ?>"
-                                data-image="<?php echo htmlspecialchars($product['image_path']) ?>"
-                                <?php if ($product['badge'] === 'SOLD OUT') echo 'disabled="disabled"'; ?>
-                            >
-                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            <button class="view-details" onclick="event.stopPropagation(); location.href='ProductDetail.php?id=<?php echo $product['display_id']; ?>'">
+                                <i class="bi bi-info-circle"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    
+    <!-- Premade Designs Section -->
+    <div class="container py-4 product-section" id="premade-section" style="display: none;">
+        <div class="section-heading">
+            <h2>PREMADE DESIGNS</h2>
+            <hr>
+        </div>
+        <div class="row">
+            <?php foreach ($in_stock_products as $product): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="product-card" onclick="location.href='ProductDetail.php?id=<?php echo $product['display_id']; ?>'">
+                        <?php if ($product['badge']): ?>
+                            <div class="product-badge"><?php echo $product['badge']; ?></div>
+                        <?php endif; ?>
+                        <img src="<?php echo htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" class="img-fluid">
+                        <button class="quick-view" onclick="event.stopPropagation();">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <div class="p-3">
+                            <h5><?php echo htmlspecialchars($product['product_name']); ?></h5>
+                            <p>₱<?php echo htmlspecialchars($product['price']) ?></p>
+                            <button class="view-details" onclick="event.stopPropagation(); location.href='ProductDetail.php?id=<?php echo $product['display_id']; ?>'">
+                                <i class="bi bi-info-circle"></i> View Details
                             </button>
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div> 
-    </div>
-    
-    <!-- Commissioned Designs Section -->
-    <div class="container py-4 product-section" id="commissioned-section">
-        <div class="section-heading">
-            <h2>COMMISSIONED DESIGNS</h2>
-            <hr>
-        </div>
-        
-        <!-- Information about commissioned designs -->
-        <div class="commission-info mb-4">
-            <div class="row">
-                <div class="col-md-8">
-                    <h4>Custom Design Services</h4>
-                    <p>Looking for something unique? Our design team can create custom apparel for individuals, teams, events, and businesses. We work closely with you to bring your vision to life!</p>
-                    <ul>
-                        <li>Personal consultation with our professional designers</li>
-                        <li>Multiple revision options</li>
-                        <li>Bulk order discounts available</li>
-                        <li>Quick turnaround times</li>
-                    </ul>
-                </div>
-                <div class="col-md-4 d-flex align-items-center justify-content-center">
-                    <button class="request-commission-btn" onclick="location.href='Commission.php'">
-                        Request a Commission
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Example commissioned products -->
-        <h4 class="mb-3">Example Commissioned Works</h4>
-        <div class="row">
-            <?php
-            // Loop through commissioned design examples
-            $commissionCount = 100; // Start at a different number range to avoid ID conflicts
-            foreach ($commissionedDesigns as $design) {
-                $commissionCount++;
-                $designName = $design["name"];
-                $price = $design["price"];
-                $badge = $design["badge"];
-            ?>
-            <div class="col-md-4 mb-4">
-                <div class="product-card" onclick="location.href='ProductDetail.php?id=<?php echo $commissionCount; ?>&name=<?php echo urlencode($designName); ?>&price=<?php echo urlencode($price); ?>&commissioned=true'">
-                    <?php if(!empty($badge)): ?>
-                    <div class="product-badge badge-custom"><?php echo $badge; ?></div>
-                    <?php endif; ?>
-                    
-                    <!-- Product Image/Carousel -->
-                    <div id="carousel-<?php echo $commissionCount; ?>" class="carousel slide" data-bs-ride="false">
-                        <div class="carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="/api/placeholder/400/300?custom1" class="d-block w-100" alt="Commission Example 1">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="/api/placeholder/400/300?custom2" class="d-block w-100" alt="Commission Example 2">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="/api/placeholder/400/300?custom3" class="d-block w-100" alt="Commission Example 3">
-                            </div>
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-<?php echo $commissionCount; ?>" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-<?php echo $commissionCount; ?>" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                    
-                    <button class="quick-view" onclick="event.stopPropagation();">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    
-                    <div class="product-info">
-                        <h5><?php echo $designName; ?></h5>
-                        <p>Starting at $<?php echo $price; ?></p>
-                        <button class="add-to-cart" onclick="event.stopPropagation();location.href='Inquiry.php'">
-                            <i class="bi bi-pencil-square"></i> Request Similar
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <?php
-            }
-            ?>
-        </div>
-    </div>
-    
-    <!-- All Products Section (initially hidden) -->
-    <div class="container py-4 product-section" id="all-section" style="display: none;">
-        <h2 class="mb-4">ALL PRODUCTS</h2>
-        <div class="row">
-            <?php foreach ($products as $product): ?>
-                <div class="col-md-4 mb-4">
-                    <div class="product-card" onclick="location.href='ProductDetail.php?id=<?php echo $product['display_id']?>">
-                        <?php if ($product['badge']): ?>
-                            <div class="product-badge"><?php echo $product['badge']; ?></div>
-                        <?php endif; ?>
-                        <img src="<?php echo htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" class="img-fluid">
-                        <button class="quick-view" onclick="event.stopPropagation();">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <div class="p-3">
-                            <h5><?php echo htmlspecialchars($product['product_name']); ?></h5>
-                            <p>₱<?php echo htmlspecialchars($product['price']) ?></p>
-                            <button 
-                                class="add-to-cart" 
-                                onclick="event.stopPropagation(); addToCart(<?php echo $productCount; ?>)"
-                                <?php if ($product['badge'] === 'SOLD OUT') echo 'disabled="disabled"'; ?>
-                            >
-                                <i class="bi bi-cart-plus"></i> Add to Cart
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-            <?php
-            // Loop through commissioned design examples
-            $commissionCount = 100; // Start at a different number range to avoid ID conflicts
-            foreach ($commissionedDesigns as $design) {
-                $commissionCount++;
-                $designName = $design["name"];
-                $price = $design["price"];
-                $badge = $design["badge"];
-            ?>
-            <div class="col-md-4 mb-4">
-                <div class="product-card" onclick="location.href='ProductDetail.php?id=<?php echo $commissionCount; ?>&name=<?php echo urlencode($designName); ?>&price=<?php echo urlencode($price); ?>&commissioned=true'">
-                    <?php if(!empty($badge)): ?>
-                    <div class="product-badge badge-custom"><?php echo $badge; ?></div>
-                    <?php endif; ?>
-                    
-                    <!-- Product Image/Carousel -->
-                    <div id="carousel-<?php echo $commissionCount; ?>" class="carousel slide" data-bs-ride="false">
-                        <div class="carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="/api/placeholder/400/300?custom1" class="d-block w-100" alt="Commission Example 1">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="/api/placeholder/400/300?custom2" class="d-block w-100" alt="Commission Example 2">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="/api/placeholder/400/300?custom3" class="d-block w-100" alt="Commission Example 3">
-                            </div>
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-<?php echo $commissionCount; ?>" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-<?php echo $commissionCount; ?>" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                    
-                    <button class="quick-view" onclick="event.stopPropagation();">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    
-                    <div class="product-info">
-                        <h5><?php echo $designName; ?></h5>
-                        <p>Starting at $<?php echo $price; ?></p>
-                        <button class="add-to-cart" onclick="event.stopPropagation;window.location.href='Inquiry.php'">
-                            <i class="bi bi-pencil-square"></i> Request Similar
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <?php
-            }
-            ?>
-        </div>
     </div>
     
     <!-- Bootstrap JS and Popper.js -->
@@ -583,8 +395,8 @@ $commissionedDesigns = [
         const categoryButtons = document.querySelectorAll('.category-btn');
         const productSections = document.querySelectorAll('.product-section');
         
-        // Initially show only specific sections
-        showSection('premade'); // Show only premade designs by default
+        // Initially show "All Products" section by default
+        showSection('all');
         
         categoryButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -611,8 +423,6 @@ $commissionedDesigns = [
                 document.getElementById('all-section').style.display = 'block';
             } else if(sectionId === 'premade') {
                 document.getElementById('premade-section').style.display = 'block';
-            } else if(sectionId === 'commissioned') {
-                document.getElementById('commissioned-section').style.display = 'block';
             }
         }
         
@@ -632,26 +442,6 @@ $commissionedDesigns = [
             });
         });
     });
-    
-    // Function to add item to cart
-    function addToCart(id, price, element) {
-        event.preventDefault();
-        // Create cart item object
-        const cartItem = {
-            id, // Product ID
-            name: element.getAttribute('data-name'), // Product name
-            image: element.getAttribute('data-image'),
-            quantity: 1, // Selected quantity
-            price // Product price
-        };
-
-        // Retrieve existing cart from localStorage
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        cart.push(cartItem);
-        // Save updated cart back to localStorage
-        localStorage.setItem('cart', JSON.stringify(cart));
-        window.location.href = 'Cart.php';
-    }
     </script>
 </body>
 </html>

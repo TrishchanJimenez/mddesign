@@ -1,6 +1,7 @@
 <?php
     session_start();
     require_once "header.php";
+    require_once "db_connection.php";
 ?>
 
 <style>
@@ -204,23 +205,39 @@ text-decoration: none;
 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+
+.social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: black; /* Changed from white to black */
+    color: white; /* Changed from #4a90e2 to white for better contrast */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
 .social-icon:hover {
-transform: scale(1.1);
-box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
 }
 
 .social-icon i {
-font-size: 30px;
-color: inherit; /* Ensures icon color matches parent element */
+    font-size: 30px;
+    color: inherit; /* Ensures icon color matches parent element */
 }
 
-
 .social-icon.facebook:hover {
-color: #3b5998;
+    color: #3b5998;
+    background-color: black; /* Maintain black background on hover */
 }
 
 .social-icon.instagram:hover {
-color: #e1306c;
+    color: #e1306c;
+    background-color: black; /* Maintain black background on hover */
 }
 
 @media (max-width: 767px) {
@@ -263,7 +280,7 @@ font-weight: bold;
 
     <!-- Carousel -->
     <div class="container mt-5">
-        <div id="tshirtCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+        <div id="tshirtCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2500">
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#tshirtCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
                 <button type="button" data-bs-target="#tshirtCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -313,7 +330,34 @@ font-weight: bold;
             </div>
         </div>
     </div>
+    <?php
+    // Fetch 3 random products from the database
+    $query = "
+        SELECT 
+            dp.id AS display_id,
+            dp.product_name,
+            dp.description,
+            (
+                SELECT di.image_path
+                FROM display_images di
+                WHERE di.product_id = dp.id
+                ORDER BY di.image_path ASC
+                LIMIT 1
+            ) AS image_path,
+            MIN(p.price) AS price
+        FROM 
+            display_product dp
+        INNER JOIN 
+            products p ON dp.product_name = p.name
+        GROUP BY 
+            dp.id, dp.product_name, dp.description
+        ORDER BY RAND() -- Randomize the selection
+        LIMIT 3; -- Limit to 3 products
+    ";
 
+    $result = $conn->query($query);
+    $premade_products = $result->fetch_all(MYSQLI_ASSOC);
+    ?>
     <!-- Pre-Made Designs -->
     <div class="container my-5 pre-made-designs">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -322,73 +366,49 @@ font-weight: bold;
         </div>
     
         <div class="row g-3">
-            <?php
-            // Define the directory where T-shirt images are stored
-            $dir = "images/TSHIRTS/";
-            
-            // Try to get files from directory
-            $files = array();
-            foreach($fileTypes as $type) {
-                $typeFiles = glob($dir . "*." . $type);
-                if($typeFiles) {
-                    $files = array_merge($files, $typeFiles);
-                }
-            }
-            
-            // Display up to 3 designs on the homepage
-            $maxHomepageDisplays = 3;
-            $displayCount = 0;
-            
-            // Check if we found any real files
-            if(count($files) > 0) {
-                // Shuffle the array to show random designs on homepage
-                shuffle($files);
-                
-                // Display up to 3 designs
-                foreach($files as $file) {
-                    if($displayCount >= $maxHomepageDisplays) break;
-                    
-                    $displayCount++;
-                    $filename = basename($file);
-                    // Extract product name from filename (remove extension)
-                    $productName = pathinfo($filename, PATHINFO_FILENAME);
-                    $productName = str_replace('_', ' ', $productName);
-                    $productName = ucwords($productName);
-                    
-                    // Get product ID from filename for the link
-                    $productId = preg_replace('/[^a-zA-Z0-9]/', '', $productName);
-            ?>
-            <div class="col-md-4">
-                <a href="ProductDetail.php?id=<?php echo urlencode($productId); ?>" class="text-decoration-none text-dark">
-                    <div class="design-placeholder">
-                        <img src="<?php echo $file; ?>" alt="<?php echo $productName; ?>">
+            <?php if (!empty($premade_products)): ?>
+                <?php foreach ($premade_products as $product): ?>
+                    <div class="col-md-4">
+                        <a href="ProductDetail.php?id=<?php echo urlencode($product['display_id']); ?>" class="text-decoration-none text-dark">
+                            <div class="design-placeholder">
+                                <img src="<?php echo htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>">
+                            </div>
+                            <div class="text-center mt-2">
+                                <h4><?php echo htmlspecialchars($product['product_name']); ?></h4>
+                            </div>
+                        </a>
                     </div>
-                    <div class="text-center mt-2">
-                        <h4><?php echo $productName; ?></h4>
+                <?php endforeach; ?>
+
+                <?php
+                // Calculate the number of placeholders needed
+                $placeholders_needed = 3 - count($premade_products);
+                for ($i = 0; $i < $placeholders_needed; $i++): ?>
+                    <div class="col-md-4">
+                        <a href="#" class="text-decoration-none text-dark">
+                            <div class="design-placeholder">
+                                <img src="/api/placeholder/450/450?text=No+Image" alt="Design Placeholder">
+                            </div>
+                            <div class="text-center mt-2">
+                                <h4>Sample Design <?php echo $i + 1; ?></h4>
+                            </div>
+                        </a>
                     </div>
-                </a>
-            </div>
-            <?php
-                }
-            }
-            
-            // If no images found or less than 3 images, fill the rest with placeholders
-            for($i = $displayCount; $i < $maxHomepageDisplays; $i++) {
-                $placeholderId = 'sample' . ($i+1);
-            ?>
-            <div class="col-md-4">
-                <a href="ProductDetail.php?id=<?php echo $placeholderId; ?>" class="text-decoration-none text-dark">
-                    <div class="design-placeholder">
-                        <img src="/api/placeholder/450/450?text=No+Image" alt="Design Placeholder">
+                <?php endfor; ?>
+            <?php else: ?>
+                <?php for ($i = 0; $i < 3; $i++): ?>
+                    <div class="col-md-4">
+                        <a href="#" class="text-decoration-none text-dark">
+                            <div class="design-placeholder">
+                                <img src="/api/placeholder/450/450?text=No+Image" alt="Design Placeholder">
+                            </div>
+                            <div class="text-center mt-2">
+                                <h4>Sample Design <?php echo $i + 1; ?></h4>
+                            </div>
+                        </a>
                     </div>
-                    <div class="text-center mt-2">
-                        <h4>Sample Design <?php echo $i+1; ?></h4>
-                    </div>
-                </a>
-            </div>
-            <?php
-            }
-            ?>
+                <?php endfor; ?>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -412,40 +432,40 @@ font-weight: bold;
 
     <!-- Footer -->
     <footer class="footer mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 mb-4 mb-md-0">
-                    <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3">
-                        <img id="footerLogo" src="/api/placeholder/75/75" class="me-2 rounded-circle">
-                        <span class="logo-text">Metro District Design</span>
-                    </div>
-                    <div class="footer-text text-center text-md-start">
-                        <p><i class="bi bi-geo-alt me-2"></i><a href="" target="_blank" style="color: white; text-decoration: none;">Parañaque, Philippines</a></p>
-                        <p><i class="bi bi-envelope me-2"></i><a href="" style="color: white; text-decoration: none;">metrodistrictd@gmail.com</a></p>
-                        <p><i class="bi bi-telephone me-2"></i><a href="" style="color: white; text-decoration: none;"></a> 0968 597 9776<a href="4" style="color: white; text-decoration: none;"></a></p>
-                    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3">
+                    <img id="footerLogo" src="/api/placeholder/75/75" class="me-2 rounded-circle">
+                    <span class="logo-text">Metro District Design</span>
                 </div>
-                
-                <div class="col-md-6">
-                <div class="container">
-                        <div class="row">
-                            <div class="col-md-6 mb-4 mb-md-0">
-                                <h5>Follow Us</h5>
-                                <a href="https://www.facebook.com/MetroDistrictDesigns" class="social-icon facebook">
-                                    <i class="bi bi-facebook"></i>
-                                </a>
-                                <a href="https://www.instagram.com/metrodistrict_ig/" class="social-icon instagram">
-                                    <i class="bi bi-instagram"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="text-center text-md-end mt-4">
-                        <p>© 2025 Metro District Design. All rights reserved.</p>
-                    </div>
+                <div class="footer-text text-center text-md-start">
+                    <p><i class="bi bi-geo-alt me-2"></i><a href="" target="_blank" style="color: white; text-decoration: none;">Parañaque, Philippines</a></p>
+                    <p><i class="bi bi-envelope me-2"></i><a href="" style="color: white; text-decoration: none;">metrodistrictd@gmail.com</a></p>
+                    <p><i class="bi bi-telephone me-2"></i><a href="" style="color: white; text-decoration: none;"></a> 0968 597 9776<a href="4" style="color: white; text-decoration: none;"></a></p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 d-flex align-items-end justify-content-center">
+                <p>© 2025 Metro District Design. All rights reserved.</p>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="d-flex align-items-center justify-content-end mb-3">
+                    <h5 class="mb-0">Follow Us</h5>
+                </div>
+                <div class="text-center text-md-end">
+                    <a href="https://www.facebook.com/MetroDistrictDesigns" class="social-icon facebook" style="background-color: black; color: white;">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="https://www.instagram.com/metrodistrict_ig/" class="social-icon instagram" style="background-color: black; color: white;">
+                        <i class="bi bi-instagram"></i>
+                    </a>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
 
 <!-- Bootstrap JS and dependencies -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

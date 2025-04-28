@@ -1,4 +1,6 @@
 <?php
+// Start the session at the very beginning of the file
+session_start();
 require_once "db_connection.php";
 
 // Get product ID from URL
@@ -128,23 +130,32 @@ $price = $productDetails[0]['price'] ?? '0.00';
         margin-bottom: 30px;
     }
     
+    /* Updated image styles */
+    .product-images-container {
+        display: flex;
+        flex-direction: column;
+    }
+    
     .product-main-image {
         width: 100%;
-        height: 400px;
-        object-fit: cover;
+        height: 500px; /* Increased height from 400px to 500px */
+        object-fit: contain; /* Changed from cover to contain to display full image */
         border-radius: 8px;
         margin-bottom: 15px;
+        background-color: #f9f9f9; /* Light background for the main image */
     }
     
     .product-thumbnails {
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
+        justify-content: center; /* Center the thumbnails */
+        flex-wrap: wrap; /* Allow wrapping if many thumbnails */
     }
     
     .product-thumbnail {
-        width: 80px;
-        height: 80px;
+        width: 60px; /* Reduced from 80px to 60px */
+        height: 60px; /* Reduced from 80px to 60px */
         object-fit: cover;
         border-radius: 4px;
         cursor: pointer;
@@ -225,11 +236,11 @@ $price = $productDetails[0]['price'] ?? '0.00';
         align-items: center;
         justify-content: center;
         cursor: pointer;
-
-        &.disabled {
-            opacity: 0.8;
-            cursor: not-allowed;
-        }
+    }
+    
+    .quantity-btn.disabled {
+        opacity: 0.8;
+        cursor: not-allowed;
     }
     
     .quantity-input {
@@ -251,20 +262,20 @@ $price = $productDetails[0]['price'] ?? '0.00';
         width: 100%;
         font-weight: bold;
         cursor: pointer;
-
-        &:hover {
-            background-color: #444;
-        }
-
-        &:disabled {
-            opacity: 0.8;
-        }
-
-        &:disabled:hover {
-            background-color: #1E1E1E;
-            opacity: 0.8;
-            cursor: not-allowed;
-        }
+    }
+    
+    .add-to-cart-btn:hover {
+        background-color: #444;
+    }
+    
+    .add-to-cart-btn:disabled {
+        opacity: 0.8;
+    }
+    
+    .add-to-cart-btn:disabled:hover {
+        background-color: #1E1E1E;
+        opacity: 0.8;
+        cursor: not-allowed;
     }
     
     .product-tabs {
@@ -336,25 +347,23 @@ $price = $productDetails[0]['price'] ?? '0.00';
         font-weight: bold;
         margin-bottom: 10px;
     }
+    
+    /* Magnifying hover effect for main image */
+    .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+    }
+    
+    .image-container:hover .product-main-image {
+        transform: scale(1.05);
+    }
+    
+    .product-main-image {
+        transition: transform 0.3s ease;
+    }
 </style>
 <body class="content">
-    <!-- <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand" href="index.php">
-                <img src="/api/placeholder/40/40" class="rounded-circle" alt="Logo">
-                Metro District Designs
-            </a>
-            <div class="mx-auto">
-                <a href="index.php" class="nav-link d-inline-block">HOME</a>
-                <a href="Products.php" class="nav-link d-inline-block">PRODUCTS</a>
-                <a href="Inquiry.php" class="nav-link d-inline-block">INQUIRY</a>
-            </div>
-            <div>
-                <a href="Signup.php" class="login-links">SIGN-UP</a>
-                <a href="Login.php" class="login-links">LOGIN</a>
-            </div>
-        </div>
-    </nav> -->
     <?php require_once "navbar.php"; ?>
 
     <div class="container py-4">
@@ -372,11 +381,15 @@ $price = $productDetails[0]['price'] ?? '0.00';
             <div class="row">
                 <!-- Product Images -->
                 <div class="col-md-6">
-                    <img src="<?php echo htmlspecialchars($productImages[0]['image_path'] ?? '/api/placeholder/500/400'); ?>" alt="<?php echo htmlspecialchars($productName); ?>" class="product-main-image" id="mainImage">
-                    <div class="product-thumbnails">
-                        <?php foreach ($productImages as $image): ?>
-                            <img src="<?php echo htmlspecialchars($image['image_path']); ?>" alt="Product Image" class="product-thumbnail" onclick="changeImage(this, '<?php echo htmlspecialchars($image['image_path']); ?>')">
-                        <?php endforeach; ?>
+                    <div class="product-images-container">
+                        <div class="image-container">
+                            <img src="<?php echo htmlspecialchars($productImages[0]['image_path'] ?? '/api/placeholder/500/400'); ?>" alt="<?php echo htmlspecialchars($productName); ?>" class="product-main-image" id="mainImage">
+                        </div>
+                        <div class="product-thumbnails">
+                            <?php foreach ($productImages as $index => $image): ?>
+                                <img src="<?php echo htmlspecialchars($image['image_path']); ?>" alt="Product Image" class="product-thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" onclick="changeImage(this, '<?php echo htmlspecialchars($image['image_path']); ?>')">
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
                 
@@ -385,7 +398,6 @@ $price = $productDetails[0]['price'] ?? '0.00';
                     <h2 class="product-title"><?php echo htmlspecialchars($productName); ?></h2>
                     <div class="product-price">₱<?php echo htmlspecialchars($price); ?></div>
                     <div class="product-description"><?php echo htmlspecialchars($description); ?></div>
-
                     
                     <div class="mb-3">
                         <label class="option-label">Size:</label>
@@ -477,6 +489,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
     let selectedSize = null;
     let quantityBtnDisabled = true;
     let sizeColorStock = <?php echo json_encode($sizeColorStock); ?>;
+    let isLoggedIn = <?php echo isset($_SESSION['username']) ? 'true' : 'false'; ?>;
 
     function selectSize(element) {
         console.log("selected size");
@@ -509,21 +522,20 @@ $price = $productDetails[0]['price'] ?? '0.00';
         selectedColor = null;
     }
 
-    // Change main product image
-    function changeImage(element, src) {
-        document.getElementById('mainImage').src = src;
-        const thumbnails = document.querySelectorAll('.product-thumbnail');
-        thumbnails.forEach(thumb => thumb.classList.remove('active'));
-        element.classList.add('active');
-    }
-
-    // Color selection
     function selectColor(element) {
         const colorOptions = document.querySelectorAll('.color-btn');
         colorOptions.forEach(option => option.classList.remove('active'));
         element.classList.add('active');
         selectedColor = element.textContent.trim();
         validateSelections();
+    }
+
+    // Change main product image
+    function changeImage(element, src) {
+        document.getElementById('mainImage').src = src;
+        const thumbnails = document.querySelectorAll('.product-thumbnail');
+        thumbnails.forEach(thumb => thumb.classList.remove('active'));
+        element.classList.add('active');
     }
 
     // Quantity controls
@@ -549,14 +561,62 @@ $price = $productDetails[0]['price'] ?? '0.00';
             quantityInput.value = quantity - 1;
         }
     }
+    // Validate if both color and size are selected
+    function validateSelections() {
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        const quantityControls = document.querySelectorAll('.quantity-btn');
+        const quantityInput = document.getElementById('quantity');
+        
+        if (selectedSize && selectedColor) {
+            const stock = sizeColorStock[selectedSize][selectedColor] || 0;
+            
+            if (stock > 0) {
+                quantityBtnDisabled = false;
+                addToCartBtn.disabled = !isLoggedIn || false; // Disable if not logged in
+                quantityControls.forEach(btn => btn.classList.remove("disabled"));
+                quantityInput.disabled = false;
+                quantityInput.value = 1; // Reset quantity to 1
+                quantityInput.max = stock; // Set max quantity
+                addToCartBtn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
+                
+                // Show login prompt if not logged in
+            } else {
+                addToCartBtn.disabled = true;
+                quantityControls.forEach(btn => btn.classList.add("disabled"));
+                quantityInput.disabled = true;
+                quantityInput.value = 0;
+                addToCartBtn.innerHTML = "Out of Stock";
+            }
+        } else {
+            addToCartBtn.disabled = true;
+            quantityControls.forEach(btn => btn.classList.add("disabled"));
+            quantityInput.disabled = true;
+            quantityInput.value = 0;
+            addToCartBtn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
+        }
+    }
 
     // Add to Cart functionality
     document.getElementById('addToCartBtn').addEventListener('click', function () {
+        // Check if user is logged in
+        if (!isLoggedIn) {
+            alert('Please login to add items to your cart');
+            window.location.href = 'Login.php?redirect=' + encodeURIComponent(window.location.href);
+            return;
+        }
+        
         const quantity = parseInt(document.getElementById('quantity').value);
         const mainImage = document.getElementById('mainImage').src;
-
+        
         if (!selectedSize || !selectedColor) {
             alert('Please select both size and color.');
+            return;
+        }
+        
+        // Check available stock
+        const stock = sizeColorStock[selectedSize][selectedColor] || 0;
+        if (quantity > stock) {
+            alert(`Only ${stock} item(s) are in stock.`);
             return;
         }
 
@@ -583,7 +643,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
 
         if (existingItemIndex > -1) {
             // Update quantity if the item already exists
-            cart[existingItemIndex].quantity = quantity;
+            cart[existingItemIndex].quantity += quantity;
         } else {
             // Add new item to the cart
             cart.push(cartItem);
@@ -591,47 +651,26 @@ $price = $productDetails[0]['price'] ?? '0.00';
 
         // Save updated cart back to localStorage
         localStorage.setItem('cart', JSON.stringify(cart));
-        location.href = "cart.php";
+        
+        // Alert and redirect
+        alert('Item added to cart successfully!');
+        //location.href = "cart.php";
     });
-
-    // Validate if both color and size are selected
-    function validateSelections() {
-        const addToCartBtn = document.getElementById('addToCartBtn');
-        const quantityControls = document.querySelectorAll('.quantity-btn');
-        const quantityInput = document.getElementById('quantity');
-        
-
-        if (selectedSize && selectedColor) {
-            const stock = sizeColorStock[selectedSize][selectedColor] || 0;
-        
-
-            if (stock > 0) {
-                quantityBtnDisabled = false;
-                addToCartBtn.disabled = false;
-                quantityControls.forEach(btn => btn.classList.remove("disabled"));
-                quantityInput.disabled = false;
-                quantityInput.value = 1; // Reset quantity to 1
-                quantityInput.max = stock; // Set max quantity
-                addToCartBtn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
-            } else {
-                addToCartBtn.disabled = true;
-                quantityControls.forEach(btn => btn.disabled = true);
-                quantityInput.disabled = true;
-                quantityInput.value = 0; // Reset quantity to 0
-                quantityInput.max = stock; // Set max quantity
-                addToCartBtn.innerHTML = "Out of Stock";
-
-            }
-        } else {
-            addToCartBtn.disabled = true;
-            addToCartBtn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
-            quantityControls.forEach(btn => btn.classList.add("disabled"));
-            quantityInput.disabled = true;
-            quantityInput.value = 0; // Reset quantity to 0
-        }
-    }
     
+    // Initialize on page load
     validateSelections();
+    
+    function changeImage(element, src) {
+        document.getElementById('mainImage').src = src;
+        const thumbnails = document.querySelectorAll('.product-thumbnail');
+        thumbnails.forEach(thumb => thumb.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    // Set first thumbnail as active
+    if (document.querySelector('.product-thumbnail')) {
+        document.querySelector('.product-thumbnail').classList.add('active');
+    }
     </script>
 </body>
 </html>

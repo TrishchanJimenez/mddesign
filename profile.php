@@ -1,4 +1,5 @@
 <?php
+//session_start();
 include_once "role-validation.php";
 require_once "db_connection.php";
 
@@ -19,6 +20,7 @@ $stmt->close();
   <title>Metro District Designs - ADMIN Profile</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -82,7 +84,7 @@ $stmt->close();
       margin: 0;
     }
 
-    /* Main Content Area Styles */
+    /* Main Content Area Styles - Adjusted for sidebar layout */
     .main-content {
       margin-left: 250px;
       padding: 20px;
@@ -197,7 +199,7 @@ $stmt->close();
 <!-- Main Container with Sidebar -->
 <div class="container-fluid p-0">
   <div class="row g-0">
-    <!-- Sidebar - Consistent with dashboard.php -->
+    <!-- Sidebar -->
     <div class="col-auto">
       <div class="sidebar">
         <div class="logo-container">
@@ -210,12 +212,10 @@ $stmt->close();
         <a href="product-stock.php" class="sidebar-link">
           <i class="fas fa-box"></i> Product Stock
         </a>
-        <a href="admin-homepage-editor.php" class="sidebar-link">
-          <svg width="20" height="20" viewBox="0 0 1024 1024" fill="currentColor" style="margin-right: 15px;">
-            <path d="M880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32zm-622.3-84c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9c3.9-3.9 3.9-10.2 0-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 0 0 33.2 39.7z"/>
-          </svg> Homepage Editor
+        <a href="admininquiries.php" class="sidebar-link">
+          <i class="fas fa-envelope"></i> Inquiries
         </a>
-        <a href="admin-homepage-editor.php" class="sidebar-link">
+        <a href="user-admin.php" class="sidebar-link">
           <i class="fas fa-users"></i> Account Manager
         </a>
         <a href="profile.php" class="sidebar-link active">
@@ -311,22 +311,6 @@ $stmt->close();
                     </div>
                   </div>
                   
-                  <div class="user-info-item">
-                    <div class="profile-label">Address</div>
-                    <div class="profile-value">
-                      <textarea class="form-control" id="address" name="address" placeholder="Address"></textarea>
-                      <i class="fas fa-pen edit-icon field-edit" data-field="address"></i>
-                    </div>
-                  </div>
-                  
-                  <div class="user-info-item">
-                    <div class="profile-label">Postal Code</div>
-                    <div class="profile-value">
-                      <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="Postal Code" disabled>
-                      <i class="fas fa-pen edit-icon field-edit" data-field="postalCode"></i>
-                    </div>
-                  </div>
-                  
                   <div class="edit-buttons" id="editButtons">
                     <button type="button" class="btn btn-success me-2" id="saveBtn">Save Changes</button>
                     <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
@@ -397,8 +381,6 @@ $stmt->close();
             document.getElementById("username").value = data.user.username;
             document.getElementById("email").value = data.user.email;
             document.getElementById("phone").value = "63" + data.user.contact_number;
-            document.getElementById("address").value = data.user.address ?? "";
-            document.getElementById("postalCode").value = data.user.postal_code ?? "";
 
             // Save original values
             originalValues = { ...data.user };
@@ -483,8 +465,6 @@ $stmt->close();
       document.getElementById("username").value = originalValues.username;
       document.getElementById("email").value = originalValues.email;
       document.getElementById("phone").value = originalValues.contact_number;
-      document.getElementById("address").value = originalValues.address;
-      document.getElementById("postalCode").value = originalValues.postal_code;
 
       disableFields();
     });

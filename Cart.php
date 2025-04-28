@@ -90,7 +90,6 @@
         border-radius: 4px;
         cursor: pointer;
     }
-    
 
     .checkout-btn:disabled {
         cursor: not-allowed;
@@ -110,16 +109,6 @@
         flex-grow: 1;
     }
     
-    .item-selection {
-        margin-right: 15px;
-    }
-    
-    .form-check-input {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-    }
-    
     /* Size and color styles */
     .option-group {
         margin-top: 5px;
@@ -135,6 +124,23 @@
         border: 1px solid #ddd;
         border-radius: 4px;
     }
+
+    /* Cart summary styles */
+    .cart-summary {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .cart-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 10px 0;
+        border-top: 1px solid #ddd;
+    }
 </style>
 <body>
     <!-- Navbar -->
@@ -144,10 +150,21 @@
     <div class="container">
         <div class="cart-container">
             <h2 class="mb-4">ORDERS</h2>
+            
             <div id="cart-items">
                  
             </div>
-            <button class="checkout-btn" id="checkout-btn" onclick="location.href='checkout-form.php'">Check Out</button>
+            <!-- Cart Summary Section -->
+            <div class="cart-summary">
+                <div class="cart-total">
+                    <span>Total Amount:</span>
+                    <span>₱<span id="cart-total-amount">0.00</span></span>
+                </div>
+                <div class="mt-2">
+                    <span>Total Items: <span id="total-items-count">0</span></span>
+                </div>
+            </div>
+            <button class="checkout-btn" id="checkout-btn" onclick="proceedToCheckout()">Check Out</button>
         </div>
     </div>
 
@@ -157,9 +174,14 @@
         document.addEventListener('DOMContentLoaded', function () {
             const cartItemsContainer = document.getElementById('cart-items');
             const checkoutBtn = document.getElementById('checkout-btn');
+            const cartTotalAmount = document.getElementById('cart-total-amount');
+            const totalItemsCount = document.getElementById('total-items-count');
 
             // Fetch cart data from localStorage
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Update cart in localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
 
             // Function to fetch stock data from the server
             async function fetchStockData(productId) {
@@ -191,7 +213,7 @@
                             <div class="option-group">
                                 <span class="option-label">Size:</span>
                                 <select class="size-selector" data-index="${index}">
-                                    <option value="">Select Color</option>
+                                    <option value="">Select Size</option>
                                     ${Object.keys(stockData)
                                         .filter(size => Object.values(stockData[size]).some(colorData => colorData.quantity > 0)) // Only show sizes with available stock
                                         .map(size => `
@@ -224,9 +246,35 @@
                                 <i class="bi bi-trash"></i> Remove
                             </button>
                         </div>
+                        <p class="mt-2">Subtotal: ₱<span class="item-subtotal">${(item.price * item.quantity).toFixed(2)}</span></p>
                     </div>
                 `;
                 return cartItem;
+            }
+
+            // Function to calculate and update the total amount for all items
+            function updateTotalAmount() {
+                const total = cart.reduce((sum, item) => {
+                    // Only include items with size and color selected in the total
+                    if (item.size && item.color) {
+                        return sum + (item.price * item.quantity);
+                    }
+                    return sum;
+                }, 0);
+                
+                cartTotalAmount.textContent = total.toFixed(2);
+                
+                // Store the total in localStorage for checkout
+                localStorage.setItem('cartTotal', total.toFixed(2));
+                
+                // Update total items count
+                const validItemsCount = cart.filter(item => item.size && item.color).length;
+                totalItemsCount.textContent = validItemsCount;
+                
+                // Disable checkout button if no valid items
+                checkoutBtn.disabled = validItemsCount === 0;
+                
+                return total;
             }
 
             // Function to render cart items
@@ -235,22 +283,18 @@
                 if (cart.length === 0) {
                     cartItemsContainer.innerHTML = '<p>Your cart is empty. <a href="Products.php">Continue shopping</a>.</p>';
                     checkoutBtn.disabled = true;
+                    cartTotalAmount.textContent = '0.00';
+                    totalItemsCount.textContent = '0';
                     return;
                 }
-
-                let allSelectionsValid = true;
 
                 for (let index = 0; index < cart.length; index++) {
                     const item = cart[index];
                     const cartItem = await renderCartItem(item, index);
                     cartItemsContainer.appendChild(cartItem);
-
-                    if (!item.size || !item.color) {
-                        allSelectionsValid = false;
-                    }
                 }
 
-                checkoutBtn.disabled = !allSelectionsValid;
+                updateTotalAmount();
             }
 
             async function updateCartItem(index) {
@@ -259,12 +303,14 @@
                 if (existingItem) {
                     const updatedItem = await renderCartItem(item, index);
                     cartItemsContainer.replaceChild(updatedItem, existingItem);
+                    updateTotalAmount();
                 } 
             }
 
             // Update cart in localStorage
             function updateCart() {
                 localStorage.setItem('cart', JSON.stringify(cart));
+                updateTotalAmount();
             }
 
             cartItemsContainer.addEventListener('change', async function (event) {
@@ -277,9 +323,8 @@
                     const cartItem = cart[index];
 
                     cartItem.size = selectedSize;
-                    cartItem.quantity = 0;
+                    cartItem.quantity = 1;  // Set default quantity to 1 when size is selected
                     cartItem.color = ''; // Reset color when size changes
-                    checkoutBtn.disabled = true;
                     updateCart();
                     await updateCartItem(index);
                 }
@@ -291,10 +336,9 @@
                     const cartItem = cart[index];
 
                     cartItem.color = selectedColor;
-                    cartItem.quantity = 0;
-
-                    const allColorsSelected = cart.every(item => item.color && item.color.trim() !== "");
-                    checkoutBtn.disabled = !allColorsSelected;
+                    if (cartItem.quantity === 0) {
+                        cartItem.quantity = 1;  // Set default quantity to 1 when color is selected
+                    }
 
                     updateCart();
                     await updateCartItem(index);
@@ -315,9 +359,15 @@
                     if (cartItem.quantity < maxStock) {
                         cartItem.quantity++;
                         quantityInput.value = cartItem.quantity;
+                        
+                        // Update subtotal display
+                        const orderItem = target.closest('.order-item');
+                        const subtotalElement = orderItem.querySelector('.item-subtotal');
+                        subtotalElement.textContent = (cartItem.price * cartItem.quantity).toFixed(2);
+                        
                         updateCart();
                     } else {
-                        alert(`Only ${cartItem.quantity} item(s) are in stock`);
+                        alert(`Only ${maxStock} item(s) are in stock`);
                     }
                 }
 
@@ -330,6 +380,12 @@
                     if (cartItem.quantity > 1) {
                         cartItem.quantity--;
                         quantityInput.value = cartItem.quantity;
+                        
+                        // Update subtotal display
+                        const orderItem = target.closest('.order-item');
+                        const subtotalElement = orderItem.querySelector('.item-subtotal');
+                        subtotalElement.textContent = (cartItem.price * cartItem.quantity).toFixed(2);
+                        
                         updateCart();
                     }
                 }
@@ -342,6 +398,23 @@
                     renderCart(); // Re-render the entire cart since the indices have changed
                 }
             });
+            
+            // Function to proceed to checkout with all valid items
+            window.proceedToCheckout = function() {
+                // Filter only items with size and color selected
+                const validItems = cart.filter(item => item.size && item.color);
+                
+                if (validItems.length === 0) {
+                    alert('Please select size and color for at least one item to checkout');
+                    return;
+                }
+                
+                // Store items for checkout page
+                localStorage.setItem('checkoutItems', JSON.stringify(validItems));
+                
+                // Navigate to checkout page
+                window.location.href = 'checkout-form.php';
+            };
 
             // Initial render
             renderCart();

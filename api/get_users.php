@@ -4,7 +4,7 @@ require_once "../db_connection.php";
 header("Content-Type: application/json");
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    $query = "SELECT id, first_name, last_name, email, contact_number, username, role, profile_picture, created_at, updated_at FROM users WHERE role='admin'";
+    $query = "SELECT id, first_name, last_name, email, contact_number, username, role, profile_picture, created_at, updated_at FROM users WHERE role='user' OR role= 'admin'";
     $result = $conn->query($query);
 
     if ($result) {

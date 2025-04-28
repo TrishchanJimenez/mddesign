@@ -1,6 +1,28 @@
 <?php
 session_start();
 require_once "db_connection.php";
+
+// These arrays would typically come from your database
+// For demonstration, I'm including sample data for Philippines locations
+$regions = [
+    "13" => "National Capital Region (NCR)",
+    "14" => "Cordillera Administrative Region (CAR)",
+    "01" => "Region I (Ilocos Region)",
+    "02" => "Region II (Cagayan Valley)",
+    "03" => "Region III (Central Luzon)",
+    "04" => "Region IV-A (CALABARZON)",
+    "17" => "Region IV-B (MIMAROPA)",
+    "05" => "Region V (Bicol Region)",
+    "06" => "Region VI (Western Visayas)",
+    "07" => "Region VII (Central Visayas)",
+    "08" => "Region VIII (Eastern Visayas)",
+    "09" => "Region IX (Zamboanga Peninsula)",
+    "10" => "Region X (Northern Mindanao)",
+    "11" => "Region XI (Davao Region)",
+    "12" => "Region XII (SOCCSKSARGEN)",
+    "16" => "Region XIII (Caraga)",
+    "15" => "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)"
+];
 ?>
 
 <!DOCTYPE html>
@@ -57,7 +79,7 @@ require_once "db_connection.php";
             color: black;
             margin-bottom: 20px;
         }
-        .signup-form input {
+        .signup-form input, .signup-form select {
             width: 100%;
             margin-bottom: 25px;
             padding: 8px;
@@ -103,31 +125,16 @@ require_once "db_connection.php";
             margin-top: -20px;
             margin-bottom: 15px;
         }
+        .section-header {
+            font-weight: bold;
+            text-align: left;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <img src="/api/placeholder/40/40" class="rounded-circle">
-                Metro District Designs
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="index.php">HOME</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Products.php">PRODUCTS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Inquiry.php">INQUIRY</a></li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="Login.php">LOGIN</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php include "navbar.php"; ?>
 
     <div class="signup-container">
         <h2>SIGN UP</h2>
@@ -147,29 +154,61 @@ require_once "db_connection.php";
         <form class="signup-form" action="register.php" method="POST">
             <div class="form-row">
                 <div class="form-group">
-                    <input type="text" name="first_name" placeholder="First Name" value="<?php echo isset($_SESSION['old_input']['first_name']) ? htmlspecialchars($_SESSION['old_input']['first_name']) : ''; ?>" required>
+                    <input type="text" name="first_name" placeholder="First Name" required>
                 </div>
                 <div class="form-group">
-                    <input type="text" name="last_name" placeholder="Last Name" value="<?php echo isset($_SESSION['old_input']['last_name']) ? htmlspecialchars($_SESSION['old_input']['last_name']) : ''; ?>" required>
+                    <input type="text" name="last_name" placeholder="Last Name" required>
                 </div>
             </div>
-            <input type="text" name="username" placeholder="Username" value="<?php echo isset($_SESSION['old_input']['username']) ? htmlspecialchars($_SESSION['old_input']['username']) : ''; ?>" required>
-            <input type="tel" name="contact_number" id="contact_number" placeholder="Contact Number (e.g., 09123456789)" pattern="^(09|\+639)\d{9}$" maxlength="11" value="<?php echo isset($_SESSION['old_input']['contact_number']) ? htmlspecialchars($_SESSION['old_input']['contact_number']) : ''; ?>" required>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="tel" name="contact_number" id="contact_number" placeholder="Contact Number (e.g., 09123456789)" pattern="^(09|\+639)\d{9}$" maxlength="11" required>
             <div class="input-help-text">Enter a Philippine mobile number (e.g., 09123456789)</div>
-            <input type="email" name="email" placeholder="Email" value="<?php echo isset($_SESSION['old_input']['email']) ? htmlspecialchars($_SESSION['old_input']['email']) : ''; ?>" required>
-            <textarea name="address" placeholder="Full Address" required><?php echo isset($_SESSION['old_input']['address']) ? htmlspecialchars($_SESSION['old_input']['address']) : ''; ?></textarea>
-            <input type="number" name="postal_code" id="postal_code" placeholder="Postal Code" pattern="[0-9]*" inputmode="numeric" minlength="4" maxlength="4" value="<?php echo isset($_SESSION['old_input']['postal_code']) ? htmlspecialchars($_SESSION['old_input']['postal_code']) : ''; ?>" required>
+            <input type="email" name="email" placeholder="Email" required>
+            
+            <!-- Address Section with Dropdowns -->
+            <div class="section-header">Complete Address</div>
+            
+            <select name="region" id="region" required>
+                <option value="">Select Region</option>
+                <?php foreach ($regions as $code => $name): ?>
+                    <option value="<?php echo htmlspecialchars($code); ?>"><?php echo htmlspecialchars($name); ?></option>
+                <?php endforeach; ?>
+            </select>
+            
+            <select name="province" id="province" required disabled>
+                <option value="">Select Province</option>
+                <!-- Will be populated via AJAX -->
+            </select>
+            
+            <select name="city" id="city" required disabled>
+                <option value="">Select City/Municipality</option>
+                <!-- Will be populated via AJAX -->
+            </select>
+            
+            <select name="barangay" id="barangay" required disabled>
+                <option value="">Select Barangay</option>
+                <!-- Will be populated via AJAX -->
+            </select>
+            
+            <input type="text" name="street_address" id="street_address" placeholder="House/Lot/Unit Number, Building, Street Name" required>
+            
+            <input type="number" name="postal_code" id="postal_code" placeholder="Postal Code" pattern="[0-9]*" inputmode="numeric" minlength="4" maxlength="4" required>
             <div class="input-help-text">Enter a 4-digit Philippine postal code</div>
+            
             <input type="password" name="password" placeholder="Password" required>
             <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+            
             <div class="login-link">
                 Already have an account? <a href="Login.php">Log In</a>
             </div>
             <button type="submit">Sign Up</button>
+            
+            <!-- Hidden input to store the complete address -->
+            <input type="hidden" name="address" id="address">
         </form>
     </div>
 
-    <!-- Client-side validation for phone number and postal code -->
+    <!-- Client-side validation and AJAX for address dropdowns -->
     <script>
         // Ensure postal code only accepts numbers and is limited to 4 digits (Philippine standard)
         document.querySelector('#postal_code').addEventListener('input', function(e) {
@@ -202,6 +241,105 @@ require_once "db_connection.php";
                 // If it doesn't start with '+' or '0', prepend '09'
                 this.value = '9' + this.value;
             }
+        });
+        
+        // Handle address dropdown dependencies
+        document.getElementById('region').addEventListener('change', function() {
+            const regionCode = this.value;
+            const provinceDropdown = document.getElementById('province');
+            const cityDropdown = document.getElementById('city');
+            const barangayDropdown = document.getElementById('barangay');
+
+            if (regionCode) {
+                fetch(`api/fetch_locations.php?type=province&regionCode=${regionCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        provinceDropdown.innerHTML = '<option value="">Select Province</option>';
+                        data.forEach(province => {
+                            const option = document.createElement('option');
+                            option.value = province.provCode;
+                            option.textContent = province.provDesc;
+                            provinceDropdown.appendChild(option);
+                        });
+                        provinceDropdown.disabled = false;
+                    });
+            } else {
+                provinceDropdown.disabled = true;
+                cityDropdown.disabled = true;
+                barangayDropdown.disabled = true;
+            }
+        });
+        
+        document.getElementById('province').addEventListener('change', function() {
+            const provinceCode = this.value;
+            const cityDropdown = document.getElementById('city');
+            const barangayDropdown = document.getElementById('barangay');
+
+            if (provinceCode) {
+                fetch(`api/fetch_locations.php?type=city&provinceCode=${provinceCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        cityDropdown.innerHTML = '<option value="">Select City/Municipality</option>';
+                        data.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city.citymunCode;
+                            option.textContent = city.citymunDesc;
+                            cityDropdown.appendChild(option);
+                        });
+                        cityDropdown.disabled = false;
+                    });
+            } else {
+                cityDropdown.disabled = true;
+                barangayDropdown.disabled = true;
+            }
+        });
+        
+        document.getElementById('city').addEventListener('change', function() {
+            const cityCode = this.value;
+            const barangayDropdown = document.getElementById('barangay');
+
+            if (cityCode) {
+                fetch(`api/fetch_locations.php?type=barangay&cityCode=${cityCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        barangayDropdown.innerHTML = '<option value="">Select Barangay</option>';
+                        data.forEach(barangay => {
+                            const option = document.createElement('option');
+                            option.value = barangay.brgyCode;
+                            option.textContent = barangay.brgyDesc;
+                            barangayDropdown.appendChild(option);
+                        });
+                        barangayDropdown.disabled = false;
+                    });
+            } else {
+                barangayDropdown.disabled = true;
+            }
+        });
+        
+        document.getElementById('street_address').addEventListener('input', function() {
+            updateCompleteAddress();
+        });
+        
+        // Function to update the hidden complete address field
+        function updateCompleteAddress() {
+            const streetAddress = document.getElementById('street_address').value;
+            const barangay = document.getElementById('barangay').options[document.getElementById('barangay').selectedIndex]?.text || '';
+            const city = document.getElementById('city').options[document.getElementById('city').selectedIndex]?.text || '';
+            const province = document.getElementById('province').options[document.getElementById('province').selectedIndex]?.text || '';
+            const region = document.getElementById('region').options[document.getElementById('region').selectedIndex]?.text || '';
+            const postalCode = document.getElementById('postal_code').value;
+            
+            let addressParts = [streetAddress, barangay, city, province, region];
+            // Filter out empty parts
+            addressParts = addressParts.filter(part => part.trim() !== '');
+            
+            const completeAddress = addressParts.join(', ') + (postalCode ? ' ' + postalCode : '');
+            document.getElementById('address').value = completeAddress;
+        }
+        
+        // Add form submission handler to ensure complete address is updated before submission
+        document.querySelector('.signup-form').addEventListener('submit', function(e) {
+            updateCompleteAddress();
         });
 
         const signupForm = document.querySelector('.signup-form');
