@@ -693,6 +693,7 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Tab navigation
@@ -1090,15 +1091,15 @@
                 // Get the base64-encoded image data
 
                 // Collect form data
-                const formData = {
-                    color: document.getElementById('design-color').value,
-                    size: currentSize,
-                    quantity: document.getElementById('design-quantity').value,
-                    description: document.getElementById('description').value,
-                    timeline: document.getElementById('timeline').value,
-                    additional_info: document.getElementById('additional_info').value,
-                    referenceImage: processedImage
-                };
+                // const formData = {
+                //     color: document.getElementById('design-color').value,
+                //     size: currentSize,
+                //     quantity: document.getElementById('design-quantity').value,
+                //     description: document.getElementById('description').value,
+                //     timeline: document.getElementById('timeline').value,
+                //     additional_info: document.getElementById('additional_info').value,
+                //     referenceImage: processedImage
+                // };
 
                 // try {
                 //     // Send the data to the server
@@ -1125,32 +1126,53 @@
                 //     alert('successfully submitted inquiry!');
                 //     window.location.reload(); // Reload the page or redirect as needed
                 // }
-                fetch('api/submit_inquiry.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            // If the response is not OK, parse the error message
-                            return response.json().then(errorData => {
-                                throw new Error(errorData.error || 'Failed to submit inquiry. Please try again.');
-                            });
-                        }
-                        return response.json(); // Parse the JSON response
+                const summaryPreviewDiv = document.getElementById('summary-preview');
+                html2canvas(summaryPreviewDiv).then(canvas => {
+                    // Convert the canvas to a base64 image
+                    const summaryImage = canvas.toDataURL('image/png');
+
+                    // Collect form data
+                    const formData = {
+                        color: document.getElementById('design-color').value,
+                        size: currentSize,
+                        quantity: document.getElementById('design-quantity').value,
+                        description: document.getElementById('description').value,
+                        timeline: document.getElementById('timeline').value,
+                        additional_info: document.getElementById('additional_info').value,
+                        referenceImage: summaryImage, // Original design image
+                    };
+
+                    // Send the data to the server
+                    fetch('api/submit_inquiry.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
                     })
-                    .then(result => {
-                        // Handle success
-                        alert(result.message || 'Inquiry submitted successfully!');
-                        window.location.reload(); // Reload the page or redirect as needed
-                    })
-                    .catch(error => {
-                        // Handle errors
-                        console.error('Error submitting inquiry:', error);
-                        alert(error.message || 'An unexpected error occurred. Please try again.');
-                    });
+                        .then(response => {
+                            if (!response.ok) {
+                                // If the response is not OK, parse the error message
+                                return response.json().then(errorData => {
+                                    throw new Error(errorData.error || 'Failed to submit inquiry. Please try again.');
+                                });
+                            }
+                            return response.json(); // Parse the JSON response
+                        })
+                        .then(result => {
+                            // Handle success
+                            alert(result.message || 'Inquiry submitted successfully!');
+                            window.location.reload(); // Reload the page or redirect as needed
+                        })
+                        .catch(error => {
+                            // Handle errors
+                            console.error('Error submitting inquiry:', error);
+                            alert(error.message || 'An unexpected error occurred. Please try again.');
+                        });
+                }).catch(error => {
+                    console.error('Error capturing summary-preview:', error);
+                    alert('Failed to capture the design summary. Please try again.');
+                });
             });
             
             // Show login modal if not logged in
