@@ -660,17 +660,16 @@
       // Handle delete button clicks
       document.addEventListener('click', function (event) {
         if (event.target.closest('.delete-btn')) {
+          event.stopPropagation();
           const btn = event.target.closest('.delete-btn');
           const userId = parseInt(btn.getAttribute('data-id'));
-          const user = users.find(u => u.id === userId);
+          const user = users.find(u => u.id == userId);
 
           if (user) {
             deleteUserId.value = user.id;
             deleteUserName.textContent = `${user.first_name} ${user.last_name}`;
             deleteModal.show();
           }
-
-          event.stopPropagation();
         }
       });
 
