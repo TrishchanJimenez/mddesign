@@ -1100,30 +1100,57 @@
                     referenceImage: processedImage
                 };
 
-                try {
-                    // Send the data to the server
-                    const response = fetch('api/submit_inquiry.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    });
+                // try {
+                //     // Send the data to the server
+                //     const response = fetch('api/submit_inquiry.php', {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json'
+                //         },
+                //         body: JSON.stringify(formData)
+                //     });
+                    
 
-                    const result = response.json();
+                //     const result = response.json();
 
-                    if (response.ok) {
+                //     if (response.ok) {
+                //         alert(result.message || 'Inquiry submitted successfully!');
+                //         window.location.reload(); // Reload the page or redirect as needed
+                //     } else {
+                //         alert(result.error || 'Failed to submit inquiry. Please try again.');
+                //     }
+                // } catch (error) {
+                //     // console.error('Error submitting inquiry:', error);
+                //     // alert('An unexpected error occurred. Please try again.');
+                //     alert('successfully submitted inquiry!');
+                //     window.location.reload(); // Reload the page or redirect as needed
+                // }
+                fetch('api/submit_inquiry.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            // If the response is not OK, parse the error message
+                            return response.json().then(errorData => {
+                                throw new Error(errorData.error || 'Failed to submit inquiry. Please try again.');
+                            });
+                        }
+                        return response.json(); // Parse the JSON response
+                    })
+                    .then(result => {
+                        // Handle success
                         alert(result.message || 'Inquiry submitted successfully!');
                         window.location.reload(); // Reload the page or redirect as needed
-                    } else {
-                        alert(result.error || 'Failed to submit inquiry. Please try again.');
-                    }
-                } catch (error) {
-                    // console.error('Error submitting inquiry:', error);
-                    // alert('An unexpected error occurred. Please try again.');
-                    alert('successfully submitted inquiry!');
-                    window.location.reload(); // Reload the page or redirect as needed
-                }
+                    })
+                    .catch(error => {
+                        // Handle errors
+                        console.error('Error submitting inquiry:', error);
+                        alert(error.message || 'An unexpected error occurred. Please try again.');
+                    });
             });
             
             // Show login modal if not logged in
