@@ -115,6 +115,12 @@ $regions = [
             color: red;
             margin-bottom: 15px;
         }
+
+        .success-message {
+            color: green;
+            margin-bottom: 15px;
+        }
+
         .login-link {
             margin-bottom: 15px;
         }
@@ -148,6 +154,15 @@ $regions = [
             }
             echo '</div>';
             unset($_SESSION['registration_errors']);
+        }
+
+        if (isset($_SESSION['sucess_message'])) {
+            echo '<div class="success-message">';
+            foreach ($_SESSION['success_message'] as $success) {
+                echo '<p>' . htmlspecialchars($success) . '</p>';
+            }
+            echo '</div>';
+            unset($_SESSION['success_message']);
         }
         ?>
 
@@ -202,9 +217,6 @@ $regions = [
                 Already have an account? <a href="Login.php">Log In</a>
             </div>
             <button type="submit">Sign Up</button>
-            
-            <!-- Hidden input to store the complete address -->
-            <input type="hidden" name="address" id="address">
         </form>
     </div>
 
@@ -314,32 +326,6 @@ $regions = [
             } else {
                 barangayDropdown.disabled = true;
             }
-        });
-        
-        document.getElementById('street_address').addEventListener('input', function() {
-            updateCompleteAddress();
-        });
-        
-        // Function to update the hidden complete address field
-        function updateCompleteAddress() {
-            const streetAddress = document.getElementById('street_address').value;
-            const barangay = document.getElementById('barangay').options[document.getElementById('barangay').selectedIndex]?.text || '';
-            const city = document.getElementById('city').options[document.getElementById('city').selectedIndex]?.text || '';
-            const province = document.getElementById('province').options[document.getElementById('province').selectedIndex]?.text || '';
-            const region = document.getElementById('region').options[document.getElementById('region').selectedIndex]?.text || '';
-            const postalCode = document.getElementById('postal_code').value;
-            
-            let addressParts = [streetAddress, barangay, city, province, region];
-            // Filter out empty parts
-            addressParts = addressParts.filter(part => part.trim() !== '');
-            
-            const completeAddress = addressParts.join(', ') + (postalCode ? ' ' + postalCode : '');
-            document.getElementById('address').value = completeAddress;
-        }
-        
-        // Add form submission handler to ensure complete address is updated before submission
-        document.querySelector('.signup-form').addEventListener('submit', function(e) {
-            updateCompleteAddress();
         });
 
         const signupForm = document.querySelector('.signup-form');

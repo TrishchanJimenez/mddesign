@@ -13,7 +13,8 @@ $query = "
             WHEN SUM(p.stock) = 0 THEN 'SOLD OUT' -- Check if total stock is 0
             ELSE NULL
         END AS badge,
-        MIN(p.price) AS price -- Get the minimum price for the product
+        MIN(p.price) AS price, -- Get the minimum price for the product
+        MAX(CASE WHEN p.original_price IS NOT NULL THEN p.original_price END) AS original_price
     FROM 
         display_product dp
     INNER JOIN 
@@ -336,7 +337,16 @@ $in_stock_products = array_filter($all_products, function($product) {
                         </button>
                         <div class="p-3">
                             <h5><?php echo htmlspecialchars($product['product_name']); ?></h5>
-                            <p>₱<?php echo htmlspecialchars($product['price']) ?></p>
+                            <p>₱
+                                <?php if ($product['original_price']): ?>
+                                    <span style="text-decoration: line-through;">
+                                        <?php echo htmlspecialchars(number_format($product['original_price'], 2)); ?>
+                                    </span>
+                                <?php endif; ?>
+                                <span>
+                                    <?php echo htmlspecialchars(number_format($product['price'], 2)); ?>
+                                </span>
+                            </p>
                             <button class="view-details" onclick="event.stopPropagation(); location.href='ProductDetail.php?id=<?php echo $product['display_id']; ?>'">
                                 <i class="bi bi-info-circle"></i> View Details
                             </button>
@@ -366,7 +376,17 @@ $in_stock_products = array_filter($all_products, function($product) {
                         </button>
                         <div class="p-3">
                             <h5><?php echo htmlspecialchars($product['product_name']); ?></h5>
-                            <p>₱<?php echo htmlspecialchars($product['price']) ?></p>
+                            <p>
+                                <?php if ($product['original_price']): ?>
+                                    <span style="text-decoration: line-through;">
+                                        ₱<?php echo htmlspecialchars(number_format($product['original_price'], 2)); ?>
+                                    </span>
+                                <?php endif; ?>
+                                test
+                                <span>
+                                    <?php echo htmlspecialchars(number_format($product['price'], 2)); ?>
+                                </span>
+                            </p>
                             <button class="view-details" onclick="event.stopPropagation(); location.href='ProductDetail.php?id=<?php echo $product['display_id']; ?>'">
                                 <i class="bi bi-info-circle"></i> View Details
                             </button>

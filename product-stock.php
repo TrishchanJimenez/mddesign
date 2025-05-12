@@ -334,11 +334,14 @@
       <div class="col-auto">
         <div class="sidebar">
           <div class="logo-container">
-            <img src="/api/placeholder/40/40" class="logo" alt="Logo">
+            <img src="images/TSHIRTS/LOGO.jpg" class="logo" alt="Logo">
             <h5 class="brand-name">Metro District Designs</h5>
           </div>
           <a href="dashboard.php" class="sidebar-link">
             <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+          <a href="admin-orders.php" class="sidebar-link">
+              <i class="fas fa-shopping-cart"></i> Orders
           </a>
           <a href="product-stock.php" class="sidebar-link active">
             <i class="fas fa-box"></i> Product Stock
@@ -408,6 +411,7 @@
                         <th>Size</th>
                         <th>Stock</th>
                         <th>Selling Price</th>
+                        <th>Original Price</th>
                         <th>Product Added</th>
                         <th>Product Modified</th>
                         <th>Action</th>
@@ -447,7 +451,32 @@
             <div class="row mb-3">
               <div class="col-md-6">
                 <label for="productName" class="form-label">Product Name</label>
-                <input type="text" class="form-control" id="productName" required>
+                <!-- <input type="text" class="form-control" id="productName" required> -->
+                <select class="form-select" id="productName" required>
+                  <option value="">Select Product</option>
+                  <option value="BORN BROKE DIE RICH">BORN BROKE DIE RICH</option>
+                  <option value="CHOSEN">CHOSEN</option>
+                  <option value="CLASSIC WOLF">CLASSIC WOLF</option>
+                  <option value="COOL DADS RAISING COOL KIDS">COOL DADS RAISING COOL KIDS</option>
+                  <option value="CS X CMA COLLAB">CS X CMA COLLAB</option>
+                  <option value="DOERS ALWAYS DOET">DOERS ALWAYS DOET</option>
+                  <option value="DOERS GET TIRED TOO">DOERS GET TIRED TOO</option>
+                  <option value="DOLLAR LANE">DOLLAR LANE</option>
+                  <option value="FLVMME DREAMER">FLVMME DREAMER</option>
+                  <option value="GOALS IN MOTION">GOALS IN MOTION</option>
+                  <option value="GROW IN SILENCE">GROW IN SILENCE</option>
+                  <option value="HOLO V1">HOLO V1</option>
+                  <option value="JDG NUGS BASIC TEE">JDG NUGS BASIC TEE</option>
+                  <option value="JDM NUGS COLLECTION">JDM NUGS COLLECTION</option>
+                  <option value="NO ORDINARY LOVE">NO ORDINARY LOVE</option>
+                  <option value="NUGS JANUARY RLS (GLYPH)">NUGS JANUARY RLS (GLYPH)</option>
+                  <option value="NUGS JANUARY RLS (THAI CAMO)">NUGS JANUARY RLS (THAI CAMO)</option>
+                  <option value="PANTAS">PANTAS</option>
+                  <option value="STONERS SOCIETY">STONERS SOCIETY</option>
+                  <option value="THE GOOD GUYS">THE GOOD GUYS</option>
+                  <option value="THE GOOD GUYS (BADGES)">THE GOOD GUYS (BADGES)</option>
+                  <option value="WARSHIP">WARSHIP</option>
+                </select>
               </div>
               <div class="col-md-6">
                 <label for="productCategory" class="form-label">Category/Type</label>
@@ -488,6 +517,12 @@
               <div class="col-md-6">
                 <label for="productPrice" class="form-label">Selling Price (₱)</label>
                 <input type="number" class="form-control" id="productPrice" min="0" step="0.01" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="originalPrice" class="form-label">Original Price (₱)</label>
+                <input type="number" class="form-control" id="originalPrice" min="0" step="0.01">
               </div>
             </div>
           </form>
@@ -555,6 +590,7 @@
     const productSize = document.getElementById('productSize');
     const productStock = document.getElementById('productStock');
     const productPrice = document.getElementById('productPrice');
+    const originalPrice = document.getElementById('originalPrice');
     const deleteProductId = document.getElementById('deleteProductId');
     const deleteProductName = document.getElementById('deleteProductName');
 
@@ -634,6 +670,11 @@
             <td>${product.size}</td>
             <td>${product.stock}</td>
             <td>₱${parseFloat(product.price).toFixed(2)}</td>
+            <td>
+              ${product.original_price == null
+                ? ''
+                : `₱${parseFloat(product.original_price).toFixed(2)}`}
+            </td>
             <td>${formatDate(product.date_added)}</td>
             <td>${formatDate(product.date_modified)}</td>
             <td>
@@ -681,6 +722,7 @@
         size: productSize.value,
         stock: parseInt(productStock.value),
         price: parseFloat(productPrice.value),
+        original_price: originalPrice.value == null || originalPrice.value === '' ? null : parseFloat(originalPrice.value),
       };
 
       const url = id ? 'api/update_product.php' : 'api/add_product.php';
@@ -725,6 +767,7 @@
               productSize.value = product.size;
               productStock.value = product.stock;
               productPrice.value = product.price;
+              originalPrice.value = product.original_price;
 
               // Update modal title
               productModalLabel.textContent = 'Edit Product';
@@ -777,6 +820,28 @@
 
     // Initial Fetch
     fetchProducts();
+
+    productColor.addEventListener('input', function () {
+      // If user enters a valid hex code, update color picker
+      let val = productColor.value.trim();
+      // Accepts #RRGGBB or #RGB or color names
+      let temp = document.createElement('div');
+      temp.style.color = val;
+      if (temp.style.color !== '') {
+        // If it's a valid color name, convert to hex using a trick
+        document.body.appendChild(temp);
+        let cs = getComputedStyle(temp).color;
+        document.body.removeChild(temp);
+        // Convert rgb to hex if needed
+        let rgb = cs.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (rgb) {
+          let hex = "#" + ((1 << 24) + (parseInt(rgb[1]) << 16) + (parseInt(rgb[2]) << 8) + parseInt(rgb[3])).toString(16).slice(1).toUpperCase();
+          productColorCode.value = hex;
+        }
+      } else if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(val)) {
+        productColorCode.value = val;
+      }
+    });
   });
 </script>
 </body>

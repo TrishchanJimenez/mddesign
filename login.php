@@ -2,6 +2,29 @@
 session_start();
 require_once "db_connection.php";
 
+// Handle email verification via token
+if (isset($_GET['token'])) {
+    $token = $conn->real_escape_string($_GET['token']);
+    $stmt = $conn->prepare("SELECT id FROM users WHERE verification_token = ? AND is_verified = 0");
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+        // Mark as verified
+        $user = $result->fetch_assoc();
+        $update = $conn->prepare("UPDATE users SET is_verified = 1, verification_token = NULL WHERE id = ?");
+        $update->bind_param("i", $user['id']);
+        $update->execute();
+        $update->close();
+        $_SESSION['registration_success'] = "Email verified! You can now log in.";
+    } else {
+        $_SESSION['registration_success'] = "Invalid or expired verification link.";
+    }
+    header("Location: Login.php");
+    exit();
+}
+
+// Handle login submission
 // Handle login submission
 $login_error = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -9,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Prepare SQL to prevent SQL injection
-    $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, username, password, role, is_verified FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -17,8 +40,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         
-        // Verify password
-        if (password_verify($password, $user['password'])) {
+        // Check if email is verified first
+        if ($user['is_verified'] != 1) {
+            $login_error = "Please verify your email before logging in. Check your inbox for the verification link.";
+        }
+        // Verify password only if email is verified
+        else if (password_verify($password, $user['password'])) {
             // Login successful
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];

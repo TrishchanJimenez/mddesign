@@ -126,6 +126,7 @@ require_once "db_connection.php";
                             <?php else: ?>
                                 <!-- Regular user dropdown items -->
                                 <li><a class="dropdown-item" href="profile-user.php">Profile</a></li>
+                                <li><a class="dropdown-item" href="orders.php">Orders</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="logout.php">Logout</a></li>
                             <?php endif; ?>

@@ -273,11 +273,14 @@
       <div class="col-auto">
         <div class="sidebar">
           <div class="logo-container">
-            <img src="/api/placeholder/40/40" class="logo" alt="Logo">
+            <img src="images/TSHIRTS/LOGO.jpg" class="logo" alt="Logo">
             <h5 class="brand-name">Metro District Designs</h5>
           </div>
           <a href="dashboard.php" class="sidebar-link">
             <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+          <a href="admin-orders.php" class="sidebar-link">
+            <i class="fas fa-shopping-cart"></i> Orders
           </a>
           <a href="product-stock.php" class="sidebar-link">
             <i class="fas fa-box"></i> Product Stock
@@ -567,9 +570,11 @@
           userPhone.value = "63" + user.contact_number;
           userUsername.value = user.username;
 
-          userPassword.removeAttribute('required');
-          passwordFieldContainer.querySelector('label').textContent = 'Password (leave blank to keep current)';
-          userPassword.value = '';
+          // Hide password field when editing
+          passwordFieldContainer.style.display = 'none';
+          //userPassword.removeAttribute('required');
+          //passwordFieldContainer.querySelector('label').textContent = 'Password (leave blank to keep current)';
+          //userPassword.value = '';
 
           userModalLabel.textContent = 'Edit User';
           userModal.show();

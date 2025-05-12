@@ -3,11 +3,56 @@
     require "db_connection.php";
     $userId = $_SESSION['user_id'];
 
-    $stmt = $conn->prepare("SELECT first_name, last_name, username, email, contact_number, address, postal_code FROM users WHERE id = ?");
+    $stmt = $conn->prepare("SELECT first_name, last_name, username, email, contact_number FROM users WHERE id = ?");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result-> fetch_assoc();
+    $stmt->close();
+
+    // Modified query to join with reference tables to get actual location names
+    $stmt = $conn->prepare("
+    SELECT 
+        a.id AS address_id,
+        a.street_address,
+        a.postal_code,
+        b.brgyDesc AS barangay,
+        c.citymunDesc AS city,
+        p.provDesc AS province,
+        r.regDesc AS region
+    FROM 
+        addresses a
+    LEFT JOIN 
+        refbrgy b ON a.brgyCode = b.brgyCode
+    LEFT JOIN 
+        refcitymun c ON a.citymunCode = c.citymunCode
+    LEFT JOIN 
+        refprovince p ON a.provCode = p.provCode
+    LEFT JOIN 
+        refregion r ON a.regCode = r.regCode
+    WHERE 
+        a.user_id = ?
+    ");
+    
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $all_addresses = [];
+    while ($row = $result->fetch_assoc()) {
+        // Create a formatted address string from the individual components
+        $formatted_address = $row['street_address'] . ', ' . 
+                             $row['barangay'] . ', ' . 
+                             $row['city'] . ', ' . 
+                             $row['province'] . ', ' . 
+                             $row['region'] . ' ' . 
+                             $row['postal_code'];
+                             
+        $all_addresses[] = [
+            'id' => $row['address_id'],
+            'address' => $formatted_address
+        ];
+    }
+    $stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -369,17 +414,19 @@
                 
                 <div class="form-group disabled">
                     <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" value="<?php echo $user['contact_number'] ?>" disabled>
+                    <input type="tel" id="phone" value="0<?php echo $user['contact_number'] ?>" disabled>
                 </div>
                 
-                <div class="form-group disabled">
-                    <label for="address">Complete Address</label>
-                    <input type="text" id="address" value="<?php echo $user['address'] ?>" disabled>
-                </div>
-                
-                <div class="form-group disabled">
-                    <label for="postalCode">Postal Code</label>
-                    <input type="text" id="postalCode" value="<?php echo $user['postal_code'] ?>" disabled>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <select id="address" name="address" class="form-select" required>
+                        <option value="">Select Address</option>
+                        <?php foreach ($all_addresses as $address): ?>
+                            <option value="<?php echo htmlspecialchars($address['id']); ?>">
+                                <?php echo htmlspecialchars($address['address']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
             
@@ -572,12 +619,14 @@
         const shippingMethod = document.querySelector(".shipping-option.selected .shipping-radio").value;
         const paymentMethod = document.querySelector(".payment-option.selected .payment-radio").id;
         const shippingFee = parseFloat(document.querySelector(".shipping-option.selected .shipping-price").textContent.replace("₱", "").trim());
+        const addressId = document.getElementById("address").value;
 
         const requestData = {
             items: cart,
             shipping_method: shippingMethod,
             payment_method: paymentMethod,
-            shipping_fee: shippingFee
+            shipping_fee: shippingFee,
+            address: addressId
         };
 
         try {

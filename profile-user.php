@@ -14,11 +14,31 @@
   $userId = $_SESSION['user_id'];
 
   // Fetch user information
-  $stmt = $conn->prepare("SELECT username, first_name, last_name, email, contact_number, address, postal_code FROM users WHERE id = ?");
+  $stmt = $conn->prepare("SELECT username, first_name, last_name, email, contact_number FROM users WHERE id = ?");
   $stmt->bind_param("i", $userId);
   $stmt->execute();
   $user = $stmt->get_result()->fetch_assoc();
   $stmt->close();
+
+  $regions = [
+    "13" => "National Capital Region (NCR)",
+    "14" => "Cordillera Administrative Region (CAR)",
+    "01" => "Region I (Ilocos Region)",
+    "02" => "Region II (Cagayan Valley)",
+    "03" => "Region III (Central Luzon)",
+    "04" => "Region IV-A (CALABARZON)",
+    "17" => "Region IV-B (MIMAROPA)",
+    "05" => "Region V (Bicol Region)",
+    "06" => "Region VI (Western Visayas)",
+    "07" => "Region VII (Central Visayas)",
+    "08" => "Region VIII (Eastern Visayas)",
+    "09" => "Region IX (Zamboanga Peninsula)",
+    "10" => "Region X (Northern Mindanao)",
+    "11" => "Region XI (Davao Region)",
+    "12" => "Region XII (SOCCSKSARGEN)",
+    "16" => "Region XIII (Caraga)",
+    "15" => "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)"
+  ];
 ?>
 <style>
   body {
@@ -192,18 +212,127 @@
         </div>
         
         <div class="form-group">
-            <label for="complete-address">Complete Address (House number, building, street name)</label>
-            <textarea id="complete-address" name="complete-address" class="form-control" rows="3" required><?php echo htmlspecialchars($user['address']); ?></textarea>
+          <label>Addresses</label>
         </div>
-    
         <div class="form-group">
-            <label for="postal-code">Postal Code</label>
-            <input type="text" id="postal-code" name="postal-code" class="form-control" value="<?php echo htmlspecialchars($user['postal_code']); ?>" placeholder="Numbers only" pattern="[0-9]*" inputmode="numeric" maxlength="4" required>
-            <small class="text-muted">Enter numeric postal code (e.g., 1234)</small>
+        <?php
+            // Direct query to get all user addresses with joined data in a single query
+            $stmt = $conn->prepare("
+                SELECT 
+                    a.id, a.street_address, a.postal_code, 
+                    a.brgyCode, a.citymunCode, a.provCode, a.regCode,
+                    b.brgyDesc AS barangay,
+                    c.citymunDesc AS city,
+                    p.provDesc AS province,
+                    r.regDesc AS region
+                FROM 
+                    addresses a
+                LEFT JOIN 
+                    refbrgy b ON a.brgyCode = b.brgyCode
+                LEFT JOIN 
+                    refcitymun c ON a.citymunCode = c.citymunCode
+                LEFT JOIN 
+                    refprovince p ON a.provCode = p.provCode
+                LEFT JOIN 
+                    refregion r ON a.regCode = r.regCode
+                WHERE 
+                    a.user_id = ?
+                ORDER BY
+                    a.id DESC
+            ");
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $addresses = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+          
+            if (!empty($addresses)): 
+              foreach ($addresses as $address): 
+          ?>
+              <textarea
+                  class="form-control mb-2"
+                  rows="2"
+                  data-id="<?php echo htmlspecialchars($address['id']); ?>"
+                  data-brgycode="<?php echo htmlspecialchars($address['brgyCode']); ?>"
+                  data-citymuncode="<?php echo htmlspecialchars($address['citymunCode']); ?>"
+                  data-provcode="<?php echo htmlspecialchars($address['provCode']); ?>"
+                  data-regcode="<?php echo htmlspecialchars($address['regCode']); ?>"
+                  readonly
+                  style="resize: none; cursor: edit;"
+                  
+              ><?php echo htmlspecialchars(
+                  $address['street_address'] . ', ' .
+                  $address['barangay'] . ', ' .
+                  $address['city'] . ', ' .
+                  $address['province'] . ', ' .
+                  $address['region'] . ' ' .
+                  $address['postal_code']
+              ); ?></textarea>
+          <?php 
+              endforeach; 
+            else: 
+          ?>
+              <div class="text-muted">No address on file.</div>
+          <?php endif; ?>
         </div>
-        
+        <div class="form-group">
+          <button type="button" class="btn btn-secondary mb-3" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+            Add New Address
+          </button>
+        </div>
         <button type="submit" class="btn btn-primary">Save Profile</button>
     </form> 
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="add-address-form">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="region" class="form-label">Region</label>
+                <select class="form-select" id="region" name="region" required>
+                  <option value="">Select Region</option>
+                  <?php foreach ($regions as $code => $name): ?>
+                      <option value="<?php echo htmlspecialchars($code); ?>"><?php echo htmlspecialchars($name); ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="province" class="form-label">Province</label>
+                <select class="form-select" id="province" name="province" required>
+
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="city" class="form-label">City/Municipality</label>
+                <select class="form-select" id="city" name="city" required>
+
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="barangay" class="form-label">Barangay</label>
+                <select class="form-select" id="barangay" name="barangay" required>
+
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="street_address" class="form-label">Street Address</label>
+                <input type="text" class="form-control" id="street_address" name="street_address" required>
+              </div>
+              <div class="mb-3">
+                <label for="address_postal_code" class="form-label">Postal Code</label>
+                <input type="text" class="form-control" id="address_postal_code" name="postal_code" required pattern="[0-9]*" maxlength="4">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save Address</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -228,28 +357,261 @@
     });
     
     // Postal code validation - numbers only
-    const postalCodeInput = document.getElementById('postal-code');
+    // const postalCodeInput = document.getElementById('postal-code');
     
-    postalCodeInput.addEventListener('input', function(e) {
-      // Only allow numbers for postal code
-      const value = e.target.value;
-      // Remove any characters that aren't numbers
-      const filteredValue = value.replace(/[^\d]/g, '');
+    // postalCodeInput.addEventListener('input', function(e) {
+    //   // Only allow numbers for postal code
+    //   const value = e.target.value;
+    //   // Remove any characters that aren't numbers
+    //   const filteredValue = value.replace(/[^\d]/g, '');
       
-      if (value !== filteredValue) {
-        e.target.value = filteredValue;
-      }
+    //   if (value !== filteredValue) {
+    //     e.target.value = filteredValue;
+    //   }
+    // });
+
+    document.getElementById('region').addEventListener('change', function() {
+        const regionCode = this.value;
+        const provinceDropdown = document.getElementById('province');
+        const cityDropdown = document.getElementById('city');
+        const barangayDropdown = document.getElementById('barangay');
+
+        if (regionCode) {
+            fetch(`api/fetch_locations.php?type=province&regionCode=${regionCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    provinceDropdown.innerHTML = '<option value="">Select Province</option>';
+                    data.forEach(province => {
+                        const option = document.createElement('option');
+                        option.value = province.provCode;
+                        option.textContent = province.provDesc;
+                        provinceDropdown.appendChild(option);
+                    });
+                    provinceDropdown.disabled = false;
+                });
+        } else {
+            provinceDropdown.disabled = true;
+            cityDropdown.disabled = true;
+            barangayDropdown.disabled = true;
+        }
     });
     
-    // Form validation and submission
-    const profileForm = document.getElementById('profile-form');
+    document.getElementById('province').addEventListener('change', function() {
+        const provinceCode = this.value;
+        const cityDropdown = document.getElementById('city');
+        const barangayDropdown = document.getElementById('barangay');
+
+        if (provinceCode) {
+            fetch(`api/fetch_locations.php?type=city&provinceCode=${provinceCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    cityDropdown.innerHTML = '<option value="">Select City/Municipality</option>';
+                    data.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city.citymunCode;
+                        option.textContent = city.citymunDesc;
+                        cityDropdown.appendChild(option);
+                    });
+                    cityDropdown.disabled = false;
+                });
+        } else {
+            cityDropdown.disabled = true;
+            barangayDropdown.disabled = true;
+        }
+    });
     
+    document.getElementById('city').addEventListener('change', function() {
+        const cityCode = this.value;
+        const barangayDropdown = document.getElementById('barangay');
+
+        if (cityCode) {
+            fetch(`api/fetch_locations.php?type=barangay&cityCode=${cityCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    barangayDropdown.innerHTML = '<option value="">Select Barangay</option>';
+                    data.forEach(barangay => {
+                        const option = document.createElement('option');
+                        option.value = barangay.brgyCode;
+                        option.textContent = barangay.brgyDesc;
+                        barangayDropdown.appendChild(option);
+                    });
+                    barangayDropdown.disabled = false;
+                });
+        } else {
+            barangayDropdown.disabled = true;
+        }
+    });
+
+    document.getElementById('add-address-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const addressId = this.querySelector('input[name="address_id"]')?.value;
+      const isUpdate = !!addressId;
+      
+      const data = {
+        brgyCode: document.getElementById('barangay').value,
+        citymunCode: document.getElementById('city').value,
+        provCode: document.getElementById('province').value,
+        regCode: document.getElementById('region').value,
+        street_address: document.getElementById('street_address').value,
+        postal_code: document.getElementById('address_postal_code').value
+      };
+      
+      if (isUpdate) {
+        data.id = addressId;
+      }
+    
+      try {
+        const endpoint = isUpdate ? 'api/update_address.php' : 'api/add_address.php';
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert(isUpdate ? 'Address updated!' : 'Address added!');
+          location.reload();
+        } else {
+          alert(result.error || `Failed to ${isUpdate ? 'update' : 'add'} address.`);
+        }
+      } catch (err) {
+        alert(`Error ${isUpdate ? 'updating' : 'adding'} address.`);
+      }
+    });
+
+    document.querySelectorAll('textarea[data-id]').forEach(textarea => {
+      // When clicking an address, populate and show the edit modal
+      textarea.addEventListener('click', async function() {
+        const addressId = this.getAttribute('data-id');
+        const addressModal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+        
+        // Change modal title to indicate we're editing
+        document.getElementById('addAddressModalLabel').textContent = 'Edit Address';
+        
+        try {
+          const response = await fetch(`api/get_address.php?id=${addressId}`);
+          const address = await response.json();
+          
+          if (address) {
+            // Store all retrieved address data
+            const addressData = {
+              id: addressId,
+              street_address: address.street_address,
+              postal_code: address.postal_code,
+              regCode: address.regCode,
+              provCode: address.provCode,
+              citymunCode: address.citymunCode,
+              brgyCode: address.brgyCode
+            };
+            
+            // Populate the street address and postal code
+            document.getElementById('street_address').value = addressData.street_address;
+            document.getElementById('address_postal_code').value = addressData.postal_code;
+            
+            // Set region and trigger the chain of dropdown population
+            const regionSelect = document.getElementById('region');
+            regionSelect.value = addressData.regCode;
+            
+            // Instead of using custom events, call the fetch functions directly
+            // Fetch provinces for the region
+            fetch(`api/fetch_locations.php?type=province&regionCode=${addressData.regCode}`)
+              .then(response => response.json())
+              .then(data => {
+                const provinceDropdown = document.getElementById('province');
+                provinceDropdown.innerHTML = '<option value="">Select Province</option>';
+                data.forEach(province => {
+                  const option = document.createElement('option');
+                  option.value = province.provCode;
+                  option.textContent = province.provDesc;
+                  provinceDropdown.appendChild(option);
+                });
+                provinceDropdown.disabled = false;
+                
+                // Set the province value
+                provinceDropdown.value = addressData.provCode;
+                
+                // Fetch cities for the province
+                return fetch(`api/fetch_locations.php?type=city&provinceCode=${addressData.provCode}`);
+              })
+              .then(response => response.json())
+              .then(data => {
+                const cityDropdown = document.getElementById('city');
+                cityDropdown.innerHTML = '<option value="">Select City/Municipality</option>';
+                data.forEach(city => {
+                  const option = document.createElement('option');
+                  option.value = city.citymunCode;
+                  option.textContent = city.citymunDesc;
+                  cityDropdown.appendChild(option);
+                });
+                cityDropdown.disabled = false;
+                
+                // Set the city value
+                cityDropdown.value = addressData.citymunCode;
+                
+                // Fetch barangays for the city
+                return fetch(`api/fetch_locations.php?type=barangay&cityCode=${addressData.citymunCode}`);
+              })
+              .then(response => response.json())
+              .then(data => {
+                const barangayDropdown = document.getElementById('barangay');
+                barangayDropdown.innerHTML = '<option value="">Select Barangay</option>';
+                data.forEach(barangay => {
+                  const option = document.createElement('option');
+                  option.value = barangay.brgyCode;
+                  option.textContent = barangay.brgyDesc;
+                  barangayDropdown.appendChild(option);
+                });
+                barangayDropdown.disabled = false;
+                
+                // Set the barangay value
+                barangayDropdown.value = addressData.brgyCode;
+                
+                // Add the address ID to the form for updating
+                const addressForm = document.getElementById('add-address-form');
+                
+                // If we already have a hidden input for address ID, update it, otherwise create one
+                let addressIdInput = addressForm.querySelector('input[name="address_id"]');
+                if (!addressIdInput) {
+                  addressIdInput = document.createElement('input');
+                  addressIdInput.type = 'hidden';
+                  addressIdInput.name = 'address_id';
+                  addressForm.appendChild(addressIdInput);
+                }
+                addressIdInput.value = addressId;
+                
+                // Show the modal after everything is loaded
+                addressModal.show();
+              });
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Error loading address details.');
+        }
+      });
+    });
+
+    // Add reset functionality when the modal is closed
+    document.getElementById('addAddressModal').addEventListener('hidden.bs.modal', function() {
+      // Reset form and title
+      document.getElementById('add-address-form').reset();
+      document.getElementById('addAddressModalLabel').textContent = 'Add New Address';
+      
+      // Remove any address ID
+      const addressIdInput = document.querySelector('input[name="address_id"]');
+      if (addressIdInput) {
+        addressIdInput.remove();
+      }
+    });
+    // Form validation and submission for the profile form only
+    const profileForm = document.getElementById('profile-form');
+
     profileForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      // Simple validation
+      // Simple validation - only check inputs within the profile form
       let isValid = true;
-      const inputs = profileForm.querySelectorAll('input[required], textarea[required]');
+      const inputs = profileForm.querySelectorAll('input[required]');
       
       inputs.forEach(input => {
         if (!input.value.trim()) {
@@ -311,25 +673,6 @@
         }
       }
       
-      // Postal code validation
-      if (postalCodeInput.value) {
-        // Must contain only numbers
-        if (!/^\d+$/.test(postalCodeInput.value)) {
-          postalCodeInput.classList.add('error');
-          
-          // Check if error message exists, if not create one
-          let errorMsg = postalCodeInput.nextElementSibling;
-          if (!errorMsg || !errorMsg.classList.contains('error-message')) {
-            errorMsg = document.createElement('div');
-            errorMsg.classList.add('error-message');
-            errorMsg.textContent = 'Postal code must contain only numbers';
-            postalCodeInput.parentNode.insertBefore(errorMsg, postalCodeInput.nextSibling);
-          }
-          
-          isValid = false;
-        }
-      }
-      
       if (isValid) {
         // Form is valid, submit the data to the backend
         const formData = {
@@ -338,10 +681,8 @@
           last_name: document.getElementById('last-name').value.trim(),
           email: document.getElementById('email').value.trim(),
           phone: document.getElementById('phone').value.trim(),
-          address: document.getElementById('complete-address').value.trim(),
-          postal_code: document.getElementById('postal-code').value.trim()
         };
-  
+
         try {
           const response = await fetch('api/update_profile.php', {
             method: 'POST',
@@ -350,9 +691,9 @@
             },
             body: JSON.stringify(formData)
           });
-  
+
           const result = await response.json();
-  
+
           if (response.ok) {
             alert(result.message);
           } else {
@@ -365,6 +706,7 @@
       }
     });
   });
+  
   </script> 
 </body>
 </html>

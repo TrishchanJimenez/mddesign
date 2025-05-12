@@ -25,6 +25,7 @@ $items = $cart['items'];
 $shippingMethod = $cart['shipping_method'];
 $paymentMethod = $cart['payment_method'];
 $shippingFee = floatval($cart['shipping_fee']);
+$addressId = intval($cart['address']);
 
 // Initialize totals
 $subtotal = 0;
@@ -75,27 +76,27 @@ try {
     // Calculate total
     $total = $subtotal + $shippingFee;
 
-    // Insert transaction into the `transactions` table
+    // Insert transaction into the `orders` table
     $stmt = $conn->prepare("
-        INSERT INTO transactions (user_id, total_amount, shipping_method, payment_method, shipping_fee, status)
-        VALUES (?, ?, ?, ?, ?, 'pending')
+        INSERT INTO orders (user_id, total_amount, shipping_method, payment_method, shipping_fee, address_id)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("idssd", $userId, $total, $shippingMethod, $paymentMethod, $shippingFee);
+    $stmt->bind_param("idssdi", $userId, $total, $shippingMethod, $paymentMethod, $shippingFee, $addressId);
     $stmt->execute();
-    $transactionId = $stmt->insert_id; // Get the inserted transaction ID
+    $order_id = $stmt->insert_id; // Get the inserted transaction ID
     $stmt->close();
 
-    // Insert transaction items into the `transaction_items` table
+    // Insert transaction items into the `order_items` table
     foreach ($items as $item) {
         $productId = intval($item['productId']);
         $quantity = intval($item['quantity']);
         $itemTotal = $quantity * $item['price'];
 
         $stmt = $conn->prepare("
-            INSERT INTO transaction_items (transaction_id, product_id, quantity, item_total_price)
+            INSERT INTO order_items (order_id, product_id, quantity, item_total_price)
             VALUES (?, ?, ?, ?)
         ");
-        $stmt->bind_param("iiid", $transactionId, $productId, $quantity, $itemTotal);
+        $stmt->bind_param("iiid", $order_id, $productId, $quantity, $itemTotal);
         $stmt->execute();
         $stmt->close();
     }
@@ -104,7 +105,7 @@ try {
     $conn->commit();
 
     // Return success response
-    echo json_encode(["success" => true, "transaction_id" => $transactionId]);
+    echo json_encode(["success" => true, "order_id" => $order_id]);
 } catch (Exception $e) {
     // Rollback the transaction on error
     $conn->rollback();

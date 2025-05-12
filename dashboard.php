@@ -7,7 +7,7 @@ $response = [];
 // Get top 5 selling products
 $topSellingQuery = "
     SELECT p.name AS product_name, SUM(ti.quantity) AS total_quantity
-    FROM transaction_items ti
+    FROM order_items ti
     JOIN products p ON ti.product_id = p.id
     GROUP BY p.name
     ORDER BY total_quantity DESC
@@ -19,8 +19,8 @@ $topSellingProducts = $topSellingResult->fetch_all(MYSQLI_ASSOC);
 // Get daily revenue
 $dailyRevenueQuery = "
     SELECT SUM(t.total_amount) AS daily_revenue
-    FROM transactions t
-    WHERE DATE(t.transaction_date) = CURDATE()
+    FROM orders t
+    WHERE DATE(t.order_date) = CURDATE()
 ";
 $dailyRevenueResult = $conn->query($dailyRevenueQuery);
 $dailyRevenue = $dailyRevenueResult->fetch_assoc()['daily_revenue'] ?? 0;
@@ -28,9 +28,9 @@ $dailyRevenue = $dailyRevenueResult->fetch_assoc()['daily_revenue'] ?? 0;
 // Get total items sold today
 $totalItemsSoldQuery = "
     SELECT SUM(ti.quantity) AS total_items_sold
-    FROM transaction_items ti
-    JOIN transactions t ON ti.transaction_id = t.id
-    WHERE DATE(t.transaction_date) = CURDATE()
+    FROM order_items ti
+    JOIN orders t ON ti.order_id = t.id
+    WHERE DATE(t.order_date) = CURDATE()
 ";
 $totalItemsSoldResult = $conn->query($totalItemsSoldQuery);
 $totalItemsSold = $totalItemsSoldResult->fetch_assoc()['total_items_sold'] ?? 0;
@@ -52,12 +52,12 @@ $lowStockProducts = $lowStockResult->fetch_all(MYSQLI_ASSOC);
 
 // Get 5 recently sold products
 $recentlySoldQuery = "
-    SELECT t.transaction_date, CONCAT(u.first_name, ' ', u.last_name) AS customer, p.name AS product_name, p.size, p.color, ti.quantity, ti.item_total_price
-    FROM transaction_items ti
-    JOIN transactions t ON ti.transaction_id = t.id
+    SELECT t.order_date, CONCAT(u.first_name, ' ', u.last_name) AS customer, p.name AS product_name, p.size, p.color, ti.quantity, ti.item_total_price
+    FROM order_items ti
+    JOIN orders t ON ti.order_id = t.id
     JOIN users u ON t.user_id = u.id
     JOIN products p ON ti.product_id = p.id
-    ORDER BY t.transaction_date DESC
+    ORDER BY t.order_date DESC
     LIMIT 5
 ";
 $recentlySoldResult = $conn->query($recentlySoldQuery);
@@ -80,15 +80,16 @@ $weeklyRevenueQuery = "
         DATE_FORMAT(wd.week_end, '%b %e, %Y') AS week_end,
         COALESCE(SUM(t.total_amount), 0) AS weekly_revenue
     FROM week_dates wd
-    LEFT JOIN transactions t
-        ON t.transaction_date >= wd.week_start 
-        AND t.transaction_date <= DATE_ADD(wd.week_end, INTERVAL 1 DAY) - INTERVAL 1 SECOND
+    LEFT JOIN orders t
+        ON t.order_date >= wd.week_start 
+        AND t.order_date <= DATE_ADD(wd.week_end, INTERVAL 1 DAY) - INTERVAL 1 SECOND
     GROUP BY wd.week_start, wd.week_end
     ORDER BY wd.week_start ASC;
 ";
 $weeklyRevenueResult = $conn->query($weeklyRevenueQuery);
 $weeklyRevenueData = $weeklyRevenueResult->fetch_all(MYSQLI_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -248,11 +249,14 @@ $weeklyRevenueData = $weeklyRevenueResult->fetch_all(MYSQLI_ASSOC);
         <div class="col-auto">
             <div class="sidebar">
                 <div class="logo-container">
-                    <img src="/api/placeholder/40/40" class="logo" alt="Logo">
+                    <img src="images/TSHIRTS/LOGO.jpg" class="logo" alt="Logo">
                     <h5 class="brand-name">Metro District Designs</h5>
                 </div>
                 <a href="dashboard.php" class="sidebar-link active">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="admin-orders.php" class="sidebar-link">
+                    <i class="fas fa-shopping-cart"></i> Orders
                 </a>
                 <a href="product-stock.php" class="sidebar-link">
                     <i class="fas fa-box"></i> Product Stock
@@ -423,7 +427,7 @@ $weeklyRevenueData = $weeklyRevenueResult->fetch_all(MYSQLI_ASSOC);
                             <tbody>
                                 <?php foreach($recentlySoldProducts as $recentlySoldProduct): ?>
                                     <tr>
-                                        <td><?php echo date("M j, Y", strtotime($recentlySoldProduct['transaction_date'])) ?></td>
+                                        <td><?php echo date("M j, Y", strtotime($recentlySoldProduct['order_date'])) ?></td>
                                         <td><?php echo $recentlySoldProduct['customer'] ?></td>
                                         <td><?php echo $recentlySoldProduct['product_name'] ?></td>
                                         <td><?php echo $recentlySoldProduct['size'] ?></td>

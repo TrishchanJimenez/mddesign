@@ -14,14 +14,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $size = $conn->real_escape_string(trim($data['size']));
     $stock = intval($data['stock']);
     $price = floatval($data['price']);
+    $original_price = floatval($data['original_price']) ?? null;
 
     if ($id <= 0 || empty($name) || empty($category) || empty($color) || empty($size) || $stock < 0 || $price <= 0) {
         echo json_encode(['status' => 'error', 'message' => 'Invalid input. Please fill all fields correctly.']);
         exit();
     }
 
-    $stmt = $conn->prepare("UPDATE products SET name = ?, category = ?, color = ?, color_code = ?, size = ?, stock = ?, price = ? WHERE id = ?");
-    $stmt->bind_param("sssssidi", $name, $category, $color, $color_code, $size, $stock, $price, $id);
+    $stmt = $conn->prepare("UPDATE products SET name = ?, category = ?, color = ?, color_code = ?, size = ?, stock = ?, price = ?, original_price = ? WHERE id = ?");
+    $stmt->bind_param("sssssiddi", $name, $category, $color, $color_code, $size, $stock, $price, $original_price, $id);
 
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Product updated successfully.']);

@@ -141,6 +141,28 @@
         padding: 10px 0;
         border-top: 1px solid #ddd;
     }
+    
+    /* Select All styles */
+    .select-all-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+    }
+    
+    /* Item selection checkbox */
+    .item-checkbox {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+    }
+    
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+    }
 </style>
 <body>
     <!-- Navbar -->
@@ -150,6 +172,14 @@
     <div class="container">
         <div class="cart-container">
             <h2 class="mb-4">ORDERS</h2>
+            
+            <!-- Select All Container -->
+            <div class="select-all-container">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="select-all-checkbox" class="item-checkbox">
+                    <label for="select-all-checkbox"><strong>Select All Products</strong></label>
+                </div>
+            </div>
             
             <div id="cart-items">
                  
@@ -176,9 +206,16 @@
             const checkoutBtn = document.getElementById('checkout-btn');
             const cartTotalAmount = document.getElementById('cart-total-amount');
             const totalItemsCount = document.getElementById('total-items-count');
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
 
             // Fetch cart data from localStorage
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Add selected property to each cart item if it doesn't exist
+            cart = cart.map(item => ({
+                ...item,
+                selected: item.selected !== undefined ? item.selected : true
+            }));
             
             // Update cart in localStorage
             localStorage.setItem('cart', JSON.stringify(cart));
@@ -203,6 +240,9 @@
                 cartItem.className = 'order-item';
                 cartItem.dataset.index = index; // Add a data attribute for easy identification
                 cartItem.innerHTML = `
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="item-checkbox" data-index="${index}" ${item.selected ? 'checked' : ''}>
+                    </div>
                     <div class="order-item-image">
                         <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
@@ -212,7 +252,7 @@
                         <div class="d-flex flex-wrap gap-3">
                             <div class="option-group">
                                 <span class="option-label">Size:</span>
-                                <select class="size-selector" data-index="${index}">
+                                <select class="size-selector" data-index="${index}" ${!item.selected ? 'disabled' : ''}>
                                     <option value="">Select Size</option>
                                     ${Object.keys(stockData)
                                         .filter(size => Object.values(stockData[size]).some(colorData => colorData.quantity > 0)) // Only show sizes with available stock
@@ -223,7 +263,7 @@
                             </div>
                             <div class="option-group">
                                 <span class="option-label">Color:</span>
-                                <select class="color-selector" data-index="${index}" ${item.size ? '' : 'disabled'}>
+                                <select class="color-selector" data-index="${index}" ${!item.selected || !item.size ? 'disabled' : ''}>
                                     <option value="">Select Color</option>
                                     ${item.size && stockData[item.size] 
                                         ? Object.keys(stockData[item.size])
@@ -238,9 +278,9 @@
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="quantity-control">
-                                <button class="quantity-btn decrease-btn" data-index="${index}" ${!item.size || !item.color ? 'disabled' : ''}>-</button>
+                                <button class="quantity-btn decrease-btn" data-index="${index}" ${!item.selected || !item.size || !item.color ? 'disabled' : ''}>-</button>
                                 <input type="text" class="quantity-input" value="${item.quantity}" max="${item.size && item.color ? stockData[item.size][item.color]?.quantity || 0 : 0}" readonly>
-                                <button class="quantity-btn increase-btn" data-index="${index}" ${!item.size || !item.color ? 'disabled' : ''}>+</button>
+                                <button class="quantity-btn increase-btn" data-index="${index}" ${!item.selected || !item.size || !item.color ? 'disabled' : ''}>+</button>
                             </div>
                             <button class="remove-btn" data-index="${index}">
                                 <i class="bi bi-trash"></i> Remove
@@ -255,8 +295,8 @@
             // Function to calculate and update the total amount for all items
             function updateTotalAmount() {
                 const total = cart.reduce((sum, item) => {
-                    // Only include items with size and color selected in the total
-                    if (item.size && item.color) {
+                    // Only include selected items with size and color in the total
+                    if (item.selected && item.size && item.color) {
                         return sum + (item.price * item.quantity);
                     }
                     return sum;
@@ -268,7 +308,7 @@
                 localStorage.setItem('cartTotal', total.toFixed(2));
                 
                 // Update total items count
-                const validItemsCount = cart.filter(item => item.size && item.color).length;
+                const validItemsCount = cart.filter(item => item.selected && item.size && item.color).length;
                 totalItemsCount.textContent = validItemsCount;
                 
                 // Disable checkout button if no valid items
@@ -285,8 +325,11 @@
                     checkoutBtn.disabled = true;
                     cartTotalAmount.textContent = '0.00';
                     totalItemsCount.textContent = '0';
+                    selectAllCheckbox.disabled = true;
                     return;
                 }
+
+                selectAllCheckbox.disabled = false;
 
                 for (let index = 0; index < cart.length; index++) {
                     const item = cart[index];
@@ -294,7 +337,12 @@
                     cartItemsContainer.appendChild(cartItem);
                 }
 
+                // Update select all checkbox state
+                updateSelectAllCheckbox();
                 updateTotalAmount();
+                
+                // Apply selections to UI automatically
+                applySelections();
             }
 
             async function updateCartItem(index) {
@@ -311,10 +359,76 @@
             function updateCart() {
                 localStorage.setItem('cart', JSON.stringify(cart));
                 updateTotalAmount();
+                
+                // Automatically apply selections whenever cart is updated
+                applySelections();
             }
+            
+            // Update select all checkbox based on individual item selections
+            function updateSelectAllCheckbox() {
+                if (cart.length === 0) {
+                    selectAllCheckbox.checked = false;
+                    return;
+                }
+                
+                const allSelected = cart.every(item => item.selected);
+                selectAllCheckbox.checked = allSelected;
+            }
+            
+            // Apply selections to enable/disable controls based on selection state
+            function applySelections() {
+                cart.forEach((item, index) => {
+                    const sizeSelector = document.querySelector(`.size-selector[data-index="${index}"]`);
+                    const colorSelector = document.querySelector(`.color-selector[data-index="${index}"]`);
+                    const decreaseBtn = document.querySelector(`.decrease-btn[data-index="${index}"]`);
+                    const increaseBtn = document.querySelector(`.increase-btn[data-index="${index}"]`);
+                    
+                    if (sizeSelector) {
+                        sizeSelector.disabled = !item.selected;
+                    }
+                    
+                    if (colorSelector) {
+                        colorSelector.disabled = !item.selected || !item.size;
+                    }
+                    
+                    if (decreaseBtn && increaseBtn) {
+                        const disabled = !item.selected || !item.size || !item.color;
+                        decreaseBtn.disabled = disabled;
+                        increaseBtn.disabled = disabled;
+                    }
+                });
+            }
+
+            // Handle select all checkbox
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                
+                // Update all items' selected property
+                cart = cart.map(item => ({
+                    ...item,
+                    selected: isChecked
+                }));
+                
+                // Update checkboxes in the UI
+                document.querySelectorAll('.item-checkbox:not(#select-all-checkbox)').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                
+                // Apply selections automatically
+                updateCart();
+            });
 
             cartItemsContainer.addEventListener('change', async function (event) {
                 const target = event.target;
+                
+                if (target.classList.contains('item-checkbox') && !target.id) {
+                    const index = parseInt(target.dataset.index, 10);
+                    cart[index].selected = target.checked;
+                    
+                    // Update select all checkbox state
+                    updateSelectAllCheckbox();
+                    updateCart();
+                }
 
                 if (target.classList.contains('size-selector')) {
                     const index = parseInt(target.dataset.index, 10);
@@ -399,13 +513,13 @@
                 }
             });
             
-            // Function to proceed to checkout with all valid items
+            // Function to proceed to checkout with selected valid items
             window.proceedToCheckout = function() {
-                // Filter only items with size and color selected
-                const validItems = cart.filter(item => item.size && item.color);
+                // Filter only selected items with size and color selected
+                const validItems = cart.filter(item => item.selected && item.size && item.color);
                 
                 if (validItems.length === 0) {
-                    alert('Please select size and color for at least one item to checkout');
+                    alert('Please select at least one item with size and color to checkout');
                     return;
                 }
                 

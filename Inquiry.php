@@ -556,27 +556,42 @@
                     
                     <div class="option-title">Quantity</div>
                     <div class="quantity-control">
-                        <label for="quantity-control">Quantity: <span id="quantity-value">1</span></label>
-                        <input type="range" id="quantity-control" min="1" max="50" value="1">
+                        <div class="slider-control">
+                        <label for="quantity-control">
+                            Quantity:
+                            <input type="number" id="quantity-input" min="1" max="50" value="1" style="width: 60px; display: inline-block; margin: 0 5px;">
+                        </label>
+                        <input type="range" id="quantity-control" min="1" max="50" value="1" style="width: 100%;">
+                        </div>
                     </div>
-                    
                     <div class="design-controls" id="design-controls" style="display: none;">
                         <div class="option-title">Design Adjustments</div>
                         <div class="slider-control">
-                            <label for="size-control">Size: <span id="size-value">100</span>%</label>
-                            <input type="range" id="size-control" min="20" max="200" value="100">
+                            <label for="size-control">
+                            Size:
+                            <input type="number" id="size-input" min="20" max="200" value="100" style="width: 60px; display: inline-block; margin: 0 5px;">
+                            %
+                            </label>
+                            <input type="range" id="size-control" min="20" max="200" value="100" style="width: 100%;">
                         </div>
                         <div class="slider-control">
-                            <label for="position-y-control">Position Y: <span id="position-y-value">0</span>px</label>
-                            <input type="range" id="position-y-control" min="-50" max="50" value="0">
+                            <label for="position-y-control">
+                                Position Y:
+                                <input type="number" id="position-y-input" min="-50" max="50" value="0" style="width: 60px; display: inline-block; margin: 0 5px;">
+                                px
+                            </label>
+                            <input type="range" id="position-y-control" min="-50" max="50" value="0" style="width: 100%;">
                         </div>
                         <div class="slider-control">
-                            <label for="position-x-control">Position X: <span id="position-x-value">0</span>px</label>
-                            <input type="range" id="position-x-control" min="-50" max="50" value="0">
+                            <label for="position-x-control">
+                                Position X:
+                                <input type="number" id="position-x-input" min="-50" max="50" value="0" style="width: 60px; display: inline-block; margin: 0 5px;">
+                                px
+                            </label>
+                            <input type="range" id="position-x-control" min="-50" max="50" value="0" style="width: 100%;">
                         </div>
                     </div>
                 </div>
-                
                 <button class="submit-btn" id="next-btn">Next: Your Information</button>
             </div>
         </div>
@@ -772,6 +787,11 @@
         const priceDisplay = document.getElementById('price-display');
         const summaryPrice = document.getElementById('summary-price');
         const designError = document.getElementById('design-error');
+
+        const quantityInput = document.getElementById('quantity-input');
+        const sizeInput = document.getElementById('size-input');
+        const positionYInput = document.getElementById('position-y-input');
+        const positionXInput = document.getElementById('position-x-input');
         
         // Variables to store design state
         let designImage = null;
@@ -907,9 +927,22 @@
             
             // Control event listeners
             sizeControl.addEventListener('input', function() {
+                sizeInput.value = this.value;
                 designScale = parseInt(this.value);
                 sizeValue.textContent = designScale;
-                
+                const img = designArea.querySelector('img');
+                if (img) {
+                    img.style.transform = `scale(${designScale/100})`;
+                    isDesignOutOfBounds();
+                }
+            });
+
+            sizeInput.addEventListener('input', function() {
+                let val = Math.max(20, Math.min(200, parseInt(this.value) || 100));
+                this.value = val;
+                sizeControl.value = val;
+                designScale = val;
+                sizeValue.textContent = designScale;
                 const img = designArea.querySelector('img');
                 if (img) {
                     img.style.transform = `scale(${designScale/100})`;
@@ -918,9 +951,21 @@
             });
             
             positionYControl.addEventListener('input', function() {
+                positionYInput.value = this.value;
                 designYPosition = parseInt(this.value);
                 positionYValue.textContent = designYPosition;
-                
+                const img = designArea.querySelector('img');
+                if (img) {
+                    img.style.marginTop = `${designYPosition}px`;
+                    isDesignOutOfBounds();
+                }
+            });
+            positionYInput.addEventListener('input', function() {
+                let val = Math.max(-50, Math.min(50, parseInt(this.value) || 0));
+                this.value = val;
+                positionYControl.value = val;
+                designYPosition = val;
+                positionYValue.textContent = designYPosition;
                 const img = designArea.querySelector('img');
                 if (img) {
                     img.style.marginTop = `${designYPosition}px`;
@@ -929,9 +974,22 @@
             });
             
             positionXControl.addEventListener('input', function() {
+                positionXInput.value = this.value;
                 designXPosition = parseInt(this.value);
                 positionXValue.textContent = designXPosition;
-                
+                const img = designArea.querySelector('img');
+                if (img) {
+                    img.style.marginLeft = `${designXPosition}px`;
+                    isDesignOutOfBounds();
+                }
+            });
+
+            positionXInput.addEventListener('input', function() {
+                let val = Math.max(-50, Math.min(50, parseInt(this.value) || 0));
+                this.value = val;
+                positionXControl.value = val;
+                designXPosition = val;
+                positionXValue.textContent = designXPosition;
                 const img = designArea.querySelector('img');
                 if (img) {
                     img.style.marginLeft = `${designXPosition}px`;
@@ -940,11 +998,20 @@
             });
             
             quantityControl.addEventListener('input', function() {
+                quantityInput.value = this.value;
                 currentQuantity = parseInt(this.value);
                 quantityValue.textContent = currentQuantity;
                 document.getElementById('design-quantity').value = currentQuantity;
-                
-                // Update price based on quantity
+                updatePrice();
+            });
+
+            quantityInput.addEventListener('input', function() {
+                let val = Math.max(1, Math.min(50, parseInt(this.value) || 1));
+                this.value = val;
+                quantityControl.value = val;
+                currentQuantity = val;
+                quantityValue.textContent = currentQuantity;
+                document.getElementById('design-quantity').value = currentQuantity;
                 updatePrice();
             });
             
@@ -1181,4 +1248,6 @@
                 document.getElementById('loginModal').style.display = 'flex';
             <?php endif; ?>
         });
+
+
     </script>

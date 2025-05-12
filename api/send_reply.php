@@ -47,8 +47,8 @@ if ($result->num_rows > 0) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP server
         $mail->SMTPAuth = true;
-        $mail->Username = 'your_email@example.com'; // Replace with your email
-        $mail->Password = 'your_password'; // Replace with your email password
+        $mail->Username = 'aiko.careerai@gmail.com'; // Replace with your email
+        $mail->Password = 'vtdi memf nqdo yxbx'; // Replace with your email password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 

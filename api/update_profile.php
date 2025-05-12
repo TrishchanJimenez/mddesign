@@ -16,9 +16,7 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 // Validate the data
 if (
-    empty($data['username']) || empty($data['first_name']) || empty($data['last_name']) ||
-    empty($data['email']) || empty($data['phone']) || empty($data['address']) || empty($data['postal_code'])
-) {
+    empty($data['username']) || empty($data['first_name']) || empty($data['last_name']) || empty($data['email']) || empty($data['phone'])) {
     http_response_code(400); // Bad Request
     echo json_encode(["error" => "All fields are required."]);
     exit;
@@ -29,8 +27,6 @@ $firstName = $data['first_name'];
 $lastName = $data['last_name'];
 $email = $data['email'];
 $phone = $data['phone'];
-$address = $data['address'];
-$postalCode = $data['postal_code'];
 
 if (str_starts_with($phone, '63')) {
     $phone = substr($phone, 2); // Remove '63'
@@ -41,10 +37,10 @@ if (str_starts_with($phone, '63')) {
 // Update the user's information in the database
 $stmt = $conn->prepare("
     UPDATE users 
-    SET username = ?, first_name = ?, last_name = ?, email = ?, contact_number = ?, address = ?, postal_code = ?
+    SET username = ?, first_name = ?, last_name = ?, email = ?, contact_number = ?
     WHERE id = ?
 ");
-$stmt->bind_param("sssssssi", $username, $firstName, $lastName, $email, $phone, $address, $postalCode, $userId);
+$stmt->bind_param("sssssi", $username, $firstName, $lastName, $email, $phone, $userId);
 
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Profile updated successfully."]);
