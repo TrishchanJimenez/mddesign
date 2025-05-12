@@ -382,7 +382,6 @@ $in_stock_products = array_filter($all_products, function($product) {
                                         ₱<?php echo htmlspecialchars(number_format($product['original_price'], 2)); ?>
                                     </span>
                                 <?php endif; ?>
-                                test
                                 <span>
                                     <?php echo htmlspecialchars(number_format($product['price'], 2)); ?>
                                 </span>

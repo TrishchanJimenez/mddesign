@@ -925,63 +925,60 @@
                 }
             }
             
-            // Control event listeners
-            sizeControl.addEventListener('input', function() {
-                sizeInput.value = this.value;
-                designScale = parseInt(this.value);
-                sizeValue.textContent = designScale;
+            function updateImageTransform() {
                 const img = designArea.querySelector('img');
                 if (img) {
-                    img.style.transform = `scale(${designScale/100})`;
-                    isDesignOutOfBounds();
+                    img.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
                 }
+            }
+
+            sizeControl.addEventListener('input', function() {
+                sizeInput.value = this.value;
+                designScale = parseInt(this.value) || 100;
+                updateImageTransform();
+                isDesignOutOfBounds();
             });
 
             sizeInput.addEventListener('input', function() {
-                let val = Math.max(20, Math.min(200, parseInt(this.value) || 100));
+                sizeControl.value = this.value;
+                designScale = parseInt(this.value) || 100;
+                if(designScale > 200) {
+                    designScale = 200;
+                }
+                updateImageTransform();
+                isDesignOutOfBounds();
+            });
+
+            sizeInput.addEventListener('change', function() {
+                let val = parseInt(this.value) || 100;
+                val = Math.max(20, Math.min(200, val));
                 this.value = val;
                 sizeControl.value = val;
                 designScale = val;
-                sizeValue.textContent = designScale;
-                const img = designArea.querySelector('img');
-                if (img) {
-                    img.style.transform = `scale(${designScale/100})`;
-                    isDesignOutOfBounds();
-                }
+                updateImageTransform();
+                isDesignOutOfBounds();
             });
             
             positionYControl.addEventListener('input', function() {
                 positionYInput.value = this.value;
                 designYPosition = parseInt(this.value);
-                positionYValue.textContent = designYPosition;
-                const img = designArea.querySelector('img');
-                if (img) {
-                    img.style.marginTop = `${designYPosition}px`;
-                    isDesignOutOfBounds();
-                }
+                updateImageTransform();
+                isDesignOutOfBounds();
             });
             positionYInput.addEventListener('input', function() {
                 let val = Math.max(-50, Math.min(50, parseInt(this.value) || 0));
                 this.value = val;
                 positionYControl.value = val;
                 designYPosition = val;
-                positionYValue.textContent = designYPosition;
-                const img = designArea.querySelector('img');
-                if (img) {
-                    img.style.marginTop = `${designYPosition}px`;
-                    isDesignOutOfBounds();
-                }
+                updateImageTransform();
+                isDesignOutOfBounds();
             });
             
             positionXControl.addEventListener('input', function() {
                 positionXInput.value = this.value;
                 designXPosition = parseInt(this.value);
-                positionXValue.textContent = designXPosition;
-                const img = designArea.querySelector('img');
-                if (img) {
-                    img.style.marginLeft = `${designXPosition}px`;
-                    isDesignOutOfBounds();
-                }
+                updateImageTransform();
+                isDesignOutOfBounds();
             });
 
             positionXInput.addEventListener('input', function() {
@@ -989,12 +986,8 @@
                 this.value = val;
                 positionXControl.value = val;
                 designXPosition = val;
-                positionXValue.textContent = designXPosition;
-                const img = designArea.querySelector('img');
-                if (img) {
-                    img.style.marginLeft = `${designXPosition}px`;
-                    isDesignOutOfBounds();
-                }
+                updateImageTransform();
+                isDesignOutOfBounds();
             });
             
             quantityControl.addEventListener('input', function() {
