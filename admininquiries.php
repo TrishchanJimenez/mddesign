@@ -15,6 +15,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
         
         .navbar {
@@ -412,7 +413,7 @@
     <div class="row g-0">
         <!-- Sidebar -->
         <div class="col-auto">
-            <div class="sidebar">
+            <div class="sidebar" style="z-index: 100;">
                 <div class="logo-container">
                     <img src="images/TSHIRTS/LOGO.jpg" class="logo" alt="Logo">
                     <h5 class="brand-name">Metro District Designs</h5>
@@ -456,7 +457,7 @@
             
             <div class="row">
                 <!-- Left Panel - Inquiry List -->
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="filter-section d-flex gap-2">
                         <div class="search-box flex-grow-1">
                             <i class="fas fa-search"></i>
@@ -479,7 +480,7 @@
                 </div>
                 
                 <!-- Right Panel - Detail View -->
-                <div class="col-lg-8">
+                <div class="col-lg-7">
                     <div class="detail-panel" id="inquiryDetail">
                         <!-- Inquiry details will be dynamically loaded -->
                     </div>
