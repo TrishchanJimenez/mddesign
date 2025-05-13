@@ -104,6 +104,18 @@ try {
     // Commit the transaction
     $conn->commit();
 
+    $productIds = array_map(function($item) { return intval($item['productId']); }, $items);
+    if (!empty($productIds)) {
+        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+        $types = str_repeat('i', count($productIds) + 1);
+        $params = array_merge([$userId], $productIds);
+
+        $stmt = $conn->prepare("DELETE FROM cart_items WHERE user_id = ? AND product_id IN ($placeholders)");
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $stmt->close();
+    }
+
     // Return success response
     echo json_encode(["success" => true, "order_id" => $order_id]);
 } catch (Exception $e) {

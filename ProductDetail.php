@@ -9,6 +9,7 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 // Fetch product details
 $productQuery = "
     SELECT 
+        p.id, 
         dp.product_name,
         dp.description,
         p.stock,
@@ -49,6 +50,19 @@ foreach ($productDetails as $detail) {
         $sizeColorStock[$size] = [];
     }
     $sizeColorStock[$size][$color] = $stock;
+}
+
+
+$sizeColorProductId = [];
+foreach ($productDetails as $detail) {
+    $size = $detail['size'];
+    $color = $detail['color'];
+    $productId = $detail['id'] ?? null; // Make sure to fetch 'id' in your SQL!
+
+    if (!isset($sizeColorProductId[$size])) {
+        $sizeColorProductId[$size] = [];
+    }
+    $sizeColorProductId[$size][$color] = $productId;
 }
 
 $sizes = [];
@@ -490,6 +504,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
     let quantityBtnDisabled = true;
     let sizeColorStock = <?php echo json_encode($sizeColorStock); ?>;
     let isLoggedIn = <?php echo isset($_SESSION['username']) ? 'true' : 'false'; ?>;
+    let sizeColorProductId = <?php echo json_encode($sizeColorProductId); ?>;
 
     function selectSize(element) {
         console.log("selected size");
@@ -607,6 +622,9 @@ $price = $productDetails[0]['price'] ?? '0.00';
         
         const quantity = parseInt(document.getElementById('quantity').value);
         const mainImage = document.getElementById('mainImage').src;
+        const productId = sizeColorProductId[selectedSize] && sizeColorProductId[selectedSize][selectedColor]
+            ? sizeColorProductId[selectedSize][selectedColor]
+            : null;
         
         if (!selectedSize || !selectedColor) {
             alert('Please select both size and color.');
@@ -623,6 +641,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
         // Create cart item object
         const cartItem = {
             id: <?php echo $id; ?>, // Product ID
+            productId: productId,
             name: "<?php echo htmlspecialchars($productName); ?>", // Product name
             image: "<?php echo htmlspecialchars($productImages[0]['image_path']); ?>",
             size: selectedSize, // Selected size
@@ -651,6 +670,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
 
         // Save updated cart back to localStorage
         localStorage.setItem('cart', JSON.stringify(cart));
+        saveCartToDatabase();
         
         // Alert and redirect
         alert('Item added to cart successfully!');
@@ -670,6 +690,20 @@ $price = $productDetails[0]['price'] ?? '0.00';
     // Set first thumbnail as active
     if (document.querySelector('.product-thumbnail')) {
         document.querySelector('.product-thumbnail').classList.add('active');
+    }
+
+    function saveCartToDatabase() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        fetch('api/save_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cart })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Optionally handle success or error
+            // console.log('Cart saved:', data);
+        });
     }
     </script>
 </body>

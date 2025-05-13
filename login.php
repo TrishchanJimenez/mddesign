@@ -51,8 +51,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
 
+            $cart = [];
+            $stmt_cart = $conn->prepare("
+                SELECT 
+                    p.id AS productId,
+                    dp.id AS displayProductId,
+                    dp.product_name,
+                    p.size,
+                    p.color,
+                    ci.quantity,
+                    p.price,
+                    dp.description,
+                    (
+                        SELECT image_path 
+                        FROM display_images di 
+                        WHERE di.product_id = dp.id 
+                        LIMIT 1
+                    ) AS image
+                FROM cart_items ci
+                INNER JOIN products p ON ci.product_id = p.id
+                INNER JOIN display_product dp ON p.name = dp.product_name
+                WHERE ci.user_id = ?
+            ");
+            $stmt_cart->bind_param("i", $user['id']);
+            $stmt_cart->execute();
+            $result_cart = $stmt_cart->get_result();
+            while ($row = $result_cart->fetch_assoc()) {
+                $cart[] = [
+                    "productId" => $row['productId'],
+                    "id" => $row['displayProductId'],
+                    "name" => $row['product_name'],
+                    "size" => $row['size'],
+                    "color" => $row['color'],
+                    "quantity" => $row['quantity'],
+                    "price" => floatval($row['price']),
+                    "description" => $row['description'],
+                    "image" => $row['image']
+                ];
+            }
+            $stmt_cart->close();
+
+            // Calculate cartTotal
+            $cartTotal = 0;
+            foreach ($cart as $item) {
+                $cartTotal += $item['price'] * $item['quantity'];
+            }
+
+            // Echo JS to set cart and cartTotal in localStorage, then redirect
+            echo "<script>
+                localStorage.setItem('cart', " . json_encode(json_encode($cart)) . ");
+                localStorage.setItem('cartTotal', '" . number_format($cartTotal, 2, '.', '') . "');
+                window.location.href = '" . ($user['role'] === 'admin' ? "dashboard.php" : "index.php") . "';
+            </script>";
+            exit();
+
             // Redirect based on role
             if ($user['role'] === 'admin') {
+
                 header("Location: dashboard.php");
             } else {
                 header("Location: index.php");

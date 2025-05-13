@@ -362,6 +362,7 @@
                 
                 // Automatically apply selections whenever cart is updated
                 applySelections();
+                saveCartToDatabase();
             }
             
             // Update select all checkbox based on individual item selections
@@ -529,6 +530,20 @@
                 // Navigate to checkout page
                 window.location.href = 'checkout-form.php';
             };
+
+            function saveCartToDatabase() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                fetch('api/save_cart.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cart })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    // Optionally handle success or error
+                    // console.log('Cart saved:', data);
+                });
+            }
 
             // Initial render
             renderCart();
