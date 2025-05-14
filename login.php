@@ -25,7 +25,6 @@ if (isset($_GET['token'])) {
 }
 
 // Handle login submission
-// Handle login submission
 $login_error = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $conn->real_escape_string($_POST['email']);
@@ -165,30 +164,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         color: red;
         margin-bottom: 15px;
     }
+    .login-links {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+    .login-links a {
+        color: #0056b3;
+        text-decoration: none;
+    }
+    .login-links a:hover {
+        text-decoration: underline;
+    }
 </style>
 <body>
-    <!-- Navbar -->
-    <!-- <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <img src="/api/placeholder/40/40" class="rounded-circle">
-                Metro District Designs
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="index.php">HOME</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Products.php">PRODUCTS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Inquiry.php">INQUIRY</a></li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="Signup.php">SIGNUP</a></li>
-                </ul>
-            </div>
-        </nav>
-        </div> -->
     <?php require_once "navbar.php"; ?>
 
     <div class="login-container">
@@ -210,8 +200,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form class="login-form" action="login.php" method="POST">
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
-            <div class="login-link">
-                Don't have an account? <a href="Signup.php">Sign Up</a>
+            <div class="login-links">
+                <div>Don't have an account? <a href="Signup.php">Sign Up</a></div>
+                <div><a href="forgot_password.php">Forgot Password?</a></div>
             </div>
             <button type="submit">Login</button>
         </form>
