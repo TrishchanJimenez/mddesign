@@ -1,11 +1,11 @@
 <?php
 require_once "../db_connection.php";
 
-// Fetch all inquiries with their associated data
+$userId = isset($_GET['user_id']) ? intval($_GET['user_id']) : null;
+
 $query = "
     SELECT 
         inquiries.id,
-        LEFT(inquiries.description, 40) AS description_preview, -- Limit description to 40 characters
         inquiries.timeline,
         inquiries.created_at,
         inquiries.description,
@@ -19,8 +19,12 @@ $query = "
         users.contact_number AS customer_phone
     FROM inquiries
     JOIN users ON inquiries.user_id = users.id
-    ORDER BY inquiries.created_at DESC
 ";
+if ($userId) {
+    $query .= " WHERE inquiries.user_id = $userId ORDER BY inquiries.created_at DESC LIMIT 1";
+} else {
+    $query .= " ORDER BY inquiries.created_at DESC";
+}
 
 $result = $conn->query($query);
 
@@ -31,7 +35,7 @@ if ($result) {
     }
     echo json_encode(["success" => true, "data" => $inquiries]);
 } else {
-    http_response_code(500); // Internal Server Error
+    http_response_code(500);
     echo json_encode(["success" => false, "error" => "Failed to fetch inquiries."]);
 }
 ?>

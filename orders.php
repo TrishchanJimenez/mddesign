@@ -272,6 +272,7 @@
 <body>
     <!-- Navbar -->
     <?php require_once "navbar.php"; ?>
+    <?php require_once "chat-box.php"; ?>
     
     <!-- Colorful Divider -->
     <div class="colorful-divider"></div>

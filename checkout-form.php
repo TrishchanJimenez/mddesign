@@ -311,6 +311,9 @@
     </style>
 </head>
 <body>
+    <?php
+        require_once "chat-box.php";
+    ?>
     <!-- New Navbar with Bold Text -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">

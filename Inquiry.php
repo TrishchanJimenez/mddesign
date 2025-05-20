@@ -3,6 +3,7 @@
     $page_title = "Metro District Designs - Design Inquiry";
     require_once "header.php";
     require_once "db_connection.php";
+    require_once "chat-box.php";
 ?>
 <style>
     body {
@@ -89,8 +90,8 @@
     }
     
     .tshirt-container {
-        width: 400px;
-        height: 450px;
+        width: 500px;
+        height: 600px;
         position: relative;
         display: flex;
         justify-content: center;
@@ -99,7 +100,7 @@
     }
     
     .tshirt-image {
-        width: 100%;
+        width: 150%;
         height: auto;
     }
     
@@ -107,22 +108,21 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -60%);
-        width: 45%;
-        height: 45%;
+        transform: translate(-50%, -55%);
+        width: 240px;
+        height: 240px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border: 2px dashed #1a75bb;
-        cursor: move;
+        background-color: rgba(255, 255, 255, 0.1);
     }
 
     .design-safety {
         position: absolute;
         width: 90%;
         height: 90%;
-        border: 1px solid #0f0;
+        border: 2px dashed #0f0;
         pointer-events: none;
     }
 
@@ -130,13 +130,13 @@
         position: absolute;
         width: 105%;
         height: 105%;
-        border: 1px solid #00f;
+        border: 2px dashed #00f;
         pointer-events: none;
     }
     
     .design-labels {
         position: absolute;
-        top: 20%;
+        top: -35px;
         left: 50%;
         transform: translateX(-50%);
         width: 100%;
@@ -353,17 +353,18 @@
         position: absolute;
         color: #666;
         font-size: 12px;
+        font-weight: bold;
         pointer-events: none;
     }
 
     .dimension-label.width {
-        bottom: 10px;
+        bottom: 5px;
         left: 50%;
         transform: translateX(-50%);
     }
 
     .dimension-label.height {
-        right: 10px;
+        right: 5px;
         top: 50%;
         transform: translateY(-50%) rotate(90deg);
     }
@@ -415,6 +416,11 @@
         .tshirt-container {
             width: 300px;
             height: 350px;
+        }
+        
+        .design-area {
+            width: 140px;
+            height: 140px;
         }
     }
 
@@ -496,13 +502,7 @@
         <div class="design-section">
             <div class="design-preview">
                 <div class="tshirt-container" id="main-preview">
-                    <svg class="tshirt-image" id="tshirt-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                        <!-- T-shirt shape -->
-                        <path id="tshirt-body" d="M30,20 L60,5 L140,5 L170,20 L190,55 L170,70 L170,200 L30,200 L30,70 L10,55 Z" fill="black" />
-                        
-                        <!-- Collar -->
-                        <path d="M60,5 L100,25 L140,5" fill="none" stroke="#ddd" stroke-width="1" />
-                    </svg>
+                    <img src="s_4s__BOXY-FRONT.jpg" alt="T-Shirt Template" class="tshirt-image">
                     <div class="design-area" id="design-area">
                         <div class="design-safety"></div>
                         <div class="design-bleed"></div>
@@ -656,12 +656,9 @@
                     <div class="card-body">
                         <h5 class="card-title">Design Summary</h5>
                         <div class="text-center mb-3">
-                            <div class="tshirt-container" style="width: 200px; height: 230px;" id="summary-preview">
-                                <svg class="tshirt-image" id="summary-tshirt-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                                    <path id="summary-tshirt-body" d="M30,20 L60,5 L140,5 L170,20 L190,55 L170,70 L170,200 L30,200 L30,70 L10,55 Z" fill="black" />
-                                    <path d="M60,5 L100,25 L140,5" fill="none" stroke="#ddd" stroke-width="1" />
-                                </svg>
-                                <div class="design-area" id="summary-design-area" style="width: 45%; height: 45%;">
+                            <div class="tshirt-container" style="width: 200px; height: 230px; position: relative;" id="summary-preview">
+                                <img src="s_4s__BOXY-FRONT.jpg" alt="T-Shirt Template" class="tshirt-image" style="width: 100%; height: 100%; object-fit: contain;">
+                                <div class="design-area" id="summary-design-area" style="width: 45%; height: 45%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);">
                                     <div class="upload-placeholder" style="font-size: 12px;">
                                         YOUR<br>DESIGN
                                     </div>
@@ -776,27 +773,21 @@
         const positionYControl = document.getElementById('position-y-control');
         const positionXControl = document.getElementById('position-x-control');
         const quantityControl = document.getElementById('quantity-control');
-        const sizeValue = document.getElementById('size-value');
-        const positionYValue = document.getElementById('position-y-value');
-        const positionXValue = document.getElementById('position-x-value');
-        const quantityValue = document.getElementById('quantity-value');
-        const tshirtBody = document.getElementById('tshirt-body');
-        const summaryTshirtBody = document.getElementById('summary-tshirt-body');
+        const sizeInput = document.getElementById('size-input');
+        const positionYInput = document.getElementById('position-y-input');
+        const positionXInput = document.getElementById('position-x-input');
+        const quantityInput = document.getElementById('quantity-input');
         const processingCanvas = document.getElementById('processing-canvas');
         const ctx = processingCanvas.getContext('2d');
         const priceDisplay = document.getElementById('price-display');
         const summaryPrice = document.getElementById('summary-price');
         const designError = document.getElementById('design-error');
-
-        const quantityInput = document.getElementById('quantity-input');
-        const sizeInput = document.getElementById('size-input');
-        const positionYInput = document.getElementById('position-y-input');
-        const positionXInput = document.getElementById('position-x-input');
+        const summaryTshirtBody = document.getElementById('summary-tshirt-body');
         
         // Variables to store design state
         let designImage = null;
         let processedImage = null;
-        let currentColor = 'black';
+        let currentColor = '#000000';
         let currentSize = 'M';
         let designScale = 100;
         let designXPosition = 0;
@@ -806,441 +797,567 @@
         
         // Function to check if design is out of bounds
         function isDesignOutOfBounds() {
-            if (!designImage) return false;
+    if (!designImage) return false;
+    
+    const img = designArea.querySelector('img');
+    if (!img) return false;
+    
+    // Get the bounding rectangles
+    const designAreaRect = designArea.getBoundingClientRect();
+    const safetyAreaRect = designArea.querySelector('.design-safety').getBoundingClientRect();
+    const imgRect = img.getBoundingClientRect();
+    
+    // Check if image exceeds the design area
+    if (imgRect.left < designAreaRect.left || 
+        imgRect.right > designAreaRect.right ||
+        imgRect.top < designAreaRect.top ||
+        imgRect.bottom > designAreaRect.bottom) {
+        designError.style.display = 'block';
+        return true;
+    }
+    
+    designError.style.display = 'none';
+    return false;
+}
+
+// Function to update the price
+function updatePrice() {
+    let price = basePrice;
+    
+    // Add additional cost for quantity
+    price *= currentQuantity;
+    
+    // Add additional cost for larger sizes
+    if (currentSize === 'L') price += 20;
+    if (currentSize === 'XL') price += 30;
+    if (currentSize === 'XXL') price += 50;
+    
+    // Update price displays
+    priceDisplay.textContent = '₱' + price.toFixed(2);
+    summaryPrice.textContent = '₱' + price.toFixed(2);
+    
+    return price;
+}
+
+// Function to update the summary view
+function updateSummary() {
+    // Update summary design preview
+    if (designImage) {
+        const summaryImg = summaryDesignArea.querySelector('img') || new Image();
+        summaryImg.src = designImage.src;
+        summaryImg.style.maxWidth = '100%';
+        summaryImg.style.maxHeight = '100%';
+        
+        // Apply scale and position
+        summaryImg.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        
+        if (!summaryDesignArea.querySelector('img')) {
+            summaryDesignArea.innerHTML = '';
+            summaryDesignArea.appendChild(summaryImg);
+        }
+    }
+    
+    // Update summary text fields
+    document.getElementById('summary-color').textContent = document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase() === '#000000' ? 'Black' : 
+                                                           document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase() === '#FFFFFF' ? 'White' :
+                                                           document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase();
+    document.getElementById('summary-size').textContent = currentSize;
+    document.getElementById('summary-quantity').textContent = currentQuantity;
+    updatePrice();
+    
+    // Update hidden form values
+    document.getElementById('design-color').value = document.querySelector('.color-option.active').getAttribute('data-color').replace('#', '');
+    document.getElementById('design-size').value = currentSize;
+    document.getElementById('design-quantity').value = currentQuantity;
+}
+
+// Function to process uploaded image
+function processImage(file) {
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Resize canvas to image dimensions
+            processingCanvas.width = img.width;
+            processingCanvas.height = img.height;
             
-            const img = designArea.querySelector('img');
-            if (!img) return false;
+            // Draw image on canvas
+            ctx.clearRect(0, 0, processingCanvas.width, processingCanvas.height);
+            ctx.drawImage(img, 0, 0);
             
-            // Get the design area and safety zone dimensions
-            const designAreaRect = designArea.getBoundingClientRect();
-            const safetyZone = designArea.querySelector('.design-safety').getBoundingClientRect();
-            
-            // Calculate the design dimensions with scaling
-            const imgRect = img.getBoundingClientRect();
-            const scaledWidth = imgRect.width;
-            const scaledHeight = imgRect.height;
-            
-            // Calculate current position relative to the design area center
-            const designAreaCenterX = designAreaRect.left + designAreaRect.width / 2;
-            const designAreaCenterY = designAreaRect.top + designAreaRect.height / 2;
-            
-            // Calculate image bounds
-            const imgLeft = designAreaCenterX - scaledWidth / 2 + designXPosition;
-            const imgRight = designAreaCenterX + scaledWidth / 2 + designXPosition;
-            const imgTop = designAreaCenterY - scaledHeight / 2 + designYPosition;
-                const imgBottom = designAreaCenterY + scaledHeight / 2 + designYPosition;
+            // Create a new image from the canvas
+            processedImage = new Image();
+            processedImage.onload = function() {
+                // Display the processed image
+                const displayImg = designImage ? designImage : new Image();
+                displayImg.src = processedImage.src;
+                displayImg.style.maxWidth = '100%';
+                displayImg.style.maxHeight = '100%';
                 
-                // Check if image exceeds safety zone
-                if (imgLeft < safetyZone.left || imgRight > safetyZone.right || 
-                    imgTop < safetyZone.top || imgBottom > safetyZone.bottom) {
-                    designError.style.display = 'block';
-                    return true;
-                }
+                // Apply current transform values if they exist
+                displayImg.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
                 
-                designError.style.display = 'none';
-                return false;
-            }
-            
-            // File upload handling
-            designUpload.addEventListener('change', function(e) {
-                if (e.target.files && e.target.files[0]) {
-                    const file = e.target.files[0];
-                    fileNameDisplay.textContent = file.name;
-                    
-                    // Store the file reference for later use
-                    designImage = file;
-                }
-            });
-            
-            // Preview button click handler
-            previewButton.addEventListener('click', function() {
                 if (!designImage) {
-                    alert('Please select an image first.');
-                    return;
+                    designArea.innerHTML = '';
+                    designArea.appendChild(displayImg);
+                    
+                    // Add safety and bleed areas back
+                    const safetyArea = document.createElement('div');
+                    safetyArea.className = 'design-safety';
+                    designArea.appendChild(safetyArea);
+                    
+                    const bleedArea = document.createElement('div');
+                    bleedArea.className = 'design-bleed';
+                    designArea.appendChild(bleedArea);
+                    
+                    const designLabels = document.createElement('div');
+                    designLabels.className = 'design-labels';
+                    designLabels.innerHTML = '<span class="design-label">Safety Area</span><span class="design-label">Bleed</span>';
+                    designArea.appendChild(designLabels);
                 }
                 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Clear any existing images
-                    const placeholder = designArea.querySelector('.upload-placeholder');
-                    if (placeholder) placeholder.remove();
-                    
-                    // Remove any existing image
-                    const existingImg = designArea.querySelector('img');
-                    if (existingImg) existingImg.remove();
-                    
-                    // Create a new image element
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.onload = function() {
-                        // Resize and process the image if needed
-                        processImage(img);
-                        
-                        // Show the design controls
-                        designControls.style.display = 'block';
-                        
-                        // Clone the image for the summary view
-                        updateSummaryDesign();
-                    };
-                    
-                    designArea.appendChild(img);
-                };
+                designImage = displayImg;
+                designControls.style.display = 'block';
                 
-                reader.readAsDataURL(designImage);
-            });
-            
-            // Process image function
-            function processImage(img) {
-                // Set canvas dimensions
-                processingCanvas.width = img.naturalWidth;
-                processingCanvas.height = img.naturalHeight;
-                
-                // Draw image on canvas
-                ctx.clearRect(0, 0, processingCanvas.width, processingCanvas.height);
-                ctx.drawImage(img, 0, 0);
-                
-                // Get the processed image data URL
-                processedImage = processingCanvas.toDataURL('image/png');
-                
-                // Check if design is out of bounds after loading
-                setTimeout(isDesignOutOfBounds, 100);
-            }
-            
-            // Update summary design
-            function updateSummaryDesign() {
-                // Remove any existing image or placeholder
-                const placeholder = summaryDesignArea.querySelector('.upload-placeholder');
-                if (placeholder) placeholder.remove();
-                
-                const existingImg = summaryDesignArea.querySelector('img');
-                if (existingImg) existingImg.remove();
-                
-                if (processedImage) {
-                    // Create a new image for the summary
-                    const summaryImg = document.createElement('img');
-                    summaryImg.src = processedImage;
-                    summaryImg.style.maxWidth = '100%';
-                    summaryImg.style.maxHeight = '100%';
-                    summaryDesignArea.appendChild(summaryImg);
-                }
-            }
-            
-            function updateImageTransform() {
-                const img = designArea.querySelector('img');
-                if (img) {
-                    img.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-                }
-            }
-
-            sizeControl.addEventListener('input', function() {
-                sizeInput.value = this.value;
-                designScale = parseInt(this.value) || 100;
-                updateImageTransform();
+                // Check if design is within bounds
                 isDesignOutOfBounds();
-            });
-
-            sizeInput.addEventListener('input', function() {
-                sizeControl.value = this.value;
-                designScale = parseInt(this.value) || 100;
-                if(designScale > 200) {
-                    designScale = 200;
-                }
-                updateImageTransform();
-                isDesignOutOfBounds();
-            });
-
-            sizeInput.addEventListener('change', function() {
-                let val = parseInt(this.value) || 100;
-                val = Math.max(20, Math.min(200, val));
-                this.value = val;
-                sizeControl.value = val;
-                designScale = val;
-                updateImageTransform();
-                isDesignOutOfBounds();
-            });
-            
-            positionYControl.addEventListener('input', function() {
-                positionYInput.value = this.value;
-                designYPosition = parseInt(this.value);
-                updateImageTransform();
-                isDesignOutOfBounds();
-            });
-            positionYInput.addEventListener('input', function() {
-                let val = Math.max(-50, Math.min(50, parseInt(this.value) || 0));
-                this.value = val;
-                positionYControl.value = val;
-                designYPosition = val;
-                updateImageTransform();
-                isDesignOutOfBounds();
-            });
-            
-            positionXControl.addEventListener('input', function() {
-                positionXInput.value = this.value;
-                designXPosition = parseInt(this.value);
-                updateImageTransform();
-                isDesignOutOfBounds();
-            });
-
-            positionXInput.addEventListener('input', function() {
-                let val = Math.max(-50, Math.min(50, parseInt(this.value) || 0));
-                this.value = val;
-                positionXControl.value = val;
-                designXPosition = val;
-                updateImageTransform();
-                isDesignOutOfBounds();
-            });
-            
-            quantityControl.addEventListener('input', function() {
-                quantityInput.value = this.value;
-                currentQuantity = parseInt(this.value);
-                quantityValue.textContent = currentQuantity;
-                document.getElementById('design-quantity').value = currentQuantity;
-                updatePrice();
-            });
-
-            quantityInput.addEventListener('input', function() {
-                let val = Math.max(1, Math.min(50, parseInt(this.value) || 1));
-                this.value = val;
-                quantityControl.value = val;
-                currentQuantity = val;
-                quantityValue.textContent = currentQuantity;
-                document.getElementById('design-quantity').value = currentQuantity;
-                updatePrice();
-            });
-            
-            // Color option selection
-            const colorOptions = document.querySelectorAll('.color-option');
-            colorOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove active class from all options
-                    colorOptions.forEach(opt => opt.classList.remove('active'));
-                    
-                    // Add active class to selected option
-                    this.classList.add('active');
-                    
-                    // Update the t-shirt color
-                    const color = this.getAttribute('data-color');
-                    currentColor = color;
-                    tshirtBody.setAttribute('fill', color);
-                    summaryTshirtBody.setAttribute('fill', color);
-                    
-                    // Update the hidden field
-                    document.getElementById('design-color').value = color;
-                });
-            });
-            
-            // Size option selection
-            const sizeOptions = document.querySelectorAll('.size-option');
-            sizeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove active class from all options
-                    sizeOptions.forEach(opt => opt.classList.remove('active'));
-                    
-                    // Add active class to selected option
-                    this.classList.add('active');
-                    
-                    // Update the size
-                    const size = this.getAttribute('data-size');
-                    console.log(size);
-                    currentSize = size;
-                    
-                    // Update the hidden field
-                    document.getElementById('design-size').value = size;
-                    
-                    // Update price based on size
-                    updatePrice();
-                });
-            });
-            
-            // Update price based on selections
-            function updatePrice() {
-                let finalPrice = basePrice;
                 
-                // Apply size multiplier
-                if (currentSize === 'XL') {
-                    finalPrice += 20;
-                } else if (currentSize === 'XXL') {
-                    finalPrice += 40;
-                }
-                
-                // Apply quantity multiplier with volume discount
-                if (currentQuantity >= 10) {
-                    finalPrice = finalPrice * currentQuantity * 0.9; // 10% discount
-                } else if (currentQuantity >= 5) {
-                    finalPrice = finalPrice * currentQuantity * 0.95; // 5% discount
-                } else {
-                    finalPrice = finalPrice * currentQuantity;
-                }
-                
-                // Update price displays
-                priceDisplay.textContent = `₱${finalPrice.toFixed(2)}`;
-                
-                return finalPrice;
-            }
-            
-            // Update the summary display
-            function updateSummary() {
-                // Update the summary details
-                document.getElementById('summary-color').textContent = currentColor.charAt(0).toUpperCase() + currentColor.slice(1);
-                document.getElementById('summary-size').textContent = currentSize;
-                document.getElementById('summary-quantity').textContent = currentQuantity;
-                document.getElementById('summary-price').textContent = priceDisplay.textContent;
-                
-                // Update the summary t-shirt color
-                summaryTshirtBody.setAttribute('fill', currentColor);
-                
-                // Update the design preview in the summary
-                updateSummaryDesign();
-            }
-            
-            // Make the design area draggable
-            let isDragging = false;
-            let startX = 0;
-            let startY = 0;
-            
-            designArea.addEventListener('mousedown', function(e) {
-                isDragging = true;
-                startX = e.clientX - designXPosition;
-                startY = e.clientY - designYPosition;
-                e.preventDefault();
-            });
-            
-            document.addEventListener('mousemove', function(e) {
-                if (!isDragging) return;
-                
-                // Calculate new position
-                const newX = e.clientX - startX;
-                const newY = e.clientY - startY;
-                
-                // Apply position limits
-                designXPosition = Math.max(-50, Math.min(50, newX));
-                designYPosition = Math.max(-50, Math.min(50, newY));
-                
-                // Update position displays
-                positionXControl.value = designXPosition;
-                positionYControl.value = designYPosition;
-                positionXValue.textContent = designXPosition;
-                positionYValue.textContent = designYPosition;
-                
-                // Apply positions to the image
-                const img = designArea.querySelector('img');
-                if (img) {
-                    img.style.marginLeft = `${designXPosition}px`;
-                    img.style.marginTop = `${designYPosition}px`;
-                }
-                
-                // Check if the design is out of bounds
-                isDesignOutOfBounds();
-            });
-            
-            document.addEventListener('mouseup', function() {
-                isDragging = false;
-            });
-            
-            // Form submission
-            document.getElementById('inquiryForm').addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
+                // Save image data for form submission
+                saveImageForSubmission();
+            };
+            processedImage.src = processingCanvas.toDataURL('image/png');
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
 
-                // Check if a design image exists
-                const img = document.querySelector('#design-area img');
-                if (!img) {
-                    alert('Please upload a design image before submitting your inquiry.');
-                    return false;
-                }
+// Function to save processed image for form submission
+function saveImageForSubmission() {
+    const mainPreview = document.getElementById('main-preview');
+    if (!mainPreview) return;
 
-                // Get the base64-encoded image data
+    html2canvas(mainPreview, {
+        backgroundColor: null, // keep transparent if needed
+        useCORS: true // allow cross-origin images if needed
+    }).then(canvas => {
+        document.getElementById('referenceImage').value = canvas.toDataURL('image/png');
+    });
+}
 
-                // Collect form data
-                // const formData = {
-                //     color: document.getElementById('design-color').value,
-                //     size: currentSize,
-                //     quantity: document.getElementById('design-quantity').value,
-                //     description: document.getElementById('description').value,
-                //     timeline: document.getElementById('timeline').value,
-                //     additional_info: document.getElementById('additional_info').value,
-                //     referenceImage: processedImage
-                // };
+// Event Listeners
+designUpload.addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+        fileNameDisplay.textContent = this.files[0].name;
+        processImage(this.files[0]);
+    }
+});
 
-                // try {
-                //     // Send the data to the server
-                //     const response = fetch('api/submit_inquiry.php', {
-                //         method: 'POST',
-                //         headers: {
-                //             'Content-Type': 'application/json'
-                //         },
-                //         body: JSON.stringify(formData)
-                //     });
-                    
+previewButton.addEventListener('click', function() {
+    if (designUpload.files && designUpload.files[0]) {
+        processImage(designUpload.files[0]);
+    } else {
+        alert('Please select a file first.');
+    }
+});
 
-                //     const result = response.json();
+// Size slider control
+sizeControl.addEventListener('input', function() {
+    designScale = parseInt(this.value);
+    sizeInput.value = designScale;
+    
+    if (designImage) {
+        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        isDesignOutOfBounds();
+        saveImageForSubmission();
+    }
+});
 
-                //     if (response.ok) {
-                //         alert(result.message || 'Inquiry submitted successfully!');
-                //         window.location.reload(); // Reload the page or redirect as needed
-                //     } else {
-                //         alert(result.error || 'Failed to submit inquiry. Please try again.');
-                //     }
-                // } catch (error) {
-                //     // console.error('Error submitting inquiry:', error);
-                //     // alert('An unexpected error occurred. Please try again.');
-                //     alert('successfully submitted inquiry!');
-                //     window.location.reload(); // Reload the page or redirect as needed
-                // }
-                const summaryPreviewDiv = document.getElementById('summary-preview');
-                html2canvas(summaryPreviewDiv).then(canvas => {
-                    // Convert the canvas to a base64 image
-                    const summaryImage = canvas.toDataURL('image/png');
+sizeInput.addEventListener('input', function() {
+    let value = parseInt(this.value);
+    if (value < 20) value = 20;
+    if (value > 200) value = 200;
+    
+    designScale = value;
+    sizeControl.value = value;
+    this.value = value;
+    
+    if (designImage) {
+        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        isDesignOutOfBounds();
+        saveImageForSubmission();
+    }
+});
 
-                    // Collect form data
-                    const formData = {
-                        color: document.getElementById('design-color').value,
-                        size: currentSize,
-                        quantity: document.getElementById('design-quantity').value,
-                        description: document.getElementById('description').value,
-                        timeline: document.getElementById('timeline').value,
-                        additional_info: document.getElementById('additional_info').value,
-                        referenceImage: summaryImage, // Original design image
-                    };
+// Position Y slider control
+positionYControl.addEventListener('input', function() {
+    designYPosition = parseInt(this.value);
+    positionYInput.value = designYPosition;
+    
+    if (designImage) {
+        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        isDesignOutOfBounds();
+        saveImageForSubmission();
+    }
+});
 
-                    // Send the data to the server
-                    fetch('api/submit_inquiry.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                // If the response is not OK, parse the error message
-                                return response.json().then(errorData => {
-                                    throw new Error(errorData.error || 'Failed to submit inquiry. Please try again.');
-                                });
-                            }
-                            return response.json(); // Parse the JSON response
-                        })
-                        .then(result => {
-                            // Handle success
-                            alert(result.message || 'Inquiry submitted successfully!');
-                            window.location.reload(); // Reload the page or redirect as needed
-                        })
-                        .catch(error => {
-                            // Handle errors
-                            console.error('Error submitting inquiry:', error);
-                            alert(error.message || 'An unexpected error occurred. Please try again.');
-                        });
-                }).catch(error => {
-                    console.error('Error capturing summary-preview:', error);
-                    alert('Failed to capture the design summary. Please try again.');
-                });
-            });
-            
-            // Show login modal if not logged in
-            <?php if(empty($_SESSION['user_id'])): ?>
-                // Show login modal
-                document.getElementById('loginModal').style.display = 'flex';
-            <?php endif; ?>
-        });
+positionYInput.addEventListener('input', function() {
+    let value = parseInt(this.value);
+    if (value < -50) value = -50;
+    if (value > 50) value = 50;
+    
+    designYPosition = value;
+    positionYControl.value = value;
+    this.value = value;
+    
+    if (designImage) {
+        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        isDesignOutOfBounds();
+        saveImageForSubmission();
+    }
+});
 
+// Position X slider control
+positionXControl.addEventListener('input', function() {
+    designXPosition = parseInt(this.value);
+    positionXInput.value = designXPosition;
+    
+    if (designImage) {
+        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        isDesignOutOfBounds();
+        saveImageForSubmission();
+    }
+});
 
-    </script>
+positionXInput.addEventListener('input', function() {
+    let value = parseInt(this.value);
+    if (value < -50) value = -50;
+    if (value > 50) value = 50;
+    
+    designXPosition = value;
+    positionXControl.value = value;
+    this.value = value;
+    
+    if (designImage) {
+        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        isDesignOutOfBounds();
+        saveImageForSubmission();
+    }
+});
+
+// Quantity controls
+quantityControl.addEventListener('input', function() {
+    currentQuantity = parseInt(this.value);
+    quantityInput.value = currentQuantity;
+    updatePrice();
+});
+
+quantityInput.addEventListener('input', function() {
+    let value = parseInt(this.value);
+    if (isNaN(value) || value < 1) value = 1;
+    if (value > 50) value = 50;
+    
+    currentQuantity = value;
+    quantityControl.value = value;
+    this.value = value;
+    updatePrice();
+});
+
+// Color options
+const colorOptions = document.querySelectorAll('.color-option');
+colorOptions.forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove active class from all options
+        colorOptions.forEach(opt => opt.classList.remove('active'));
+        
+        // Add active class to clicked option
+        this.classList.add('active');
+        
+        // Update t-shirt color
+        const color = this.getAttribute('data-color');
+        currentColor = color;
+        
+        // Update t-shirt preview color
+        document.querySelector('.tshirt-image').style.backgroundColor = color;
+        summaryTshirtBody.setAttribute('fill', color);
+    });
+});
+
+// Size options
+const sizeOptions = document.querySelectorAll('.size-option');
+sizeOptions.forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove active class from all options
+        sizeOptions.forEach(opt => opt.classList.remove('active'));
+        
+        // Add active class to clicked option
+        this.classList.add('active');
+        
+        // Update selected size
+        currentSize = this.getAttribute('data-size');
+        updatePrice();
+    });
+});
+
+// Submit form handler
+// document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+//     e.preventDefault();
+    
+//     // Check if design has been uploaded
+//     if (!designImage) {
+//         alert('Please upload a design image before submitting.');
+//         switchTab('design-tab');
+//         return false;
+//     }
+    
+//     // Check if design is within bounds
+//     if (isDesignOutOfBounds()) {
+//         alert('Your design is exceeding the allowed area. Please adjust the size or position.');
+//         switchTab('design-tab');
+//         return false;
+//     }
+    
+//     // Convert the design preview to image for submission
+//     html2canvas(designArea).then(canvas => {
+//         // Update hidden field with the design image data
+//         document.getElementById('referenceImage').value = canvas.toDataURL('image/png');
+        
+//         // Submit the form
+//         this.submit();
+//     });
+// });
+
+// Startup code
+function initializePage() {
+    // Set the initial price
+    updatePrice();
+    
+    <?php if(empty($_SESSION['user_id'])): ?>
+    // Show login modal for non-logged in users
+    document.getElementById('loginModal').style.display = 'flex';
+    <?php endif; ?>
+}
+
+// Initialize the page when loaded
+initializePage();
+
+// Drag and drop handling for the design area
+let isDragging = false;
+let startX, startY, startPosX, startPosY;
+
+function setupDragAndDrop() {
+    if (!designImage) return;
+    
+    designImage.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    // Touch events for mobile
+    designImage.addEventListener('touchstart', startDrag);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('touchend', stopDrag);
+}
+
+function startDrag(e) {
+    e.preventDefault();
+    isDragging = true;
+    
+    // Get starting position
+    if (e.type === 'touchstart') {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    } else {
+        startX = e.clientX;
+        startY = e.clientY;
+    }
+    
+    startPosX = designXPosition;
+    startPosY = designYPosition;
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    
+    let currentX, currentY;
+    
+    if (e.type === 'touchmove') {
+        currentX = e.touches[0].clientX;
+        currentY = e.touches[0].clientY;
+    } else {
+        currentX = e.clientX;
+        currentY = e.clientY;
+    }
+    
+    // Calculate new position
+    const deltaX = currentX - startX;
+    const deltaY = currentY - startY;
+    
+    designXPosition = startPosX + deltaX / 2; // Divide by 2 for more controlled movement
+    designYPosition = startPosY + deltaY / 2;
+    
+    // Limit position range
+    if (designXPosition < -50) designXPosition = -50;
+    if (designXPosition > 50) designXPosition = 50;
+    if (designYPosition < -50) designYPosition = -50;
+    if (designYPosition > 50) designYPosition = 50;
+    
+    // Update sliders and inputs
+    positionXControl.value = designXPosition;
+    positionYControl.value = designYPosition;
+    positionXInput.value = designXPosition;
+    positionYInput.value = designYPosition;
+    
+    // Update design position
+    designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+    
+    // Check if design is within bounds
+    isDesignOutOfBounds();
+    
+    // Save image for submission
+    saveImageForSubmission();
+}
+
+function stopDrag() {
+    isDragging = false;
+}
+
+// Add event listeners when design is loaded
+const checkDesignInterval = setInterval(() => {
+    if (designImage) {
+        setupDragAndDrop();
+        clearInterval(checkDesignInterval);
+    }
+}, 100);
+
+// Form validation
+function validateForm() {
+    const form = document.getElementById('inquiryForm');
+    const requiredFields = form.querySelectorAll('[required]');
+    let valid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value) {
+            field.classList.add('is-invalid');
+            valid = false;
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    return valid;
+}
+
+// Reset form if needed
+function resetForm() {
+    document.getElementById('inquiryForm').reset();
+    
+    // Reset design settings
+    designScale = 100;
+    designXPosition = 0;
+    designYPosition = 0;
+    
+    // Update UI controls
+    sizeControl.value = designScale;
+    sizeInput.value = designScale;
+    positionXControl.value = designXPosition;
+    positionXInput.value = designXPosition;
+    positionYControl.value = designYPosition;
+    positionYInput.value = designYPosition;
+    
+    // Reset design preview
+    if (designImage) {
+        designImage.style.transform = `translate(0px, 0px) scale(1)`;
+    }
+}
+
+// Success message display after form submission (if needed)
+function showSuccessMessage() {
+    // Create a success message element
+    const successMsg = document.createElement('div');
+    successMsg.className = 'alert alert-success';
+    successMsg.textContent = 'Your design inquiry has been submitted successfully! We will contact you soon.';
+    
+    // Insert at the top of the form
+    const form = document.getElementById('inquiryForm');
+    form.parentNode.insertBefore(successMsg, form);
+    
+    // Scroll to success message
+    successMsg.scrollIntoView({ behavior: 'smooth' });
+    
+    // Remove success message after 5 seconds
+    setTimeout(() => {
+        successMsg.remove();
+    }, 5000);
+}
+
+// Handle form submission response
+document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (!validateForm()) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+
+    // Show loading indicator
+    const submitBtn = document.getElementById('submit-inquiry');
+    const originalBtnText = submitBtn.textContent;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+    submitBtn.disabled = true;
+
+    // Gather form data as JSON
+    const form = this;
+    const data = {
+        name: form.name.value,
+        email: form.email.value,
+        phone: form.phone.value,
+        description: form.description.value,
+        timeline: form.timeline.value,
+        additional_info: form.additional_info.value,
+        color: form.color.value,
+        size: form.size.value,
+        quantity: form.quantity.value,
+        referenceImage: form.referenceImage.value
+    };
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+
+        if (data.success) {
+            showSuccessMessage();
+            setTimeout(function() {
+                window.location.reload();
+            }, 2000);
+        } else {
+            alert(data.error || data.message || 'There was an error submitting your inquiry. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+        alert('There was an error submitting your inquiry. Please try again later.');
+    });
+});
+
+// Add window resize handler to ensure design stays within bounds
+window.addEventListener('resize', function() {
+    if (designImage) {
+        // Recalculate if design is within bounds
+        setTimeout(isDesignOutOfBounds, 300);
+    }
+});
+
+}); // End of DOMContentLoaded
+</script>

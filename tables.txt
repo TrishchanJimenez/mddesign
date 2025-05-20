@@ -1,0 +1,78 @@
+
+Table: display_product
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int(11)      | NO   | PRI | NULL    | auto_increment |
+| product_name | varchar(255) | NO   |     | NULL    |                |
+| description  | text         | YES  |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+
+Table: display_images
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| id         | int(11)      | NO   | PRI | NULL    | auto_increment |
+| product_id | int(11)      | NO   | MUL | NULL    |                |
+| image_path | varchar(255) | NO   |     | NULL    |                |
++------------+--------------+------+-----+---------+----------------+
+
+Sample Data
++----+------------+--------------------------------------------------------------+
+| id | product_id | image_path                                                   |
++----+------------+--------------------------------------------------------------+
+|  1 |          1 | images/display_products/BORN BROKE DIE RICH/BACK.png         |
+|  2 |          1 | images/display_products/BORN BROKE DIE RICH/DESIGN.png       |
+|  3 |          1 | images/display_products/BORN BROKE DIE RICH/FRONT.png        |
+|  4 |          2 | images/display_products/CHOSEN/BACK.png                      |
+|  5 |          2 | images/display_products/CHOSEN/DESIGN.png                    |
+|  6 |          2 | images/display_products/CHOSEN/FRONT.png                     |
+|  7 |          3 | images/display_products/CLASSIC WOLF/BACK.png                |
+|  8 |          3 | images/display_products/CLASSIC WOLF/DESIGN.png              |
+|  9 |          3 | images/display_products/CLASSIC WOLF/FRONT.png               |
+| 10 |          4 | images/display_products/COOL DADS RAISING COOL KIDS/back.png |
++----+------------+--------------------------------------------------------------+
+
+Table: products
++----------------+---------------+------+-----+---------------------+-------------------------------+
+| Field          | Type          | Null | Key | Default             | Extra                         |
++----------------+---------------+------+-----+---------------------+-------------------------------+
+| id             | int(11)       | NO   | PRI | NULL                | auto_increment                |
+| name           | varchar(255)  | NO   |     | NULL                |                               |
+| category       | varchar(100)  | NO   |     | NULL                |                               |
+| color          | varchar(50)   | NO   |     | NULL                |                               |
+| color_code     | varchar(7)    | NO   |     | NULL                |                               |
+| size           | varchar(50)   | NO   |     | NULL                |                               |
+| stock          | int(11)       | NO   |     | 0                   |                               |
+| price          | decimal(10,2) | NO   |     | NULL                |                               |
+| date_added     | datetime      | YES  |     | current_timestamp() |                               |
+| date_modified  | datetime      | YES  |     | current_timestamp() | on update current_timestamp() |
+| original_price | decimal(10,2) | YES  |     | NULL                |                               |
++----------------+---------------+------+-----+---------------------+-------------------------------+
+
+Table: inquiries
++-----------------+--------------+------+-----+---------------------+----------------+
+| Field           | Type         | Null | Key | Default             | Extra          |
++-----------------+--------------+------+-----+---------------------+----------------+
+| id              | int(11)      | NO   | PRI | NULL                | auto_increment |
+| user_id         | int(11)      | NO   | MUL | NULL                |                |
+| description     | text         | NO   |     | NULL                |                |
+| timeline        | varchar(50)  | NO   |     | NULL                |                |
+| additional_info | text         | YES  |     | NULL                |                |
+| color           | varchar(50)  | NO   |     | NULL                |                |
+| size            | varchar(10)  | NO   |     | NULL                |                |
+| quantity        | int(11)      | NO   |     | NULL                |                |
+| status          | varchar(50)  | NO   |     | pending             |                |
+| image_path      | varchar(255) | NO   |     | NULL                |                |
+| created_at      | timestamp    | NO   |     | current_timestamp() |                |
++-----------------+--------------+------+-----+---------------------+----------------+
+
+Table: chat_messages
+| Field   | Type                 | Null | Key | Default             | Extra          |
++---------+----------------------+------+-----+---------------------+----------------+
+| id      | int(11)              | NO   | PRI | NULL                | auto_increment |
+| user_id | varchar(255)         | NO   |     | NULL                |                |
+| sender  | enum('user','admin') | NO   |     | NULL                |                |
+| message | text                 | NO   |     | NULL                |                |
+| sent_at | datetime             | NO   |     | current_timestamp() |                |
++---------+----------------------+------+-----+---------------------+----------------+

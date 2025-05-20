@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metro District Designs - Admin Dashboard</title>
+    <title>Metro District Designs - Chat Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -18,66 +18,6 @@
             overflow-x: hidden;
         }
         
-        .navbar {
-            background-color: #1E1E1E;
-            padding: 10px 0;
-        }
-
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            color: white !important;
-            font-weight: bold;
-        }
-
-        .navbar-brand img {
-            height: 30px;
-            margin-right: 10px;
-        }
-
-        .navbar-nav {
-            flex-grow: 1;
-            justify-content: center;
-        }
-
-        .navbar-nav .nav-link {
-            color: white !important;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin: 0 10px;
-        }
-
-        .navbar-nav.ms-auto {
-            margin-right: 0 !important;
-            align-items: center;
-        }
-
-        .admin-header {
-            background-color: #555;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .admin-title {
-            margin: 0;
-            font-size: 1.2rem;
-        }
-
-        .admin-user {
-            display: flex;
-            align-items: center;
-        }
-
-        .admin-user img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
         .sidebar {
             background-color: #1E1E1E;
             color: white;
@@ -87,6 +27,7 @@
             position: fixed;
             left: 0;
             top: 0;
+            z-index: 100;
         }
         
         .sidebar-link {
@@ -133,357 +74,603 @@
 
         .main-content {
             margin-left: 250px;
-            padding: 20px;
             transition: all 0.3s;
-        }
-
-        .toggle-sidebar {
-            cursor: pointer;
-            display: none;
-        }
-
-        .inquiry-list {
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .inquiry-item {
-            border-bottom: 1px solid #eee;
-            padding: 15px;
-            transition: background-color 0.2s;
-            cursor: pointer;
-        }
-
-        .inquiry-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .inquiry-item.unread {
-            border-left: 3px solid #007bff;
-        }
-
-        .inquiry-item.urgent {
-            background-color: rgba(255, 107, 107, 0.1);
-        }
-
-        .inquiry-meta {
+            height: 100vh;
             display: flex;
-            justify-content: space-between;
-            color: #777;
-            font-size: 0.85rem;
-            margin-bottom: 5px;
+            flex-direction: column;
         }
 
-        .inquiry-title {
-            font-weight: bold;
-            margin-bottom: 5px;
+        /* Chat container styles */
+        .chat-container {
+            display: flex;
+            height: calc(100vh);
         }
 
-        .inquiry-preview {
-            color: #555;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Contact list styles */
+        .contact-list {
+            width: 300px;
+            border-right: 1px solid #ddd;
+            background-color: white;
+            overflow-y: auto;
         }
 
-        .badge-urgent {
-            background-color: #ff6b6b;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: normal;
+        .contact-search {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
         }
 
-        .badge-standard {
-            background-color: #4ecdc4;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: normal;
+        .contact-search input {
+            border-radius: 20px;
+            padding-left: 35px;
         }
 
-        .badge-relaxed {
-            background-color: #6c757d;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: normal;
-        }
-
-        .filter-section {
-            margin-bottom: 20px;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-box i {
+        .contact-search i {
             position: absolute;
+            left: 25px;
             top: 50%;
-            left: 15px;
             transform: translateY(-50%);
             color: #777;
         }
 
-        .search-box input {
-            padding-left: 40px;
-        }
-
-        .detail-panel {
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-        }
-
-        .detail-header {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-        }
-
-        .detail-meta {
-            display: flex;
-            justify-content: space-between;
-            color: #777;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-
-        .detail-title {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-            text-transform: capitalize;
-        }
-
-        .detail-customer {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .capitalize {
-            text-transform: capitalize;
-        }
-
-        .detail-customer img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .detail-content {
-            margin-bottom: 20px;
-        }
-
-        .detail-image-gallery {
+        .contact-filter {
+            padding: 0 15px 10px;
             display: flex;
             gap: 10px;
             overflow-x: auto;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            white-space: nowrap;
+            border-bottom: 1px solid #eee;
+            background-color: white;
         }
 
-        .detail-image {
-            width: 150px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .detail-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .info-item {
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 4px;
-        }
-
-        .info-label {
-            font-weight: bold;
+        .filter-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
             font-size: 0.8rem;
-            margin-bottom: 5px;
-            color: #777;
-        }
-
-        .info-value {
-            font-size: 0.9rem;
-        }
-
-        .reply-section {
-            margin-top: 20px;
-        }
-
-        .reply-box {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .reply-toolbar {
-            background-color: #f8f9fa;
-            padding: 10px;
-            display: flex;
-            gap: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .reply-toolbar button {
-            background: none;
-            border: none;
-            color: #555;
             cursor: pointer;
+            background-color: #f1f1f1;
+            transition: all 0.2s;
         }
 
-        .reply-toolbar button:hover {
-            color: #000;
-        }
-
-        .reply-textarea {
-            width: 100%;
-            border: none;
-            padding: 15px;
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        .reply-actions {
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-top: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .status-dropdown {
-            width: 200px;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: #ff6b6b;
+        .filter-badge.active {
+            background-color: #0d6efd;
             color: white;
+        }
+
+        .contact-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .contact-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .contact-item.active {
+            background-color: #e9f0fd;
+            border-left: 3px solid #0d6efd;
+        }
+
+        .contact-item.unread::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
+            background-color: #0d6efd;
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background-color: #e9f0fd;
+            color: #0d6efd;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .contact-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .contact-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: capitalize;
+        }
+
+        .contact-preview {
+            color: #777;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.85rem;
+        }
+
+        .contact-meta {
+            text-align: right;
+            min-width: 50px;
+        }
+
+        .contact-time {
+            font-size: 0.75rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .contact-badge {
+            display: inline-block;
+            min-width: 20px;
+            height: 20px;
+            background-color: #0d6efd;
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.75rem;
+            line-height: 20px;
+        }
+
+        /* Chat area styles */
+        .chat-area {
+            /* flex-grow: 1; */
+            display: flex;
+            width: 60%;
+            flex-direction: column;
+            background-color: #f5f7fb;
+        }
+
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-user {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9f0fd;
+            color: #0d6efd;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .chat-user-info h5 {
+            margin: 0;
+            font-size: 1rem;
+            text-transform: capitalize;
+        }
+
+        .chat-user-info span {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .chat-action-btn {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            margin-bottom: 15px;
+            clear: both;
+        }
+
+        .message-admin {
+            align-self: flex-end;
+        }
+
+        .message-customer {
+            align-self: flex-start;
+        }
+
+        .message-content {
+            padding: 10px 15px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message-admin .message-content {
+            background-color: #0d6efd;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-customer .message-content {
+            background-color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        .message-admin .message-time {
+            text-align: right;
+            color: #666;
+        }
+
+        .message-customer .message-time {
+            text-align: left;
+            color: #666;
+        }
+
+        .message-image {
+            max-width: 200px;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        .chat-input {
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background-color: #f1f1f1;
+            border-radius: 25px;
+            padding: 5px;
+        }
+
+        .input-container textarea {
+            flex-grow: 1;
+            border: none;
+            background: none;
+            padding: 10px 15px;
+            max-height: 100px;
+            resize: none;
+        }
+
+        .input-container textarea:focus {
+            outline: none;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 10px;
+            padding-right: 10px;
+        }
+
+        .input-action-btn {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 1.1rem;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .input-action-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .send-btn {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .send-btn:hover {
+            background-color: #0b5ed7;
+        }
+
+        /* Order info panel styles */
+        .order-info {
+            width: 350px;
+            border-left: 1px solid #ddd;
+            background-color: white;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .order-section {
+            margin-bottom: 20px;
+        }
+
+        .order-section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .order-section-title button {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .order-detail {
+            margin-bottom: 10px;
+        }
+
+        .order-detail-label {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .order-detail-value {
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .order-status {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .status-option {
+            padding: 8px 12px;
+            border-radius: 5px;
+            background-color: #f1f1f1;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-new .status-indicator { background-color: #0d6efd; }
+        .status-in-progress .status-indicator { background-color: #ffc107; }
+        .status-pending-approval .status-indicator { background-color: #6c757d; }
+        .status-completed .status-indicator { background-color: #198754; }
+        .status-rejected .status-indicator { background-color: #dc3545; }
+
+        .status-option.active {
+            background-color: #e9f0fd;
+            font-weight: bold;
+        }
+
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .gallery-image {
+            width: calc(50% - 5px);
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Modal styles for image preview */
+        .modal-image {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #777;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .empty-state h4 {
+            margin-bottom: 10px;
+            color: #555;
         }
 
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
+                transition: transform 0.3s ease;
             }
             
             .main-content {
                 margin-left: 0;
             }
             
-            .toggle-sidebar {
-                display: block;
-            }
-            
             .sidebar.show {
                 transform: translateX(0);
             }
+
+            .chat-container {
+                flex-direction: column;
+            }
+
+            .contact-list {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+            }
+
+            .order-info {
+                display: none;
+                width: 100%;
+            }
             
+            .order-info.show {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                height: calc(100vh);
+            }
+            
+            .contact-list {
+                max-height: 30vh;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Main Container with Sidebar -->
-<div class="container-fluid p-0">
-    <div class="row g-0">
-        <!-- Sidebar -->
-        <div class="col-auto">
-            <div class="sidebar" style="z-index: 100;">
-                <div class="logo-container">
-                    <img src="images/TSHIRTS/LOGO.jpg" class="logo" alt="Logo">
-                    <h5 class="brand-name">Metro District Designs</h5>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-auto">
+                <div class="sidebar">
+                    <div class="logo-container">
+                        <img src="images/TSHIRTS/LOGO.jpg" class="logo" alt="Logo">
+                        <h5 class="brand-name">Metro District Designs</h5>
+                    </div>
+                    <a href="dashboard.php" class="sidebar-link">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="admin-orders.php" class="sidebar-link">
+                        <i class="fas fa-shopping-cart"></i> Orders
+                    </a>
+                    <a href="product-stock.php" class="sidebar-link">
+                        <i class="fas fa-box"></i> Product Stock
+                    </a>
+                    <a href="admininquiries.php" class="sidebar-link active">
+                        <i class="fas fa-envelope"></i> Inquiries
+                    </a>
+                    <a href="user-admin.php" class="sidebar-link">
+                        <i class="fas fa-users"></i> Account Manager
+                    </a>
+                    <a href="profile.php" class="sidebar-link">
+                        <i class="fas fa-user-cog"></i> Profile
+                    </a>
+                    <a href="index.php" class="sidebar-link">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="logout.php" class="sidebar-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
-                <a href="dashboard.php" class="sidebar-link">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a href="admin-orders.php" class="sidebar-link">
-                    <i class="fas fa-shopping-cart"></i> Orders
-                </a>
-                <a href="product-stock.php" class="sidebar-link">
-                    <i class="fas fa-box"></i> Product Stock
-                </a>
-                <a href="admininquiries.php" class="sidebar-link active">
-                    <i class="fas fa-envelope"></i> Inquiries
-                </a>
-                <a href="user-admin.php" class="sidebar-link">
-                    <i class="fas fa-users"></i> Account Manager
-                </a>
-                <a href="profile.php" class="sidebar-link">
-                    <i class="fas fa-user-cog"></i> Profile
-                </a>
-                <a href="index.php" class="sidebar-link">
-                    <i class="fas fa-home"></i> Home
-                </a>
-                <a href="logout.php" class="sidebar-link">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Chat Container -->
+                <div class="chat-container">
+                    <!-- Contact List -->
+                    <div class="contact-list">
+                        <div class="contact-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="form-control" id="contactSearch" placeholder="Search messages...">
+                        </div>
+                        <div class="contact-filter">
+                            <div class="filter-badge active" data-filter="all">All</div>
+                            <div class="filter-badge" data-filter="unread">Unread</div>
+                            <div class="filter-badge" data-filter="new">New</div>
+                            <div class="filter-badge" data-filter="in-progress">In Progress</div>
+                            <div class="filter-badge" data-filter="pending-approval">Pending Approval</div>
+                            <div class="filter-badge" data-filter="completed">Completed</div>
+                        </div>
+                        <div id="contactsList">
+                            <!-- Contacts will be loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div class="chat-area" id="chatArea">
+                        <div class="empty-state">
+                            <i class="far fa-comments"></i>
+                            <h4>Select a conversation</h4>
+                            <p>Choose a customer from the list to start chatting</p>
+                        </div>
+                    </div>
+
+                    <!-- Order Info Panel -->
+                    <div class="order-info" id="orderInfo">
+                        <!-- Order details will be loaded dynamically -->
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="container-fluid">
-            <div class="row mb-4">
-                <div class="col">
-                    <h2>Design Inquiries</h2>
-                    <p class="text-muted">Manage custom design requests from customers</p>
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Image Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-            
-            <div class="row">
-                <!-- Left Panel - Inquiry List -->
-                <div class="col-lg-3">
-                    <div class="filter-section d-flex gap-2">
-                        <div class="search-box flex-grow-1">
-                            <i class="fas fa-search"></i>
-                            <input type="text" class="form-control" id="searchInput" placeholder="Search inquiries...">
-                        </div>
-                        <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
-                            <i class="fas fa-filter"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item filter-option" href="#" data-filter="all">All Inquiries</a>
-                            <a class="dropdown-item filter-option" href="#" data-filter="new">New Inquiries</a>
-                            <a class="dropdown-item filter-option" href="#" data-filter="in-progress">In Progress</a>
-                            <a class="dropdown-item filter-option" href="#" data-filter="completed">Completed</a>
-                        </div>
-                    </div>
-                    
-                    <div class="inquiry-list" id="inquiryList">
-                        <!-- Inquiry items will be dynamically loaded from the inquiries data -->
-                    </div>
-                </div>
-                
-                <!-- Right Panel - Detail View -->
-                <div class="col-lg-7">
-                    <div class="detail-panel" id="inquiryDetail">
-                        <!-- Inquiry details will be dynamically loaded -->
-                    </div>
+                <div class="modal-body">
+                    <img src="" id="previewImage" class="modal-image">
                 </div>
             </div>
         </div>
@@ -493,259 +680,352 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const inquiryList = document.getElementById('inquiryList');
-            const inquiryDetail = document.getElementById('inquiryDetail');
+            let ws = null;
+            let currentUserId = null;
+            let users = []; // All users who have chatted
+            let latestChatMap = {}; // user_id => { text, time, sender }
+            let inquiriesMap = {}; // user_id => latest inquiry
+            let allUsers = [];
+            let currentFilter = 'all';
 
-            // Fetch inquiries from the backend
+            // Fetch all users who have chat messages
+            function fetchSidebarUsers() {
+                fetch('api/latest_chat_previews.php')
+                    .then(res => res.json())
+                    .then(chatData => {
+                        latestChatMap = chatData;
+                        allUsers = Object.keys(chatData).map(user_id => ({
+                            user_id: user_id,
+                            customer_name: chatData[user_id].customer_name || "User " + user_id,
+                            status: chatData[user_id].status || '', // Add status if available
+                            unread: chatData[user_id].unread || false // Add unread if available
+                        }));
+                        allUsers.sort((a, b) => {
+                            const timeA = latestChatMap[a.user_id]?.time || '';
+                            const timeB = latestChatMap[b.user_id]?.time || '';
+                            return new Date(timeB) - new Date(timeA);
+                        });
+                        filterAndRenderContacts();
+                    });
+            }
+            fetchSidebarUsers();
 
-            let inquiries = [];
-            async function fetchInquiries() {
-                try {
-                    const response = await fetch('api/get_inquiries.php');
-                    const result = await response.json();
+            function filterAndRenderContacts() {
+                let filtered = allUsers;
 
-                    if (result.success) {
-                        inquiries = result.data;
-                        renderInquiryList(inquiries);
-                    } else {
-                        alert(result.error || 'Failed to fetch inquiries.');
-                    }
-                } catch (error) {
-                    console.error('Error fetching inquiries:', error);
+                // Apply filter badge
+                if (currentFilter === 'unread') {
+                    filtered = filtered.filter(u => u.unread);
+                } else if (currentFilter !== 'all') {
+                    filtered = filtered.filter(u => (u.status || '').toLowerCase() === currentFilter.replace('-', ' '));
                 }
+
+                // Apply search
+                const searchTerm = document.getElementById('contactSearch').value.toLowerCase();
+                if (searchTerm) {
+                    filtered = filtered.filter(user =>
+                        (user.customer_name || '').toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                renderContactList(filtered);
             }
 
-            // Function to render inquiry list
-            function renderInquiryList(inquiriesData) {
-                const listContainer = document.getElementById('inquiryList');
-                listContainer.innerHTML = '';
-                
-                inquiriesData.forEach(inquiry => {
-                    const item = document.createElement('div');
-                    item.className = `inquiry-item${inquiry.unread ? ' unread' : ''}${inquiry.priority === 'urgent' ? ' urgent' : ''}`;
-                    item.setAttribute('data-id', inquiry.id);
-                    
-                    item.innerHTML = `
-                        <div class="inquiry-meta">
-                            <span class="capitalize">${inquiry.customer_name}</span>
-                            <span>${new Date(inquiry.created_at).toLocaleString()}</span>
-                        </div>
-                        <div class="inquiry-title capitalize">T-Shirt</div>
-                        <div class="inquiry-preview">${inquiry.description_preview}</div>
-                    `;
-                    
-                    item.addEventListener('click', () => renderInquiryDetail(inquiry));
-                    listContainer.appendChild(item);
-                });
-                
-                // Add click event listeners to inquiry items
-                const inquiryItems = document.querySelectorAll('.inquiry-item');
-                inquiryItems.forEach(item => {
-                    item.addEventListener('click', function() {
-                        // Remove active class from all items
-                        inquiryItems.forEach(i => i.classList.remove('active', 'bg-light'));
-                        
-                        // Add active class to clicked item
-                        this.classList.add('active', 'bg-light');
-                        
-                        // Remove unread status
-                        this.classList.remove('unread');
-                        
-                        // Get inquiry ID and load details
-                        const inquiryId = parseInt(this.getAttribute('data-id'));
-                        const selectedInquiry = inquiries.find(inq => inq.id === inquiryId);
-                        
-                        if (selectedInquiry) {
-                            renderInquiryDetail(selectedInquiry);
-                            
-                            // Update the data to mark as read
-                            selectedInquiry.unread = false;
+            // Fetch latest inquiry for a user
+            function fetchUserInquiry(userId, cb) {
+                fetch('api/get_inquiries.php?user_id=' + encodeURIComponent(userId))
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.data && data.data.length > 0) {
+                            inquiriesMap[userId] = data.data[0];
+                            cb(data.data[0]);
+                        } else {
+                            inquiriesMap[userId] = null;
+                            cb(null);
                         }
                     });
-                });
-                
-                // Make the first inquiry item active by default
-                if (inquiryItems.length > 0) {
-                    inquiryItems[0].click();
+            }
+
+            // Fetch chat messages for a user
+            function fetchChatMessages(userId) {
+                fetch('api/chat_messages.php?admin=1&user_id=' + encodeURIComponent(userId))
+                    .then(res => res.json())
+                    .then(messages => {
+                        renderChatArea(userId, messages);
+                        fetchUserInquiry(userId, renderOrderInfo);
+                    });
+            }
+
+            function formatTime(timestamp) {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+                if (diffDays === 0) {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } else if (diffDays === 1) {
+                    return 'Yesterday';
+                } else if (diffDays < 7) {
+                    return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+                } else {
+                    return date.toLocaleDateString();
                 }
             }
-            
-            // Function to render inquiry detail
-            function renderInquiryDetail(inquiry) {
-                const detailContainer = document.getElementById('inquiryDetail');
-                
-                // Render the detail view
-                detailContainer.innerHTML = `
-                    <div class="detail-header">
-                        <div class="detail-meta">
-                            <span><strong>Inquiry ID:</strong> #${inquiry.id}</span>
-                            <span>Submitted: ${new Date(inquiry.created_at).toLocaleString()}</span>
+
+            function getInitials(name) {
+                return name.split(' ').map(n => n.charAt(0).toUpperCase()).join('');
+            }
+
+            function renderContactList(contacts) {
+                const contactsList = document.getElementById('contactsList');
+                contactsList.innerHTML = '';
+                contacts.forEach(contact => {
+                    const chat = latestChatMap[contact.user_id];
+                    const preview = chat && chat.text ? chat.text.substring(0, 40) : '';
+                    const time = chat && chat.time ? formatTime(chat.time) : '';
+                    const contactItem = document.createElement('div');
+                    contactItem.className = 'contact-item';
+                    contactItem.setAttribute('data-id', contact.user_id);
+                    contactItem.innerHTML = `
+                        <div class="contact-avatar">${getInitials(contact.customer_name)}</div>
+                        <div class="contact-info">
+                            <div class="contact-name">${contact.customer_name}</div>
+                            <div class="contact-preview">${preview}</div>
                         </div>
-                        <h3 class="detail-title">T-Shirt</h3>
-                        <div class="detail-customer">
-                            <div>
-                                <div><strong class="capitalize">${inquiry.customer_name}</strong></div>
-                                <div>${inquiry.customer_email} | +63${inquiry.customer_phone}</div>
+                        <div class="contact-meta">
+                            <div class="contact-time">${time}</div>
+                        </div>
+                    `;
+                    contactItem.addEventListener('click', () => {
+                        currentUserId = contact.user_id;
+                        fetchChatMessages(currentUserId);
+                        document.querySelectorAll('.contact-item').forEach(item => item.classList.remove('active'));
+                        contactItem.classList.add('active');
+                    });
+                    contactsList.appendChild(contactItem);
+                });
+            }
+
+            function getContactName(userId) {
+                const contact = users.find(c => c.user_id == userId);
+                return contact ? contact.customer_name : '';
+            }
+
+            function renderChatArea(userId, messages) {
+                const chatArea = document.getElementById('chatArea');
+                chatArea.innerHTML = `
+                    <div class="chat-header">
+                        <div class="chat-user">
+                            <div class="chat-avatar">${getInitials(getContactName(userId))}</div>
+                            <div class="chat-user-info">
+                                <h5>${getContactName(userId)}</h5>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="detail-content">
-                        ${inquiry.description_preview}
-                    </div>
-                    
-                    <div class="detail-image-gallery">
-                        <img src="${inquiry.image_path}" class="detail-image" alt="Reference image">
-                    </div>
-                    
-                    <div class="detail-info">
-                        <div class="info-item">
-                            <div class="info-label">Design Type</div>
-                            <div class="info-value capitalize">T-Shirt</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Status</div>
-                            <div class="info-value">${inquiry.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Timeline</div>
-                            <div class="info-value capitalize">${inquiry.timeline}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Color</div>
-                            <div class="info-value capitalize">${inquiry.color}</div>
-                        </div>
-                        <div class="info-item">
-                           <div class="info-label">Size</div>
-                            <div class="info-value capitalize">${inquiry.size}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Quantity</div>
-                            <div class="info-value capitalize">${inquiry.quantity}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="reply-section">
-                        <h5>Reply to Customer</h5>
-                        <div class="reply-box">
-                            <textarea class="reply-textarea" id="replyMessage" placeholder="Type your response here..."></textarea>
-                            <div class="reply-actions">
-                                <div>
-                                    <select class="form-select status-dropdown" id="status-dropdown">
-                                        <option value="">Update Status</option>
-                                        <option value="new" ${inquiry.status === 'new' ? 'selected' : ''}>New</option>
-                                        <option value="in-progress" ${inquiry.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
-                                        <option value="pending-approval" ${inquiry.status === 'pending-approval' ? 'selected' : ''}>Pending Approval</option>
-                                        <option value="completed" ${inquiry.status === 'completed' ? 'selected' : ''}>Completed</option>
-                                        <option value="rejected" ${inquiry.status === 'rejected' ? 'selected' : ''}>Rejected</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <button class="btn btn-primary" id="sendReplyBtn">Send Reply</button>
-                                </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input">
+                        <div class="input-container">
+                            <textarea class="form-control" id="messageInput" placeholder="Type a message..."></textarea>
+                            <div class="input-actions">
+                                <button class="input-action-btn send-btn" id="sendMessage">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
                 `;
-
-                const sendReplyBtn = document.getElementById('sendReplyBtn');
-                sendReplyBtn.addEventListener('click', async () => {
-                    const replyMessage = document.getElementById('replyMessage').value;
-
-                    try {
-                        const response = await fetch('api/send_reply.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: `inquiry_id=${inquiry.id}&reply_message=${encodeURIComponent(replyMessage)}`,
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            alert('Reply sent successfully.');
-                            document.getElementById('replyMessage').value = '';
-                        } else {
-                            alert(result.error || 'Failed to send reply.');
-                        }
-                    } catch (error) {
-                        console.error('Error sending reply:', error);
-                    }
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                messages.forEach(msg => {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `message message-${msg.sender === 'admin' ? 'admin' : 'customer'}`;
+                    msgDiv.innerHTML = `
+                        <div class="message-content">${msg.text}</div>
+                        <div class="message-time">${formatTime(msg.time)}</div>
+                    `;
+                    chatMessages.appendChild(msgDiv);
                 });
+                chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                // Handle updating status
-
-                const statusDropdown = document.getElementById('status-dropdown');
-                statusDropdown.addEventListener('change', async () => {
-                    const newStatus = statusDropdown.value;
-
-                    try {
-                        const response = await fetch('api/update_inquiry.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: `inquiry_id=${inquiry.id}&status=${newStatus}`,
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            alert('Status updated successfully.');
-                            fetchInquiries(); // Refresh the inquiry list
-                        } else {
-                            alert(result.error || 'Failed to update status.');
-                        }
-                    } catch (error) {
-                        console.error('Error updating status:', error);
+                // Send message
+                document.getElementById('sendMessage').onclick = function() {
+                    sendMessage();
+                };
+                document.getElementById('messageInput').onkeydown = function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
                     }
-                });
+                };
             }
-            
-            // Handle search functionality
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                const filteredInquiries = inquiries.filter(inquiry => 
-                    inquiry.customer_name.toLowerCase().includes(searchTerm) ||
-                    inquiry.description.toLowerCase().includes(searchTerm)
-                );
-                renderInquiryList(filteredInquiries);
-            });
-            
-            // Handle filter options
-            const filterOptions = document.querySelectorAll('.filter-option');
-            filterOptions.forEach(option => {
-                option.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const filterType = this.getAttribute('data-filter');
-                    let filteredInquiries = [...inquiries];
-                    
-                    switch(filterType) {
-                        case 'unread':
-                            filteredInquiries = inquiries.filter(inq => inq.unread);
-                            break;
-                        case 'urgent':
-                            filteredInquiries = inquiries.filter(inq => inq.priority === 'urgent');
-                            break;
-                        case 'new':
-                            filteredInquiries = inquiries.filter(inq => inq.status === 'new');
-                            break;
-                        case 'in-progress':
-                            filteredInquiries = inquiries.filter(inq => inq.status === 'in-progress');
-                            break;
-                        case 'completed':
-                            filteredInquiries = inquiries.filter(inq => inq.status === 'completed');
-                            break;
-                        // 'all' and default don't need filtering
+
+            // Update sidebar after sending a message as admin
+            function sendMessage() {
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                if (!text || !currentUserId) return;
+
+                // Save to backend
+                fetch('api/chat_messages.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: text, sender: 'admin', user_id: currentUserId})
+                }).then(() => {
+                    // After saving, update sidebar to reflect new message order/preview
+                    fetchSidebarUsers();
+                });
+
+                // Send via WebSocket (optional, for real-time)
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        to: currentUserId,
+                        message: text,
+                        sender: 'admin'
+                    }));
+                }
+
+                appendMessage({
+                    sender: 'admin',
+                    message: text,
+                    sent_at: new Date().toISOString()
+                });
+
+                input.value = '';
+            }
+
+            function renderOrderInfo(inquiry) {
+                const orderInfo = document.getElementById('orderInfo');
+                if (!inquiry) {
+                    orderInfo.innerHTML = '';
+                    return;
+                }
+                orderInfo.innerHTML = `
+                    <div class="order-section">
+                        <div class="order-section-title">Inquiry Details</div>
+                        <div class="order-detail">
+                            <div class="order-detail-label">Created</div>
+                            <div class="order-detail-value">${new Date(inquiry.created_at).toLocaleString()}</div>
+                        </div>
+                        <div class="order-detail">
+                            <div class="order-detail-label">Timeline</div>
+                            <div class="order-detail-value">${inquiry.timeline}</div>
+                        </div>
+                        <div class="order-detail">
+                            <div class="order-detail-label">Description</div>
+                            <div class="order-detail-value">${inquiry.description}</div>
+                        </div>
+                        <div class="order-detail">
+                            <div class="order-detail-label">Color</div>
+                            <div class="order-detail-value">${inquiry.color}</div>
+                        </div>
+                        <div class="order-detail">
+                            <div class="order-detail-label">Size</div>
+                            <div class="order-detail-value">${inquiry.size}</div>
+                        </div>
+                        <div class="order-detail">
+                            <div class="order-detail-label">Quantity</div>
+                            <div class="order-detail-value">${inquiry.quantity}</div>
+                        </div>
+                        <div class="order-detail">
+                            <div class="order-detail-label">Status</div>
+                            <div class="order-detail-value">${inquiry.status}</div>
+                        </div>
+                        ${inquiry.image_path ? `
+                        <div class="order-detail">
+                            <div class="order-detail-label">Image</div>
+                            <img src="${inquiry.image_path}" class="gallery-image" style="max-width:100%;">
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            // WebSocket connection
+            function connectWebSocket() {
+                ws = new WebSocket('ws://localhost:8080');
+                ws.onopen = function() {
+                    ws.send(JSON.stringify({type: "init", is_admin: true}));
+                };
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    // Log for debugging
+                    console.log('WebSocket message:', data);
+
+                    // Determine the user_id for this message
+                    let messageUserId = data.user_id || data.from || data.to;
+
+                    // If this message belongs to the currently open chat, append it
+                    if (messageUserId == currentUserId) {
+                        appendMessage({
+                            sender: data.sender,
+                            text: data.text !== undefined ? data.text : data.message,
+                            time: data.time !== undefined ? data.time : data.sent_at
+                        });
                     }
-                    
-                    renderInquiryList(filteredInquiries);
+                    // Always update sidebar for new messages
+                    fetchSidebarUsers();
+                };
+                ws.onclose = function() {
+                    setTimeout(connectWebSocket, 2000);
+                };
+            }
+            connectWebSocket();
+
+            function appendMessage(msg) {
+                const chatMessages = document.getElementById('chatMessages');
+                if (!chatMessages) return;
+                const messageText = msg.text !== undefined ? msg.text : msg.message;
+                const messageTime = msg.time !== undefined ? msg.time : msg.sent_at;
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message message-${msg.sender === 'admin' ? 'admin' : 'customer'}`;
+                msgDiv.innerHTML = `
+                    <div class="message-content">${messageText}</div>
+                    <div class="message-time">${formatTime(messageTime)}</div>
+                `;
+                chatMessages.appendChild(msgDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Filter contacts based on search input
+            document.getElementById('contactSearch').addEventListener('input', filterAndRenderContacts);
+            document.querySelectorAll('.filter-badge').forEach(badge => {
+                badge.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-badge').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-filter');
+                    filterAndRenderContacts();
                 });
             });
 
-            fetchInquiries();
+            // Responsive sidebar toggle
+            const toggleSidebar = () => {
+                document.querySelector('.sidebar').classList.toggle('show');
+            };
+            
+            // Add sidebar toggle button for mobile if it doesn't exist
+            if (!document.getElementById('sidebarToggle')) {
+                const toggleBtn = document.createElement('button');
+                toggleBtn.id = 'sidebarToggle';
+                toggleBtn.className = 'btn btn-sm btn-primary position-fixed';
+                toggleBtn.style.top = '10px';
+                toggleBtn.style.left = '10px';
+                toggleBtn.style.zIndex = '1000';
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                toggleBtn.addEventListener('click', toggleSidebar);
+                
+                document.body.appendChild(toggleBtn);
+                
+                // Show button only on mobile
+                const checkWidth = () => {
+                    if (window.innerWidth <= 992) {
+                        toggleBtn.style.display = 'block';
+                    } else {
+                        toggleBtn.style.display = 'none';
+                    }
+                };
+                
+                window.addEventListener('resize', checkWidth);
+                checkWidth(); // Initial check
+            }
         });
     </script>
 </body>

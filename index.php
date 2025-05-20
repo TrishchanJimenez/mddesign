@@ -2,6 +2,7 @@
     session_start();
     require_once "header.php";
     require_once "db_connection.php";
+    require_once "chat-box.php";
 ?>
 
 <style>
@@ -316,13 +317,13 @@ font-weight: bold;
                     // Default fallback images if no files are found
                 ?>
                 <div class="carousel-item active">
-                    <img src="images/TSHIRTS/bestbud_1.png" class="d-block w-100" alt="Anime T-Shirt 1">
+                    <img src="images/MockUp/PANTA.png" class="d-block w-100" alt="Anime T-Shirt 1">
                 </div>
                 <div class="carousel-item">
-                    <img src="images/TSHIRTS/Baskn_cook_1.jpg" class="d-block w-100" alt="Anime T-Shirt 2">
+                    <img src="images/Mockup/NNK.png" class="d-block w-100" alt="Anime T-Shirt 2">
                 </div>
                 <div class="carousel-item">
-                    <img src="images/TSHIRTS/Baskn_cook_2.jpg" class="d-block w-100" alt="Anime T-Shirt 3">
+                    <img src="images/MockUp/GOOD GUYS.png" class="d-block w-100" alt="Anime T-Shirt 3">
                 </div>
                 <?php
                 }
@@ -416,16 +417,16 @@ font-weight: bold;
     <div class="container">
         <div class="grid-layout">
             <div class="grid-item grid-item-1">
-                <img src="images/TSHIRTS/altitude_2.jpg" alt="Fashion Model">
+                <img src="images/MockUp/Ground Person.jpg" alt="Fashion Model">
             </div>
             <div class="grid-item grid-item-2">
-                <img src="images/TSHIRTS/altitude_1.jpg" alt="Design Process">
+                <img src="images/MockUp/One Piece.png" alt="Design Process">
             </div>
             <div class="grid-item grid-item-3">
-                <img src="images/TSHIRTS/ayv_1.jpg" alt="Design Studio">
+                <img src="images/MockUp/WHITE.png" alt="Design Studio">
             </div>
             <div class="grid-item grid-item-4">
-                <img src="images/TSHIRTS/ayv_2.jpg" alt="Custom Designs">
+                <img src="images/MockUp/Ground.jpg" alt="Custom Designs">
             </div>
         </div>
     </div>
@@ -471,4 +472,4 @@ font-weight: bold;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="globals.js"></script>
 </body>
-</html>
+</html> 

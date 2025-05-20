@@ -2,6 +2,7 @@
     session_start();
     $page_title = "Metro District Designs - Cart";
     require_once "header.php";
+    require_once "chat-box.php";
 ?>
 <style>
     body {
@@ -163,6 +164,19 @@
         display: flex;
         align-items: center;
     }
+
+    /* Available stock indicator */
+    .available-stock {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-left: 8px;
+    }
+    
+    /* Stock warning styles */
+    .low-stock {
+        color: #dc3545;
+        font-weight: bold;
+    }
 </style>
 <body>
     <!-- Navbar -->
@@ -236,6 +250,13 @@
                     }
                 }
 
+                // Get available stock quantity for selected size and color
+                const availableStock = item.size && item.color ? stockData[item.size][item.color]?.quantity || 0 : 0;
+                
+                // Determine if stock is low (less than 5 items)
+                const isLowStock = availableStock > 0 && availableStock < 5;
+                const stockClass = isLowStock ? 'low-stock' : '';
+
                 const cartItem = document.createElement('div');
                 cartItem.className = 'order-item';
                 cartItem.dataset.index = index; // Add a data attribute for easy identification
@@ -279,8 +300,11 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="quantity-control">
                                 <button class="quantity-btn decrease-btn" data-index="${index}" ${!item.selected || !item.size || !item.color ? 'disabled' : ''}>-</button>
-                                <input type="text" class="quantity-input" value="${item.quantity}" max="${item.size && item.color ? stockData[item.size][item.color]?.quantity || 0 : 0}" readonly>
+                                <input type="text" class="quantity-input" value="${item.quantity}" max="${availableStock}" readonly>
                                 <button class="quantity-btn increase-btn" data-index="${index}" ${!item.selected || !item.size || !item.color ? 'disabled' : ''}>+</button>
+                                ${item.size && item.color ? 
+                                    `<span class="available-stock ${stockClass}">(${availableStock} available)</span>` : 
+                                    ''}
                             </div>
                             <button class="remove-btn" data-index="${index}">
                                 <i class="bi bi-trash"></i> Remove

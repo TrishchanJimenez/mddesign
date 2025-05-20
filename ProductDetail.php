@@ -238,7 +238,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
     .quantity-selector {
         display: flex;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px; /* Reduced from 20px to 10px */
     }
     
     .quantity-btn {
@@ -263,6 +263,22 @@ $price = $productDetails[0]['price'] ?? '0.00';
         border: 1px solid #ddd;
         text-align: center;
         margin: 0 5px;
+    }
+    
+    /* Stock display style */
+    .stock-display {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .stock-count {
+        font-weight: bold;
+        color: #1E1E1E;
+    }
+    
+    .low-stock {
+        color: #e74c3c;
     }
     
     .add-to-cart-btn {
@@ -376,9 +392,107 @@ $price = $productDetails[0]['price'] ?? '0.00';
     .product-main-image {
         transition: transform 0.3s ease;
     }
+    
+    /* Login Modal Styles */
+    .login-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow: auto;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .login-modal-content {
+        background-color: white;
+        margin: auto;
+        padding: 30px;
+        border-radius: 8px;
+        max-width: 450px;
+        width: 90%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+        animation: modalAnimation 0.3s ease;
+    }
+    
+    @keyframes modalAnimation {
+        from {transform: translateY(-50px); opacity: 0;}
+        to {transform: translateY(0); opacity: 1;}
+    }
+    
+    .login-modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #777;
+    }
+    
+    .login-modal-close:hover {
+        color: #333;
+    }
+    
+    .login-modal-title {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        font-size: 24px;
+    }
+    
+    .login-modal-text {
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: normal;
+        line-height: 1.5;
+    }
+    
+    .login-modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .login-btn, .signup-btn {
+        padding: 12px 25px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+    
+    .login-btn {
+        background-color: #1E1E1E;
+        color: white;
+        border: 2px solid #1E1E1E;
+    }
+    
+    .login-btn:hover {
+        background-color: #333;
+        border-color: #333;
+    }
+    
+    .signup-btn {
+        background-color: white;
+        color: #1E1E1E;
+        border: 2px solid #1E1E1E;
+    }
+    
+    .signup-btn:hover {
+        background-color: #f0f0f0;
+    }
 </style>
 <body class="content">
     <?php require_once "navbar.php"; ?>
+    <?php require_once "chat-box.php"; ?>
 
     <div class="container py-4">
         <!-- Breadcrumb -->
@@ -438,6 +552,11 @@ $price = $productDetails[0]['price'] ?? '0.00';
                             <input type="text" class="quantity-input" id="quantity" value="1" readonly>
                             <div class="quantity-btn" onclick="incrementQuantity()">+</div>
                         </div>
+                        <!-- Added stock display element -->
+                        <div class="stock-display" id="stockDisplay">
+                            <span>Available: </span>
+                            <span class="stock-count" id="stockCount">0</span> item(s)
+                        </div>
                     </div>
 
                     <button class="add-to-cart-btn" id="addToCartBtn" <?php echo $stock === 0 ? 'disabled' : ''; ?>>
@@ -494,6 +613,19 @@ $price = $productDetails[0]['price'] ?? '0.00';
         <?php endif; ?>
     </div>
 
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-modal-content">
+            <span class="login-modal-close" onclick="closeLoginModal()">&times;</span>
+            <h3 class="login-modal-title">Login to Continue</h3>
+            <p class="login-modal-text">You need to be logged in to add items to your cart. Please login or create an account to continue shopping.</p>
+            <div class="login-modal-buttons">
+                <a href="Login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="login-btn">Login</a>
+                <a href="Signup.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="signup-btn">Create Account</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
@@ -506,8 +638,28 @@ $price = $productDetails[0]['price'] ?? '0.00';
     let isLoggedIn = <?php echo isset($_SESSION['username']) ? 'true' : 'false'; ?>;
     let sizeColorProductId = <?php echo json_encode($sizeColorProductId); ?>;
 
+    // Modal Functions
+    function openLoginModal() {
+        document.getElementById('loginModal').style.display = 'flex';
+        // Prevent scrolling on the background
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeLoginModal() {
+        document.getElementById('loginModal').style.display = 'none';
+        // Re-enable scrolling
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Close modal if clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('loginModal');
+        if (event.target == modal) {
+            closeLoginModal();
+        }
+    }
+
     function selectSize(element) {
-        console.log("selected size");
         const sizeOptions = document.querySelectorAll('.size-btn');
         sizeOptions.forEach(option => option.classList.remove('active'));
         element.classList.add('active');
@@ -535,6 +687,9 @@ $price = $productDetails[0]['price'] ?? '0.00';
 
         // Reset selected color
         selectedColor = null;
+        
+        // Reset stock display
+        updateStockDisplay(0);
     }
 
     function selectColor(element) {
@@ -543,6 +698,19 @@ $price = $productDetails[0]['price'] ?? '0.00';
         element.classList.add('active');
         selectedColor = element.textContent.trim();
         validateSelections();
+    }
+
+    // Update stock display
+    function updateStockDisplay(stockAmount) {
+        const stockCount = document.getElementById('stockCount');
+        stockCount.textContent = stockAmount;
+        
+        // Add low stock warning if stock is low
+        if (stockAmount > 0 && stockAmount <= 5) {
+            stockCount.classList.add('low-stock');
+        } else {
+            stockCount.classList.remove('low-stock');
+        }
     }
 
     // Change main product image
@@ -576,6 +744,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
             quantityInput.value = quantity - 1;
         }
     }
+    
     // Validate if both color and size are selected
     function validateSelections() {
         const addToCartBtn = document.getElementById('addToCartBtn');
@@ -585,16 +754,17 @@ $price = $productDetails[0]['price'] ?? '0.00';
         if (selectedSize && selectedColor) {
             const stock = sizeColorStock[selectedSize][selectedColor] || 0;
             
+            // Update stock display
+            updateStockDisplay(stock);
+            
             if (stock > 0) {
                 quantityBtnDisabled = false;
-                addToCartBtn.disabled = !isLoggedIn || false; // Disable if not logged in
+                addToCartBtn.disabled = false; // Enable button always (we'll handle login check when clicked)
                 quantityControls.forEach(btn => btn.classList.remove("disabled"));
                 quantityInput.disabled = false;
                 quantityInput.value = 1; // Reset quantity to 1
                 quantityInput.max = stock; // Set max quantity
                 addToCartBtn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
-                
-                // Show login prompt if not logged in
             } else {
                 addToCartBtn.disabled = true;
                 quantityControls.forEach(btn => btn.classList.add("disabled"));
@@ -608,6 +778,11 @@ $price = $productDetails[0]['price'] ?? '0.00';
             quantityInput.disabled = true;
             quantityInput.value = 0;
             addToCartBtn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
+            
+            // If size is selected but color isn't, don't clear the stock display
+            if (!selectedColor || !selectedSize) {
+                updateStockDisplay(0);
+            }
         }
     }
 
@@ -615,8 +790,8 @@ $price = $productDetails[0]['price'] ?? '0.00';
     document.getElementById('addToCartBtn').addEventListener('click', function () {
         // Check if user is logged in
         if (!isLoggedIn) {
-            alert('Please login to add items to your cart');
-            window.location.href = 'Login.php?redirect=' + encodeURIComponent(window.location.href);
+            // Show the login modal instead of redirecting immediately
+            openLoginModal();
             return;
         }
         
@@ -643,7 +818,7 @@ $price = $productDetails[0]['price'] ?? '0.00';
             id: <?php echo $id; ?>, // Product ID
             productId: productId,
             name: "<?php echo htmlspecialchars($productName); ?>", // Product name
-            image: "<?php echo htmlspecialchars($productImages[0]['image_path']); ?>",
+            image: "<?php echo htmlspecialchars($productImages[0]['image_path'] ?? ''); ?>",
             size: selectedSize, // Selected size
             color: selectedColor, // Selected color
             quantity: quantity, // Selected quantity
@@ -692,19 +867,57 @@ $price = $productDetails[0]['price'] ?? '0.00';
         document.querySelector('.product-thumbnail').classList.add('active');
     }
 
-    function saveCartToDatabase() {
+   function saveCartToDatabase() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         fetch('api/save_cart.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cart })
         })
-        .then(res => res.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            // Optionally handle success or error
-            // console.log('Cart saved:', data);
+            console.log('Cart saved to database:', data);
+            // Update cart icon or counter if needed
+            updateCartCounter();
+        })
+        .catch(error => {
+            console.error('Error saving cart to database:', error);
         });
     }
-    </script>
+
+    // Function to update cart counter in the navbar
+    function updateCartCounter() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let totalItems = 0;
+        
+        // Calculate total items in cart
+        cart.forEach(item => {
+            totalItems += item.quantity;
+        });
+        
+        // Update the cart counter element if it exists
+        const cartCounter = document.getElementById('cartCounter');
+        if (cartCounter) {
+            cartCounter.textContent = totalItems;
+            
+            // Show the counter if items exist, hide if empty
+            if (totalItems > 0) {
+                cartCounter.style.display = 'inline-block';
+            } else {
+                cartCounter.style.display = 'none';
+            }
+        }
+    }
+
+    // Call updateCartCounter on page load to ensure counter is accurate
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCartCounter();
+    });
+</script>
 </body>
 </html>

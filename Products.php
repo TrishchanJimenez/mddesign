@@ -36,7 +36,8 @@ $in_stock_products = array_filter($all_products, function($product) {
 <?php 
     session_start();
     $page_title = "Products - Metro District Designs";
-    require_once "header.php" 
+    require_once "header.php"; 
+    require_once "chat-box.php";
 ?>
 <style>
     * {
