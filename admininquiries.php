@@ -974,7 +974,8 @@
                 const chatMessages = document.getElementById('chatMessages');
                 if (!chatMessages) return;
                 const messageText = msg.text !== undefined ? msg.text : msg.message;
-                const messageTime = msg.time !== undefined ? msg.time : msg.sent_at;
+                let messageTime = msg.time !== undefined ? msg.time : msg.sent_at;
+                if(!messageTime) messageTime = new Date().toISOString();
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `message message-${msg.sender === 'admin' ? 'admin' : 'customer'}`;
                 msgDiv.innerHTML = `

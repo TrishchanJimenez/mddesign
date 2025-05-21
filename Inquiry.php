@@ -3,7 +3,6 @@
     $page_title = "Metro District Designs - Design Inquiry";
     require_once "header.php";
     require_once "db_connection.php";
-    require_once "chat-box.php";
 ?>
 <style>
     body {
@@ -502,7 +501,7 @@
         <div class="design-section">
             <div class="design-preview">
                 <div class="tshirt-container" id="main-preview">
-                    <img src="s_4s__BOXY-FRONT.jpg" alt="T-Shirt Template" class="tshirt-image">
+                    <img src="images/inquiry_shirts/shirt-black.jpg" alt="T-Shirt Template" class="tshirt-image">
                     <div class="design-area" id="design-area">
                         <div class="design-safety"></div>
                         <div class="design-bleed"></div>
@@ -657,7 +656,7 @@
                         <h5 class="card-title">Design Summary</h5>
                         <div class="text-center mb-3">
                             <div class="tshirt-container" style="width: 200px; height: 230px; position: relative;" id="summary-preview">
-                                <img src="s_4s__BOXY-FRONT.jpg" alt="T-Shirt Template" class="tshirt-image" style="width: 100%; height: 100%; object-fit: contain;">
+                                <img src="images/inquiry_shirts/shirt-black.jpg" alt="T-Shirt Template" class="tshirt-image" style="width: 100%; height: 100%; object-fit: contain;">
                                 <div class="design-area" id="summary-design-area" style="width: 45%; height: 45%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);">
                                     <div class="upload-placeholder" style="font-size: 12px;">
                                         YOUR<br>DESIGN
@@ -703,661 +702,1065 @@
     </div>
 </div>
 
+<!-- Chat Box Component -->
+<button class="chat-toggle" id="chatToggleBtn" style="display: flex;">💬</button>
+<div class="chat-container" id="chatContainer" style="display: none;">
+    <div class="chat-header">
+        <div class="chat-header-logo">
+            <div class="logo"></div>
+            <span>Metro District Designs</span>
+        </div>
+        <div class="chat-header-actions">
+            <button class="header-button" id="minimizeBtn">-</button>
+            <button class="header-button" id="closeBtn">×</button>
+        </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <!-- Messages will be appended here -->
+        <div class="message-container">
+            <div class="message received">
+                Welcome to Metro District Designs! How can we help you today?
+            </div>
+        </div>
+        <!-- <div class="safety-banner">
+            <span class="safety-icon">⚠️</span>
+            <div>For your safety, please keep all communications within this chat. Don't share personal information.</div>
+        </div> -->
+    </div>
+    <div class="chat-input" id="chatInputSection">
+        <?php if(!empty($_SESSION['user_id'])): ?>
+            <input type="text" class="input-field" id="chatInput" placeholder="Type a message here">
+            <button class="send-button" id="sendBtn">➤</button>
+        <?php else: ?>
+            <div class="chat-login-prompt" style="width:100%;text-align:center;">
+                Please <a href="Login.php">log in</a> or <a href="Signup.php">sign up</a> to start a chat
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<style>
+/* --- chat-box2 styles reused and adapted --- */
+.chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333333;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+.chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 500px;
+    background: #fff;
+    z-index: 1001;
+}
+.chat-header {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 12px 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chat-header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.logo {
+    width: 24px;
+    height: 24px;
+    background-color: #ff4500;
+    border-radius: 4px;
+}
+.chat-header-actions {
+    display: flex;
+    gap: 10px;
+}
+.header-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+.chat-messages {
+    background-color: white;
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+.message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+.received {
+    background-color: #f0f0f0;
+    align-self: flex-start;
+    margin-right: auto;
+}
+.sent {
+    background-color: #333333;
+    color: white;
+    align-self: flex-end;
+    margin-left: auto;
+}
+.message-container {
+    display: flex;
+    flex-direction: column;
+}
+.chat-input {
+    display: flex;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+}
+.input-field {
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 8px 12px;
+    outline: none;
+}
+.send-button {
+    background-color: #333333;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    margin-left: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.safety-banner {
+    background-color: #fff9e6;
+    border-left: 4px solid #ffcc00;
+    padding: 10px;
+    margin: 5px;
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    align-items: flex-start;
+}
+.safety-icon {
+    color: #ffcc00;
+    margin-right: 8px;
+    font-size: 16px;
+}
+.timestamp {
+    font-size: 10px;
+    color: #999;
+    margin-top: 4px;
+    text-align: right;
+}
+.chat-login-prompt a {
+    color: #1a75bb;
+    font-weight: bold;
+    text-decoration: none;
+}
+@media (max-width: 576px) {
+    .chat-container {
+        width: calc(100vw - 40px);
+        right: 0;
+        max-height: 400px;
+    }
+}
+</style>
+
 <!-- Bootstrap JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Tab navigation
-        const tabs = document.querySelectorAll('.custom-tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        function switchTab(tabId) {
-            // Remove active class from all tabs
-            tabs.forEach(t => t.classList.remove('active'));
-            // Add active class to the specified tab
-            tabs.forEach(t => {
-                if (t.getAttribute('data-tab') === tabId) {
-                    t.classList.add('active');
-                }
-            });
-            
-            // Hide all tab contents
-            tabContents.forEach(content => content.classList.remove('active'));
-            // Show the corresponding tab content
-            document.getElementById(tabId).classList.add('active');
-        }
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabId = tab.getAttribute('data-tab');
-                switchTab(tabId);
-            });
-        });
-
-        // Next button click handler
-        document.getElementById('next-btn').addEventListener('click', function() {
-            // Check if design is within bounds
-            if (isDesignOutOfBounds()) {
-                alert("Your design is exceeding the allowed area. Please adjust the size or position.");
-                return;
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab navigation
+    const tabs = document.querySelectorAll('.custom-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    function switchTab(tabId) {
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        // Add active class to the specified tab
+        tabs.forEach(t => {
+            if (t.getAttribute('data-tab') === tabId) {
+                t.classList.add('active');
             }
-            
-            // Check if logged in
-            <?php if(empty($_SESSION['user_id'])): ?>
-                // Show login modal
-                document.getElementById('loginModal').style.display = 'flex';
-                return;
-            <?php endif; ?>
-            
-            // Switch to inquiry tab
-            switchTab('inquiry-tab');
-            
-            // Update summary with current values
-            updateSummary();
         });
         
-        // Back to design button click handler
-        document.getElementById('back-to-design').addEventListener('click', function() {
-            switchTab('design-tab');
-        });
-
-        // T-shirt designer functionality
-        const designUpload = document.getElementById('design-upload');
-        const designArea = document.getElementById('design-area');
-        const summaryDesignArea = document.getElementById('summary-design-area');
-        const fileNameDisplay = document.getElementById('file-name');
-        const previewButton = document.getElementById('preview-button');
-        const designControls = document.getElementById('design-controls');
-        const sizeControl = document.getElementById('size-control');
-        const positionYControl = document.getElementById('position-y-control');
-        const positionXControl = document.getElementById('position-x-control');
-        const quantityControl = document.getElementById('quantity-control');
-        const sizeInput = document.getElementById('size-input');
-        const positionYInput = document.getElementById('position-y-input');
-        const positionXInput = document.getElementById('position-x-input');
-        const quantityInput = document.getElementById('quantity-input');
-        const processingCanvas = document.getElementById('processing-canvas');
-        const ctx = processingCanvas.getContext('2d');
-        const priceDisplay = document.getElementById('price-display');
-        const summaryPrice = document.getElementById('summary-price');
-        const designError = document.getElementById('design-error');
-        const summaryTshirtBody = document.getElementById('summary-tshirt-body');
-        
-        // Variables to store design state
-        let designImage = null;
-        let processedImage = null;
-        let currentColor = '#000000';
-        let currentSize = 'M';
-        let designScale = 100;
-        let designXPosition = 0;
-        let designYPosition = 0;
-        let currentQuantity = 1;
-        let basePrice = 300;
-        
-        // Function to check if design is out of bounds
-        function isDesignOutOfBounds() {
-    if (!designImage) return false;
-    
-    const img = designArea.querySelector('img');
-    if (!img) return false;
-    
-    // Get the bounding rectangles
-    const designAreaRect = designArea.getBoundingClientRect();
-    const safetyAreaRect = designArea.querySelector('.design-safety').getBoundingClientRect();
-    const imgRect = img.getBoundingClientRect();
-    
-    // Check if image exceeds the design area
-    if (imgRect.left < designAreaRect.left || 
-        imgRect.right > designAreaRect.right ||
-        imgRect.top < designAreaRect.top ||
-        imgRect.bottom > designAreaRect.bottom) {
-        designError.style.display = 'block';
-        return true;
+        // Hide all tab contents
+        tabContents.forEach(content => content.classList.remove('active'));
+        // Show the corresponding tab content
+        document.getElementById(tabId).classList.add('active');
     }
     
-    designError.style.display = 'none';
-    return false;
-}
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = tab.getAttribute('data-tab');
+            switchTab(tabId);
+        });
+    });
 
-// Function to update the price
-function updatePrice() {
-    let price = basePrice;
-    
-    // Add additional cost for quantity
-    price *= currentQuantity;
-    
-    // Add additional cost for larger sizes
-    if (currentSize === 'L') price += 20;
-    if (currentSize === 'XL') price += 30;
-    if (currentSize === 'XXL') price += 50;
-    
-    // Update price displays
-    priceDisplay.textContent = '₱' + price.toFixed(2);
-    summaryPrice.textContent = '₱' + price.toFixed(2);
-    
-    return price;
-}
-
-// Function to update the summary view
-function updateSummary() {
-    // Update summary design preview
-    if (designImage) {
-        const summaryImg = summaryDesignArea.querySelector('img') || new Image();
-        summaryImg.src = designImage.src;
-        summaryImg.style.maxWidth = '100%';
-        summaryImg.style.maxHeight = '100%';
-        
-        // Apply scale and position
-        summaryImg.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-        
-        if (!summaryDesignArea.querySelector('img')) {
-            summaryDesignArea.innerHTML = '';
-            summaryDesignArea.appendChild(summaryImg);
+    // Next button click handler
+    document.getElementById('next-btn').addEventListener('click', function() {
+        // Check if design is within bounds
+        if (isDesignOutOfBounds()) {
+            alert("Your design is exceeding the allowed area. Please adjust the size or position.");
+            return;
         }
-    }
+        
+        // Check if logged in
+        <?php if(empty($_SESSION['user_id'])): ?>
+            // Show login modal
+            document.getElementById('loginModal').style.display = 'flex';
+            return;
+        <?php endif; ?>
+        
+        // Switch to inquiry tab
+        switchTab('inquiry-tab');
+        
+        // Update summary with current values
+        updateSummary();
+    });
     
-    // Update summary text fields
-    document.getElementById('summary-color').textContent = document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase() === '#000000' ? 'Black' : 
-                                                           document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase() === '#FFFFFF' ? 'White' :
-                                                           document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase();
-    document.getElementById('summary-size').textContent = currentSize;
-    document.getElementById('summary-quantity').textContent = currentQuantity;
-    updatePrice();
-    
-    // Update hidden form values
-    document.getElementById('design-color').value = document.querySelector('.color-option.active').getAttribute('data-color').replace('#', '');
-    document.getElementById('design-size').value = currentSize;
-    document.getElementById('design-quantity').value = currentQuantity;
-}
+    // Back to design button click handler
+    document.getElementById('back-to-design').addEventListener('click', function() {
+        switchTab('design-tab');
+    });
 
-// Function to process uploaded image
-function processImage(file) {
-    if (!file) return;
+    // T-shirt designer functionality
+    const designUpload = document.getElementById('design-upload');
+    const designArea = document.getElementById('design-area');
+    const summaryDesignArea = document.getElementById('summary-design-area');
+    const fileNameDisplay = document.getElementById('file-name');
+    const previewButton = document.getElementById('preview-button');
+    const designControls = document.getElementById('design-controls');
+    const sizeControl = document.getElementById('size-control');
+    const positionYControl = document.getElementById('position-y-control');
+    const positionXControl = document.getElementById('position-x-control');
+    const quantityControl = document.getElementById('quantity-control');
+    const sizeInput = document.getElementById('size-input');
+    const positionYInput = document.getElementById('position-y-input');
+    const positionXInput = document.getElementById('position-x-input');
+    const quantityInput = document.getElementById('quantity-input');
+    const processingCanvas = document.getElementById('processing-canvas');
+    const ctx = processingCanvas.getContext('2d');
+    const priceDisplay = document.getElementById('price-display');
+    const summaryPrice = document.getElementById('summary-price');
+    const designError = document.getElementById('design-error');
+    const summaryTshirtBody = document.getElementById('summary-tshirt-body');
+    const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatContainer = document.getElementById('chatContainer');
+    const closeBtn = document.getElementById('closeBtn');
+    const minimizeBtn = document.getElementById('minimizeBtn');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInputSection = document.getElementById('chatInputSection');
+    const sendBtn = document.getElementById('sendBtn');
+    const chatInput = document.getElementById('chatInput');
     
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            // Resize canvas to image dimensions
-            processingCanvas.width = img.width;
-            processingCanvas.height = img.height;
+    // Variables to store design state
+    let designImage = null;
+    let processedImage = null;
+    let currentColor = '#000000';
+    let currentSize = 'M';
+    let designScale = 100;
+    let designXPosition = 0;
+    let designYPosition = 0;
+    let currentQuantity = 1;
+    let basePrice = 300;
+    let ws = null;
+    let minimized = false;
+    
+    // Function to check if design is out of bounds
+    function isDesignOutOfBounds() {
+        if (!designImage) return false;
+        
+        const img = designArea.querySelector('img');
+        if (!img) return false;
+        
+        // Get the bounding rectangles
+        const designAreaRect = designArea.getBoundingClientRect();
+        const safetyAreaRect = designArea.querySelector('.design-safety').getBoundingClientRect();
+        const imgRect = img.getBoundingClientRect();
+        
+        // Check if image exceeds the design area
+        if (imgRect.left < designAreaRect.left || 
+            imgRect.right > designAreaRect.right ||
+            imgRect.top < designAreaRect.top ||
+            imgRect.bottom > designAreaRect.bottom) {
+            designError.style.display = 'block';
+            return true;
+        }
+        
+        designError.style.display = 'none';
+        return false;
+    }
+
+    // Function to update the price
+    function updatePrice() {
+        let price = basePrice;
+        
+        // Add additional cost for quantity
+        price *= currentQuantity;
+        
+        // Add additional cost for larger sizes
+        if (currentSize === 'L') price += 20;
+        if (currentSize === 'XL') price += 30;
+        if (currentSize === 'XXL') price += 50;
+        
+        // Update price displays
+        priceDisplay.textContent = '₱' + price.toFixed(2);
+        summaryPrice.textContent = '₱' + price.toFixed(2);
+        
+        return price;
+    }
+
+    // Function to update the summary view
+    function updateSummary() {
+        // Update summary design preview
+        if (designImage) {
+            const summaryImg = summaryDesignArea.querySelector('img') || new Image();
+            summaryImg.src = designImage.src;
+            summaryImg.style.maxWidth = '100%';
+            summaryImg.style.maxHeight = '100%';
             
-            // Draw image on canvas
-            ctx.clearRect(0, 0, processingCanvas.width, processingCanvas.height);
-            ctx.drawImage(img, 0, 0);
+            // Apply scale and position
+            summaryImg.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
             
-            // Create a new image from the canvas
-            processedImage = new Image();
-            processedImage.onload = function() {
-                // Display the processed image
-                const displayImg = designImage ? designImage : new Image();
-                displayImg.src = processedImage.src;
-                displayImg.style.maxWidth = '100%';
-                displayImg.style.maxHeight = '100%';
+            if (!summaryDesignArea.querySelector('img')) {
+                summaryDesignArea.innerHTML = '';
+                summaryDesignArea.appendChild(summaryImg);
+            }
+        }
+        
+        // Update summary text fields
+        document.getElementById('summary-color').textContent = document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase() === '#000000' ? 'Black' : 
+                                                            document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase() === '#FFFFFF' ? 'White' :
+                                                            document.querySelector('.color-option.active').getAttribute('data-color').toUpperCase();
+        document.getElementById('summary-size').textContent = currentSize;
+        document.getElementById('summary-quantity').textContent = currentQuantity;
+        updatePrice();
+        
+        // Update hidden form values
+        document.getElementById('design-color').value = document.querySelector('.color-option.active').getAttribute('data-color').replace('#', '');
+        document.getElementById('design-size').value = currentSize;
+        document.getElementById('design-quantity').value = currentQuantity;
+    }
+
+    // Function to process uploaded image
+    function processImage(file) {
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Resize canvas to image dimensions
+                processingCanvas.width = img.width;
+                processingCanvas.height = img.height;
                 
-                // Apply current transform values if they exist
-                displayImg.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+                // Draw image on canvas
+                ctx.clearRect(0, 0, processingCanvas.width, processingCanvas.height);
+                ctx.drawImage(img, 0, 0);
                 
-                if (!designImage) {
-                    designArea.innerHTML = '';
-                    designArea.appendChild(displayImg);
+                // Create a new image from the canvas
+                processedImage = new Image();
+                processedImage.onload = function() {
+                    // Display the processed image
+                    const displayImg = designImage ? designImage : new Image();
+                    displayImg.src = processedImage.src;
+                    displayImg.style.maxWidth = '100%';
+                    displayImg.style.maxHeight = '100%';
                     
-                    // Add safety and bleed areas back
-                    const safetyArea = document.createElement('div');
-                    safetyArea.className = 'design-safety';
-                    designArea.appendChild(safetyArea);
+                    // Apply current transform values if they exist
+                    displayImg.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
                     
-                    const bleedArea = document.createElement('div');
-                    bleedArea.className = 'design-bleed';
-                    designArea.appendChild(bleedArea);
+                    if (!designImage) {
+                        designArea.innerHTML = '';
+                        designArea.appendChild(displayImg);
+                        
+                        // Add safety and bleed areas back
+                        const safetyArea = document.createElement('div');
+                        safetyArea.className = 'design-safety';
+                        designArea.appendChild(safetyArea);
+                        
+                        const bleedArea = document.createElement('div');
+                        bleedArea.className = 'design-bleed';
+                        designArea.appendChild(bleedArea);
+                        
+                        const designLabels = document.createElement('div');
+                        designLabels.className = 'design-labels';
+                        designLabels.innerHTML = '<span class="design-label">Safety Area</span><span class="design-label">Bleed</span>';
+                        designArea.appendChild(designLabels);
+                    }
                     
-                    const designLabels = document.createElement('div');
-                    designLabels.className = 'design-labels';
-                    designLabels.innerHTML = '<span class="design-label">Safety Area</span><span class="design-label">Bleed</span>';
-                    designArea.appendChild(designLabels);
-                }
-                
-                designImage = displayImg;
-                designControls.style.display = 'block';
-                
-                // Check if design is within bounds
-                isDesignOutOfBounds();
-                
-                // Save image data for form submission
-                saveImageForSubmission();
+                    designImage = displayImg;
+                    designControls.style.display = 'block';
+                    
+                    // Check if design is within bounds
+                    isDesignOutOfBounds();
+                    
+                    // Save image data for form submission
+                    saveImageForSubmission();
+                };
+                processedImage.src = processingCanvas.toDataURL('image/png');
             };
-            processedImage.src = processingCanvas.toDataURL('image/png');
+            img.src = e.target.result;
         };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
+        reader.readAsDataURL(file);
+    }
 
-// Function to save processed image for form submission
-function saveImageForSubmission() {
-    const mainPreview = document.getElementById('main-preview');
-    if (!mainPreview) return;
+    // Function to save processed image for form submission
+    function saveImageForSubmission() {
+        const mainPreview = document.getElementById('main-preview');
+        if (!mainPreview) return;
 
-    html2canvas(mainPreview, {
-        backgroundColor: null, // keep transparent if needed
-        useCORS: true // allow cross-origin images if needed
-    }).then(canvas => {
-        document.getElementById('referenceImage').value = canvas.toDataURL('image/png');
+        html2canvas(mainPreview, {
+            backgroundColor: null, // keep transparent if needed
+            useCORS: true // allow cross-origin images if needed
+        }).then(canvas => {
+            document.getElementById('referenceImage').value = canvas.toDataURL('image/png');
+        });
+    }
+
+    // Event Listeners
+    designUpload.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            fileNameDisplay.textContent = this.files[0].name;
+            processImage(this.files[0]);
+        }
     });
-}
 
-// Event Listeners
-designUpload.addEventListener('change', function(e) {
-    if (this.files && this.files[0]) {
-        fileNameDisplay.textContent = this.files[0].name;
-        processImage(this.files[0]);
-    }
-});
-
-previewButton.addEventListener('click', function() {
-    if (designUpload.files && designUpload.files[0]) {
-        processImage(designUpload.files[0]);
-    } else {
-        alert('Please select a file first.');
-    }
-});
-
-// Size slider control
-sizeControl.addEventListener('input', function() {
-    designScale = parseInt(this.value);
-    sizeInput.value = designScale;
-    
-    if (designImage) {
-        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-        isDesignOutOfBounds();
-        saveImageForSubmission();
-    }
-});
-
-sizeInput.addEventListener('input', function() {
-    let value = parseInt(this.value);
-    if (value < 20) value = 20;
-    if (value > 200) value = 200;
-    
-    designScale = value;
-    sizeControl.value = value;
-    this.value = value;
-    
-    if (designImage) {
-        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-        isDesignOutOfBounds();
-        saveImageForSubmission();
-    }
-});
-
-// Position Y slider control
-positionYControl.addEventListener('input', function() {
-    designYPosition = parseInt(this.value);
-    positionYInput.value = designYPosition;
-    
-    if (designImage) {
-        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-        isDesignOutOfBounds();
-        saveImageForSubmission();
-    }
-});
-
-positionYInput.addEventListener('input', function() {
-    let value = parseInt(this.value);
-    if (value < -50) value = -50;
-    if (value > 50) value = 50;
-    
-    designYPosition = value;
-    positionYControl.value = value;
-    this.value = value;
-    
-    if (designImage) {
-        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-        isDesignOutOfBounds();
-        saveImageForSubmission();
-    }
-});
-
-// Position X slider control
-positionXControl.addEventListener('input', function() {
-    designXPosition = parseInt(this.value);
-    positionXInput.value = designXPosition;
-    
-    if (designImage) {
-        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-        isDesignOutOfBounds();
-        saveImageForSubmission();
-    }
-});
-
-positionXInput.addEventListener('input', function() {
-    let value = parseInt(this.value);
-    if (value < -50) value = -50;
-    if (value > 50) value = 50;
-    
-    designXPosition = value;
-    positionXControl.value = value;
-    this.value = value;
-    
-    if (designImage) {
-        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-        isDesignOutOfBounds();
-        saveImageForSubmission();
-    }
-});
-
-// Quantity controls
-quantityControl.addEventListener('input', function() {
-    currentQuantity = parseInt(this.value);
-    quantityInput.value = currentQuantity;
-    updatePrice();
-});
-
-quantityInput.addEventListener('input', function() {
-    let value = parseInt(this.value);
-    if (isNaN(value) || value < 1) value = 1;
-    if (value > 50) value = 50;
-    
-    currentQuantity = value;
-    quantityControl.value = value;
-    this.value = value;
-    updatePrice();
-});
-
-// Color options
-const colorOptions = document.querySelectorAll('.color-option');
-colorOptions.forEach(option => {
-    option.addEventListener('click', function() {
-        // Remove active class from all options
-        colorOptions.forEach(opt => opt.classList.remove('active'));
-        
-        // Add active class to clicked option
-        this.classList.add('active');
-        
-        // Update t-shirt color
-        const color = this.getAttribute('data-color');
-        currentColor = color;
-        
-        // Update t-shirt preview color
-        document.querySelector('.tshirt-image').style.backgroundColor = color;
-        summaryTshirtBody.setAttribute('fill', color);
+    previewButton.addEventListener('click', function() {
+        if (designUpload.files && designUpload.files[0]) {
+            processImage(designUpload.files[0]);
+        } else {
+            alert('Please select a file first.');
+        }
     });
-});
 
-// Size options
-const sizeOptions = document.querySelectorAll('.size-option');
-sizeOptions.forEach(option => {
-    option.addEventListener('click', function() {
-        // Remove active class from all options
-        sizeOptions.forEach(opt => opt.classList.remove('active'));
+    // Size slider control
+    sizeControl.addEventListener('input', function() {
+        designScale = parseInt(this.value);
+        sizeInput.value = designScale;
         
-        // Add active class to clicked option
-        this.classList.add('active');
+        if (designImage) {
+            designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+            isDesignOutOfBounds();
+            saveImageForSubmission();
+        }
+    });
+
+    sizeInput.addEventListener('input', function() {
+        let value = parseInt(this.value);
+        if (value < 20) value = 20;
+        if (value > 200) value = 200;
         
-        // Update selected size
-        currentSize = this.getAttribute('data-size');
+        designScale = value;
+        sizeControl.value = value;
+        this.value = value;
+        
+        if (designImage) {
+            designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+            isDesignOutOfBounds();
+            saveImageForSubmission();
+        }
+    });
+
+    // Position Y slider control
+    positionYControl.addEventListener('input', function() {
+        designYPosition = parseInt(this.value);
+        positionYInput.value = designYPosition;
+        
+        if (designImage) {
+            designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+            isDesignOutOfBounds();
+            saveImageForSubmission();
+        }
+    });
+
+    positionYInput.addEventListener('input', function() {
+        let value = parseInt(this.value);
+        if (value < -50) value = -50;
+        if (value > 50) value = 50;
+        
+        designYPosition = value;
+        positionYControl.value = value;
+        this.value = value;
+        
+        if (designImage) {
+            designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+            isDesignOutOfBounds();
+            saveImageForSubmission();
+        }
+    });
+
+    // Position X slider control
+    positionXControl.addEventListener('input', function() {
+        designXPosition = parseInt(this.value);
+        positionXInput.value = designXPosition;
+        
+        if (designImage) {
+            designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+            isDesignOutOfBounds();
+            saveImageForSubmission();
+        }
+    });
+
+    positionXInput.addEventListener('input', function() {
+        let value = parseInt(this.value);
+        if (value < -50) value = -50;
+        if (value > 50) value = 50;
+        
+        designXPosition = value;
+        positionXControl.value = value;
+        this.value = value;
+        
+        if (designImage) {
+            designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+            isDesignOutOfBounds();
+            saveImageForSubmission();
+        }
+    });
+
+    // Quantity controls
+    quantityControl.addEventListener('input', function() {
+        currentQuantity = parseInt(this.value);
+        quantityInput.value = currentQuantity;
         updatePrice();
     });
-});
 
-// Submit form handler
-// document.getElementById('inquiryForm').addEventListener('submit', function(e) {
-//     e.preventDefault();
-    
-//     // Check if design has been uploaded
-//     if (!designImage) {
-//         alert('Please upload a design image before submitting.');
-//         switchTab('design-tab');
-//         return false;
-//     }
-    
-//     // Check if design is within bounds
-//     if (isDesignOutOfBounds()) {
-//         alert('Your design is exceeding the allowed area. Please adjust the size or position.');
-//         switchTab('design-tab');
-//         return false;
-//     }
-    
-//     // Convert the design preview to image for submission
-//     html2canvas(designArea).then(canvas => {
-//         // Update hidden field with the design image data
-//         document.getElementById('referenceImage').value = canvas.toDataURL('image/png');
+    quantityInput.addEventListener('input', function() {
+        let value = parseInt(this.value);
+        if (isNaN(value) || value < 1) value = 1;
+        if (value > 50) value = 50;
         
-//         // Submit the form
-//         this.submit();
-//     });
-// });
-
-// Startup code
-function initializePage() {
-    // Set the initial price
-    updatePrice();
-    
-    <?php if(empty($_SESSION['user_id'])): ?>
-    // Show login modal for non-logged in users
-    document.getElementById('loginModal').style.display = 'flex';
-    <?php endif; ?>
-}
-
-// Initialize the page when loaded
-initializePage();
-
-// Drag and drop handling for the design area
-let isDragging = false;
-let startX, startY, startPosX, startPosY;
-
-function setupDragAndDrop() {
-    if (!designImage) return;
-    
-    designImage.addEventListener('mousedown', startDrag);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-    
-    // Touch events for mobile
-    designImage.addEventListener('touchstart', startDrag);
-    document.addEventListener('touchmove', drag);
-    document.addEventListener('touchend', stopDrag);
-}
-
-function startDrag(e) {
-    e.preventDefault();
-    isDragging = true;
-    
-    // Get starting position
-    if (e.type === 'touchstart') {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    } else {
-        startX = e.clientX;
-        startY = e.clientY;
-    }
-    
-    startPosX = designXPosition;
-    startPosY = designYPosition;
-}
-
-function drag(e) {
-    if (!isDragging) return;
-    
-    let currentX, currentY;
-    
-    if (e.type === 'touchmove') {
-        currentX = e.touches[0].clientX;
-        currentY = e.touches[0].clientY;
-    } else {
-        currentX = e.clientX;
-        currentY = e.clientY;
-    }
-    
-    // Calculate new position
-    const deltaX = currentX - startX;
-    const deltaY = currentY - startY;
-    
-    designXPosition = startPosX + deltaX / 2; // Divide by 2 for more controlled movement
-    designYPosition = startPosY + deltaY / 2;
-    
-    // Limit position range
-    if (designXPosition < -50) designXPosition = -50;
-    if (designXPosition > 50) designXPosition = 50;
-    if (designYPosition < -50) designYPosition = -50;
-    if (designYPosition > 50) designYPosition = 50;
-    
-    // Update sliders and inputs
-    positionXControl.value = designXPosition;
-    positionYControl.value = designYPosition;
-    positionXInput.value = designXPosition;
-    positionYInput.value = designYPosition;
-    
-    // Update design position
-    designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
-    
-    // Check if design is within bounds
-    isDesignOutOfBounds();
-    
-    // Save image for submission
-    saveImageForSubmission();
-}
-
-function stopDrag() {
-    isDragging = false;
-}
-
-// Add event listeners when design is loaded
-const checkDesignInterval = setInterval(() => {
-    if (designImage) {
-        setupDragAndDrop();
-        clearInterval(checkDesignInterval);
-    }
-}, 100);
-
-// Form validation
-function validateForm() {
-    const form = document.getElementById('inquiryForm');
-    const requiredFields = form.querySelectorAll('[required]');
-    let valid = true;
-    
-    requiredFields.forEach(field => {
-        if (!field.value) {
-            field.classList.add('is-invalid');
-            valid = false;
-        } else {
-            field.classList.remove('is-invalid');
-        }
+        currentQuantity = value;
+        quantityControl.value = value;
+        this.value = value;
+        updatePrice();
     });
-    
-    return valid;
-}
 
-// Reset form if needed
-function resetForm() {
-    document.getElementById('inquiryForm').reset();
-    
-    // Reset design settings
-    designScale = 100;
-    designXPosition = 0;
-    designYPosition = 0;
-    
-    // Update UI controls
-    sizeControl.value = designScale;
-    sizeInput.value = designScale;
-    positionXControl.value = designXPosition;
-    positionXInput.value = designXPosition;
-    positionYControl.value = designYPosition;
-    positionYInput.value = designYPosition;
-    
-    // Reset design preview
-    if (designImage) {
-        designImage.style.transform = `translate(0px, 0px) scale(1)`;
-    }
-}
-
-// Success message display after form submission (if needed)
-function showSuccessMessage() {
-    // Create a success message element
-    const successMsg = document.createElement('div');
-    successMsg.className = 'alert alert-success';
-    successMsg.textContent = 'Your design inquiry has been submitted successfully! We will contact you soon.';
-    
-    // Insert at the top of the form
-    const form = document.getElementById('inquiryForm');
-    form.parentNode.insertBefore(successMsg, form);
-    
-    // Scroll to success message
-    successMsg.scrollIntoView({ behavior: 'smooth' });
-    
-    // Remove success message after 5 seconds
-    setTimeout(() => {
-        successMsg.remove();
-    }, 5000);
-}
-
-// Handle form submission response
-document.getElementById('inquiryForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    if (!validateForm()) {
-        alert('Please fill in all required fields.');
-        return;
-    }
-
-    // Show loading indicator
-    const submitBtn = document.getElementById('submit-inquiry');
-    const originalBtnText = submitBtn.textContent;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
-    submitBtn.disabled = true;
-
-    // Gather form data as JSON
-    const form = this;
-    const data = {
-        name: form.name.value,
-        email: form.email.value,
-        phone: form.phone.value,
-        description: form.description.value,
-        timeline: form.timeline.value,
-        additional_info: form.additional_info.value,
-        color: form.color.value,
-        size: form.size.value,
-        quantity: form.quantity.value,
-        referenceImage: form.referenceImage.value
+    const tshirtImages = {
+        "#ffffff": "images/inquiry_shirts/shirt-white.png",
+        "#000000": "images/inquiry_shirts/shirt-black.jpg",
+        "#ff6b6b": "images/inquiry_shirts/shirt-red.png",
+        "#4ecdc4": "images/inquiry_shirts/shirt-teal.png",
+        "#f9dc5c": "images/inquiry_shirts/shirt-yellow.png",
+        "#3d5a80": "images/inquiry_shirts/shirt-blue.png"
     };
 
-    fetch(form.action, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
-
-        if (data.success) {
-            showSuccessMessage();
-            setTimeout(function() {
-                window.location.reload();
-            }, 2000);
-        } else {
-            alert(data.error || data.message || 'There was an error submitting your inquiry. Please try again.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
-        alert('There was an error submitting your inquiry. Please try again later.');
+    // Color options
+    const colorOptions = document.querySelectorAll('.color-option');
+    const tshirtImage = document.querySelector('.tshirt-image');
+    const summaryTshirtImage = document.querySelector('#summary-preview .tshirt-image');
+    colorOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all options
+            colorOptions.forEach(opt => opt.classList.remove('active'));
+            // Add active class to clicked option
+            this.classList.add('active');
+            // Get color hex
+            const color = this.getAttribute('data-color');
+            // Change t-shirt image based on color
+            if (tshirtImages[color]) {
+                tshirtImage.src = tshirtImages[color];
+                if (summaryTshirtImage) summaryTshirtImage.src = tshirtImages[color];
+            } else {
+                // Fallback to default if color not mapped
+                tshirtImage.src = "images/inquiry_shirts/shirt-black.jpg";
+                if (summaryTshirtImage) summaryTshirtImage.src = "images/inquiry_shirts/shirt-black.jpg";
+            }
+            // Update currentColor variable if used elsewhere
+            currentColor = color;
+        });
     });
-});
 
-// Add window resize handler to ensure design stays within bounds
-window.addEventListener('resize', function() {
-    if (designImage) {
-        // Recalculate if design is within bounds
-        setTimeout(isDesignOutOfBounds, 300);
+    // Size options
+    const sizeOptions = document.querySelectorAll('.size-option');
+    sizeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all options
+            sizeOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Add active class to clicked option
+            this.classList.add('active');
+            
+            // Update selected size
+            currentSize = this.getAttribute('data-size');
+            updatePrice();
+        });
+    });
+
+    // Submit form handler
+    // document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+    //     e.preventDefault();
+        
+    //     // Check if design has been uploaded
+    //     if (!designImage) {
+    //         alert('Please upload a design image before submitting.');
+    //         switchTab('design-tab');
+    //         return false;
+    //     }
+        
+    //     // Check if design is within bounds
+    //     if (isDesignOutOfBounds()) {
+    //         alert('Your design is exceeding the allowed area. Please adjust the size or position.');
+    //         switchTab('design-tab');
+    //         return false;
+    //     }
+        
+    //     // Convert the design preview to image for submission
+    //     html2canvas(designArea).then(canvas => {
+    //         // Update hidden field with the design image data
+    //         document.getElementById('referenceImage').value = canvas.toDataURL('image/png');
+            
+    //         // Submit the form
+    //         this.submit();
+    //     });
+    // });
+
+    // Startup code
+    function initializePage() {
+        // Set the initial price
+        updatePrice();
+        
+        <?php if(empty($_SESSION['user_id'])): ?>
+        // Show login modal for non-logged in users
+        document.getElementById('loginModal').style.display = 'flex';
+        <?php endif; ?>
     }
-});
 
+    // Initialize the page when loaded
+    initializePage();
+
+    // Drag and drop handling for the design area
+    let isDragging = false;
+    let startX, startY, startPosX, startPosY;
+
+    function setupDragAndDrop() {
+        if (!designImage) return;
+        
+        designImage.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+        
+        // Touch events for mobile
+        designImage.addEventListener('touchstart', startDrag);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('touchend', stopDrag);
+    }
+
+    function startDrag(e) {
+        e.preventDefault();
+        isDragging = true;
+        
+        // Get starting position
+        if (e.type === 'touchstart') {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        } else {
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+        
+        startPosX = designXPosition;
+        startPosY = designYPosition;
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+        
+        let currentX, currentY;
+        
+        if (e.type === 'touchmove') {
+            currentX = e.touches[0].clientX;
+            currentY = e.touches[0].clientY;
+        } else {
+            currentX = e.clientX;
+            currentY = e.clientY;
+        }
+        
+        // Calculate new position
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
+        
+        designXPosition = startPosX + deltaX / 2; // Divide by 2 for more controlled movement
+        designYPosition = startPosY + deltaY / 2;
+        
+        // Limit position range
+        if (designXPosition < -50) designXPosition = -50;
+        if (designXPosition > 50) designXPosition = 50;
+        if (designYPosition < -50) designYPosition = -50;
+        if (designYPosition > 50) designYPosition = 50;
+        
+        // Update sliders and inputs
+        positionXControl.value = designXPosition;
+        positionYControl.value = designYPosition;
+        positionXInput.value = designXPosition;
+        positionYInput.value = designYPosition;
+        
+        // Update design position
+        designImage.style.transform = `translate(${designXPosition}px, ${designYPosition}px) scale(${designScale/100})`;
+        
+        // Check if design is within bounds
+        isDesignOutOfBounds();
+        
+        // Save image for submission
+        saveImageForSubmission();
+    }
+
+    function stopDrag() {
+        isDragging = false;
+    }
+
+    // Add event listeners when design is loaded
+    const checkDesignInterval = setInterval(() => {
+        if (designImage) {
+            setupDragAndDrop();
+            clearInterval(checkDesignInterval);
+        }
+    }, 100);
+
+    // Form validation
+    function validateForm() {
+        const form = document.getElementById('inquiryForm');
+        const requiredFields = form.querySelectorAll('[required]');
+        let valid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value) {
+                field.classList.add('is-invalid');
+                valid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        return valid;
+    }
+
+    // Reset form if needed
+    function resetForm() {
+        document.getElementById('inquiryForm').reset();
+        
+        // Reset design settings
+        designScale = 100;
+        designXPosition = 0;
+        designYPosition = 0;
+        
+        // Update UI controls
+        sizeControl.value = designScale;
+        sizeInput.value = designScale;
+        positionXControl.value = designXPosition;
+        positionXInput.value = designXPosition;
+        positionYControl.value = designYPosition;
+        positionYInput.value = designYPosition;
+        
+        // Reset design preview
+        if (designImage) {
+            designImage.style.transform = `translate(0px, 0px) scale(1)`;
+        }
+    }
+
+    const user_id = "<?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : ''; ?>";
+    // Success message display after form submission (if needed)
+    function showSuccessMessage() {
+        // Create a success message element
+        const successMsg = document.createElement('div');
+        successMsg.className = 'alert alert-success';
+        successMsg.textContent = 'Your design inquiry has been submitted successfully! We will contact you soon.';
+
+        // Insert at the top of the form
+        const form = document.getElementById('inquiryForm');
+        form.parentNode.insertBefore(successMsg, form);
+
+        // Scroll to success message
+        successMsg.scrollIntoView({ behavior: 'smooth' });
+        const summaryPreview = document.getElementById('summary-preview');
+        if (summaryPreview) {
+            html2canvas(summaryPreview).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                // Send image to chat
+                sendImageToChat(imgData);
+            });
+        }
+
+        // Remove success message after 5 seconds
+        setTimeout(() => {
+            successMsg.remove();
+        }, 1000);
+    }
+
+    function sendImageToChat(imgData) {
+        // Compose the HTML string for the image
+        const imgHtml = '<img src="' + imgData + '" style="max-width:100%;border-radius:8px;">';
+        ws.send(JSON.stringify({
+            user_id: user_id,
+            to: "admin",
+            message: imgHtml,
+            sender: "user"
+        }));
+
+        addMessage(imgHtml, 'sent');
+        saveMessage(imgHtml, 'user');
+
+        // Gather details from the summary or form
+        const designType = document.getElementById('summary-type') ? document.getElementById('summary-type').textContent : 'T-Shirt';
+        const color = document.getElementById('summary-color') ? document.getElementById('summary-color').textContent : '';
+        const size = document.getElementById('summary-size') ? document.getElementById('summary-size').textContent : '';
+        const quantity = document.getElementById('summary-quantity') ? document.getElementById('summary-quantity').textContent : '';
+        const price = document.getElementById('summary-price') ? document.getElementById('summary-price').textContent : '';
+        const description = document.getElementById('description') ? document.getElementById('description').value : '';
+
+        // Format the message (HTML)
+        const detailsHtml = `
+            <div style="margin-top:8px;">
+                <b>Design Inquiry Details:</b><br>
+                <b>Type:</b> ${designType}<br>
+                <b>Color:</b> ${color}<br>
+                <b>Size:</b> ${size}<br>
+                <b>Quantity:</b> ${quantity}<br>
+                <b>Estimated Price:</b> ${price}<br>
+                <b>Description:</b> ${description ? description.replace(/\n/g, "<br>") : ""}
+            </div>
+        `;
+        ws.send(JSON.stringify({
+            user_id: user_id,
+            to: "admin",
+            message: detailsHtml,
+            sender: "user"
+        }));
+        addMessage(detailsHtml, 'sent');
+        saveMessage(detailsHtml, 'user');
+
+        localStorage.setItem('openChatAfterReload', '1');
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+
+    if (localStorage.getItem('openChatAfterReload')) {
+        localStorage.removeItem('openChatAfterReload');
+        if (chatToggleBtn) {
+            chatContainer.style.display = 'flex';
+            chatToggleBtn.style.display = 'none';
+            scrollToBottom();
+        }
+    }
+    
+    // Handle form submission response
+    document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        // Show loading indicator
+        const submitBtn = document.getElementById('submit-inquiry');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+        submitBtn.disabled = true;
+
+        // Gather form data as JSON
+        const form = this;
+        const data = {
+            name: form.name.value,
+            email: form.email.value,
+            phone: form.phone.value,
+            description: form.description.value,
+            timeline: form.timeline.value,
+            additional_info: form.additional_info.value,
+            color: form.color.value,
+            size: form.size.value,
+            quantity: form.quantity.value,
+            referenceImage: form.referenceImage.value
+        };
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+
+            if (data.success) {
+                showSuccessMessage();
+            } else {
+                alert(data.error || data.message || 'There was an error submitting your inquiry. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+            alert('There was an error submitting your inquiry. Please try again later.');
+        });
+    });
+
+    // Add window resize handler to ensure design stays within bounds
+    window.addEventListener('resize', function() {
+        if (designImage) {
+            // Recalculate if design is within bounds
+            setTimeout(isDesignOutOfBounds, 300);
+        }
+    });
+
+    // Toggle chat open
+    chatToggleBtn.addEventListener('click', function() {
+        chatContainer.style.display = 'flex';
+        chatToggleBtn.style.display = 'none';
+        scrollToBottom();
+    });
+
+    // Close chat
+    closeBtn.addEventListener('click', function() {
+        chatContainer.style.display = 'none';
+        chatToggleBtn.style.display = 'flex';
+    });
+
+    // Minimize chat
+    minimizeBtn.addEventListener('click', function() {
+        minimized = !minimized;
+        if (minimized) {
+            chatMessages.style.display = 'none';
+            chatInputSection.style.display = 'none';
+        } else {
+            chatMessages.style.display = 'flex';
+            chatInputSection.style.display = 'flex';
+            scrollToBottom();
+        }
+    });
+
+    // Send message
+    if (sendBtn && chatInput) {
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+
+    // WebSocket connection
+    function connectWebSocket() {
+        ws = new WebSocket('ws://localhost:8080');
+        ws.onopen = function() {
+            ws.send(JSON.stringify({type: "init", user_id: user_id}));
+        };
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if(data.message) {
+                addMessage(data.message, 'received');
+            }
+        };
+        ws.onclose = function() {
+            setTimeout(connectWebSocket, 2000);
+        };
+    }
+    if (user_id) connectWebSocket();
+
+    // Load chat history
+    function loadChatHistory() {
+        fetch('api/chat_messages.php')
+            .then(res => res.json())
+            .then(messages => {
+                messages.forEach(msg => {
+                    addMessage(msg.text, msg.sender === 'user' ? 'sent' : 'received', msg.time);
+                });
+                scrollToBottom();
+            });
+    }
+    loadChatHistory();
+
+    // Add message to chat
+    function addMessage(text, type, time=null) {
+        const msgContainer = document.createElement('div');
+        msgContainer.className = 'message-container';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message ' + type;
+        msgDiv.innerHTML = text;
+        msgContainer.appendChild(msgDiv);
+
+        // --- Correct UTC+8 time logic ---
+        let now;
+        if (time) {
+            now = new Date(time);
+        } else {
+            now = new Date();
+        }
+        const timestamp = document.createElement('div');
+        timestamp.className = 'timestamp';
+        timestamp.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Singapore'});
+        msgContainer.appendChild(timestamp);
+
+        chatMessages.appendChild(msgContainer);
+        scrollToBottom();
+
+        // Save only new messages (not when loading history)
+        if (!time && type === 'sent') {
+            saveMessage(text, 'user');
+        }
+        if (!time && type === 'received') {
+            saveMessage(text, 'admin');
+        }
+    }
+
+    // Save message to backend
+    function saveMessage(text, sender) {
+        fetch('api/chat_messages.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text, sender})
+        });
+    }
+
+    // Send message logic
+    function sendMessage() {
+        if (!chatInput.value.trim()) return;
+        const message = chatInput.value.trim();
+        addMessage(message, 'sent');
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({user_id: user_id, to: "admin", message: message, sender: "user"}));
+        }
+        chatInput.value = '';
+    }
+
+    // Scroll to bottom helper
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }); // End of DOMContentLoaded
 </script>

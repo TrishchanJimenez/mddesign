@@ -309,9 +309,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!time && type === 'sent') {
             saveMessage(text, 'user');
         }
-        if (!time && type === 'received') {
-            saveMessage(text, 'admin');
-        }
     }
 
     // Save message to backend

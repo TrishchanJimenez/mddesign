@@ -567,30 +567,7 @@
                     <label for="productName" class="form-label">Product Name</label>
                     <div class="input-group mb-3">
                       <select class="form-select" id="productNameSelect" onchange="handleProductNameSelect()">
-                        <option value="">Select or Add Product</option>
-                        <option value="custom">Add Custom Name</option>
-                        <option value="BORN BROKE DIE RICH">BORN BROKE DIE RICH</option>
-                        <option value="CHOSEN">CHOSEN</option>
-                        <option value="CLASSIC WOLF">CLASSIC WOLF</option>
-                        <option value="COOL DADS RAISING COOL KIDS">COOL DADS RAISING COOL KIDS</option>
-                        <option value="CS X CMA COLLAB">CS X CMA COLLAB</option>
-                        <option value="DOERS ALWAYS DOET">DOERS ALWAYS DOET</option>
-                        <option value="DOERS GET TIRED TOO">DOERS GET TIRED TOO</option>
-                        <option value="DOLLAR LANE">DOLLAR LANE</option>
-                        <option value="FLVMME DREAMER">FLVMME DREAMER</option>
-                        <option value="GOALS IN MOTION">GOALS IN MOTION</option>
-                        <option value="GROW IN SILENCE">GROW IN SILENCE</option>
-                        <option value="HOLO V1">HOLO V1</option>
-                        <option value="JDG NUGS BASIC TEE">JDG NUGS BASIC TEE</option>
-                        <option value="JDM NUGS COLLECTION">JDM NUGS COLLECTION</option>
-                        <option value="NO ORDINARY LOVE">NO ORDINARY LOVE</option>
-                        <option value="NUGS JANUARY RLS (GLYPH)">NUGS JANUARY RLS (GLYPH)</option>
-                        <option value="NUGS JANUARY RLS (THAI CAMO)">NUGS JANUARY RLS (THAI CAMO)</option>
-                        <option value="PANTAS">PANTAS</option>
-                        <option value="STONERS SOCIETY">STONERS SOCIETY</option>
-                        <option value="THE GOOD GUYS">THE GOOD GUYS</option>
-                        <option value="THE GOOD GUYS (BADGES)">THE GOOD GUYS (BADGES)</option>
-                        <option value="WARSHIP">WARSHIP</option>
+
                       </select>
                     </div>
                     <div id="customNameContainer" style="display: none;">
@@ -853,7 +830,35 @@
     $("#mainDesign").change(function() {
       handleImagePreview(this, "#mainDesignPreview", "#mainDesignText");
     });
+
+    populateProductNameSelect();
+    function populateProductNameSelect() {
+      $.ajax({
+        url: 'api/get_display_products.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          if (Array.isArray(data)) {
+            // Keep "Select or Add Product" and "Add Custom Name" at the top
+            const $select = $("#productNameSelect");
+            $select.empty();
+            $select.append('<option value="">Select or Add Product</option>');
+            $select.append('<option value="custom">Add Custom Name</option>');
+            data.forEach(function(product) {
+              // Escape HTML to prevent XSS
+              const safeName = $('<div>').text(product.product_name).html();
+              $select.append(`<option value="${safeName}">${safeName}</option>`);
+            });
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error fetching product names:', error);
+        }
+      });
+    }
   });
+
+
   
   // Function to handle product name selection
   function handleProductNameSelect() {
@@ -1022,6 +1027,30 @@
       return new bootstrap.Tooltip(tooltipTriggerEl);
     });
   }
+
+  $("#productColor").on("input", function() {
+    const colorInput = $(this).val().trim();
+    if (!colorInput) return;
+
+    // Create a dummy element to test the color
+    const temp = document.createElement("div");
+    temp.style.color = colorInput;
+    document.body.appendChild(temp);
+
+    // Get the computed color (in rgb format if valid)
+    const computedColor = window.getComputedStyle(temp).color;
+    document.body.removeChild(temp);
+
+    // If the browser recognizes the color, set the color picker
+    if (computedColor && computedColor !== "rgb(0, 0, 0)" && colorInput.toLowerCase() !== "black") {
+      // Convert rgb to hex
+      const rgb = computedColor.match(/\d+/g);
+      if (rgb && rgb.length >= 3) {
+        const hex = "#" + rgb.slice(0,3).map(x => ("0" + parseInt(x).toString(16)).slice(-2)).join("");
+        $("#productColorCode").val(hex);
+      }
+    }
+  });
   
   // Function to save product (add or update)
   function saveProduct() {
