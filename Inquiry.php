@@ -1530,7 +1530,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
 
         addMessage(imgHtml, 'sent');
-        saveMessage(imgHtml, 'user');
 
         // Gather details from the summary or form
         const designType = document.getElementById('summary-type') ? document.getElementById('summary-type').textContent : 'T-Shirt';
@@ -1559,7 +1558,6 @@ document.addEventListener('DOMContentLoaded', function() {
             sender: "user"
         }));
         addMessage(detailsHtml, 'sent');
-        saveMessage(detailsHtml, 'user');
 
         localStorage.setItem('openChatAfterReload', '1');
         setTimeout(() => {
@@ -1732,9 +1730,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save only new messages (not when loading history)
         if (!time && type === 'sent') {
             saveMessage(text, 'user');
-        }
-        if (!time && type === 'received') {
-            saveMessage(text, 'admin');
         }
     }
 
